@@ -78,8 +78,7 @@ instance Drawable Instance where
  
         currentProgram $= Just prog
         uniform posLoc $= pos
-        draw mesh 
- 
+        draw mesh
  
 createPipeline :: FilePath -> FilePath -> IO Pipeline
 createPipeline vertShaderPath fragShaderPath = do

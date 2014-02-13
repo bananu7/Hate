@@ -1,7 +1,14 @@
 dist
 cabal-dev
 *.o
+*.a
 *.hi
 *.chi
 *.chs.h
 .virthualenv
+
+#windows stuff
+*.exe
+
+# vim
+*.swp
