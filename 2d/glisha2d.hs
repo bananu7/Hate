@@ -2,16 +2,14 @@
 
 module Glisha where
 
--- game imports 
+-- control & data imports
 import Data.List
 import Control.Lens
 import Control.Monad(unless, when)
-import Control.Monad.Trans.State.Lazy
-import Control.Monad.Trans
 import Control.Applicative((<$>), (<*>))
 import Control.Concurrent (threadDelay)
  
--- GLFW imports
+-- GL & OS imports
 import Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import qualified Graphics.UI.GLFW as G
