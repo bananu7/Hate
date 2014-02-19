@@ -28,7 +28,8 @@ sampleLoad = do
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
     get >>= liftIO . (mapM_ draw)
-    traversed.position.(element 0) += 0.01   
+    traversed.position.(element 0) %= \x -> if x < 1.0 then x+0.01   
+                                                       else x-2.0
 
 main = runGlisha sampleLoad sampleDraw
 
