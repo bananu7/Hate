@@ -46,7 +46,6 @@ build-type:          Simple
 -- Constraint on the version of Cabal needed to build this package.
 cabal-version:       >=1.8
 
-
 library
   -- Modules exported by the library.
   exposed-modules:     Glisha2D
@@ -59,4 +58,17 @@ library
   build-depends:       base == 4.6.*, GLFW-b == 1.4.*, lens, GLUtil ==0.7.*, OpenGL > 2.9.1,
                        transformers, mtl
 
-  
+executable sample1
+  main-is:          sample.hs
+  hs-source-dirs:   samples
+  build-depends:    base == 4.6.*, GLFW-b == 1.4.*, lens, GLUtil ==0.7.*, OpenGL > 2.9.1,
+                    transformers, mtl,
+                    glisha
+
+executable sample2
+  main-is:          sample2.hs
+  hs-source-dirs:   samples 
+  build-depends:    base == 4.6.*, GLFW-b == 1.4.*, lens, GLUtil ==0.7.*, OpenGL > 2.9.1,
+                    transformers, mtl,
+                    glisha
+

@@ -12,7 +12,8 @@ import Control.Applicative((<$>), (<*>))
 import Control.Concurrent (threadDelay)
  
 -- GL & OS imports
-import Graphics.Rendering.OpenGL as GL
+import Graphics.Rendering.OpenGL(($=))
+import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GLUtil
 import qualified Graphics.UI.GLFW as G
 import System.Exit
@@ -23,64 +24,75 @@ import Util
   
 -- actual stuff
 data Pipeline = Pipeline {
-    _vertexShader   :: Shader,
-    _fragmentShader :: Shader,
-    _program        :: Program
+    _vertexShader   :: GL.Shader,
+    _fragmentShader :: GL.Shader,
+    _program        :: GL.Program
     }
 makeLenses ''Pipeline
  
-data Mesh =   Mesh { _vao :: VertexArrayObject,  _vbo :: BufferObject }
-            | IndexedMesh { _vao :: VertexArrayObject, _vbo :: BufferObject, _ibo :: BufferObject }
+data Mesh =   Mesh { _vao :: GL.VertexArrayObject,  _vbo :: GL.BufferObject }
+            | IndexedMesh { _vao :: GL.VertexArrayObject, _vbo :: GL.BufferObject, _ibo :: GL.BufferObject }
 makeLenses ''Mesh
  
 -- Mesh holds a lightweight vbo reference, so it is ok to store it "by value"
 data Instance = Instance { 
     _mesh :: Mesh, 
     _pipeline :: Pipeline,
-    _position :: Vertex2 GLfloat
+    _position :: GL.Vertex2 GL.GLfloat
     }
 makeLenses ''Instance
  
-fromVertArray :: [GLfloat] -> IO Mesh
+fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts = 
-    Mesh <$> (genObjectName :: IO VertexArrayObject)
-         <*> makeBuffer ArrayBuffer verts
+    Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
+         <*> makeBuffer GL.ArrayBuffer verts
  
 class Drawable d where
     draw :: d -> IO ()
  
 instance Drawable Mesh where
     draw (Mesh vao buffer) = do
-        bindVertexArrayObject $= Just vao
-        bindBuffer ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
-        vertexAttribArray (AttribLocation 0) $= Enabled
-        vertexAttribPointer (AttribLocation 0) $= (ToFloat, VertexArrayDescriptor 2 Float 0 offset0)
+        GL.bindVertexArrayObject $= Just vao
+        GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
+        GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
+        GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 offset0)
  
-        drawArrays TriangleStrip 0 3
+        GL.drawArrays GL.TriangleStrip 0 3
  
     draw (IndexedMesh vao vbo ibo) = do
-        bindVertexArrayObject $= Just vao
-        bindBuffer ArrayBuffer $= Just vbo
-        bindBuffer ElementArrayBuffer $= Just ibo
+        GL.bindVertexArrayObject $= Just vao
+        GL.bindBuffer GL.ArrayBuffer $= Just vbo
+        GL.bindBuffer GL.ElementArrayBuffer $= Just ibo
         error "todo"
  
 instance Drawable Instance where 
     draw (Instance mesh pip pos) = do 
         let prog = view program pip
-        posLoc <- GL.get (uniformLocation prog "instance_position")
+        posLoc <- GL.get (GL.uniformLocation prog "instance_position")
  
-        currentProgram $= Just prog
-        uniform posLoc $= pos
+        GL.currentProgram $= Just prog
+        GL.uniform posLoc $= pos
         draw mesh
  
 createPipeline :: FilePath -> FilePath -> IO Pipeline
 createPipeline vertShaderPath fragShaderPath = do
-    vs <- loadShader VertexShader vertShaderPath
-    fs <- loadShader FragmentShader fragShaderPath
+    vs <- loadShader GL.VertexShader vertShaderPath
+    fs <- loadShader GL.FragmentShader fragShaderPath
     prog <- linkShaderProgram [vs, fs]
     return $ Pipeline vs fs prog
  
- 
+type LoadFn userStateType = IO userStateType
+type DrawFn userStateType = StateT userStateType IO ()
+{-
+type KeyCallbackFn us = G.Key -> StateT us IO ()
+data Callbacks us = Callbacks { onKeyUp :: KeyCallbackFn us, onKeyDown :: KeyCallbackFn }
+emptyKeyCallback _ = return ()
+defaultCallbacks = Callbacks { onKeyUp = emptyKeyCallback, onKeyDown = emptyKeyCallback }
+-}
+
+data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
+type Glisha us = StateT (GlishaState us) IO () 
+
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: G.ErrorCallback
 errorCallback err description = hPutStrLn stderr description
@@ -88,13 +100,10 @@ errorCallback err description = hPutStrLn stderr description
 keyCallback :: G.KeyCallback
 keyCallback window key scancode action mods =
     when (key == G.Key'Escape && action == G.KeyState'Pressed) $
-        G.setWindowShouldClose window True
+        G.setWindowShouldClose window True        
 
-type LoadFn userStateType = IO userStateType
-type DrawFn userStateType = StateT userStateType IO ()
-
-glishaInit :: IO G.Window
-glishaInit = do
+glishaInitWindow :: IO G.Window
+glishaInitWindow = do
   G.setErrorCallback (Just errorCallback)
   successfulInit <- G.init
   -- if init failed, we exit the program
@@ -109,37 +118,55 @@ glishaInit = do
       maybe' mw (G.terminate >> exitFailure) $ \window -> do
           G.makeContextCurrent mw
           G.setKeyCallback window (Just keyCallback)
- 
           return window
+
 
 glishaSuccessfulExit window = do
     G.destroyWindow window
     G.terminate
     exitSuccess          
 
-glishaLoop :: G.Window -> DrawFn us -> us -> IO ()
-glishaLoop w drawFn us = unless' (G.windowShouldClose w) $ do
-    (width, height) <- G.getFramebufferSize w
-    let ratio = fromIntegral width / fromIntegral height
-    
-    viewport $= (Position 0 0, Size (fromIntegral width) (fromIntegral height))
-    clear [ColorBuffer]
-    
-    Just t <- G.getTime
+glishaLoop :: Glisha us
+glishaLoop = do
+    gs <- get
+    let w = window gs
 
-    -- call user drawing function
-    us' <- execStateT drawFn us
+    shouldClose <- (liftIO . G.windowShouldClose) w
+    if not shouldClose then do 
+        liftIO $ do
+            (width, height) <- G.getFramebufferSize w
+            let ratio = fromIntegral width / fromIntegral height
+    
+            GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral width) (fromIntegral height))
+            GL.clear [GL.ColorBuffer]
+    
+            --Just t <- G.getTime
+
+            -- call user drawing function
+        let us = userState gs
+        let dfn = drawFn gs
+        us' <- liftIO $ execStateT dfn us
+        -- TODO: MORE LENSES
+        put $ gs { userState = us' } 
    
-    G.swapBuffers w
-    G.pollEvents
-    glishaLoop w drawFn us'
+        liftIO $ do 
+            G.swapBuffers w
+            G.pollEvents
+        glishaLoop 
+
+      else return ()
+
+glishaGetKey k = do
+    gs <- get
+    state <- liftIO $ G.getKey (window gs) k 
+    return state
 
 runGlisha :: LoadFn us -> DrawFn us -> IO ()
 runGlisha loadFn drawFn = do
-    window <- glishaInit
+    window <- glishaInitWindow
     userState <- loadFn
 
-    glishaLoop window drawFn userState
+    evalStateT glishaLoop $ GlishaState userState window drawFn
 
     glishaSuccessfulExit window
 

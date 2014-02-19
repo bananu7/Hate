@@ -27,6 +27,8 @@ sampleLoad = do
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
+    
+--    glishaGetKey G.K
     get >>= liftIO . (mapM_ draw)
     traversed.position.(element 0) %= \x -> if x < 1.0 then x+0.01   
                                                        else x-2.0
