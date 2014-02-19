@@ -1,6 +1,7 @@
 import qualified Graphics.Rendering.OpenGL as GL
 import Glisha2D
 
+import Control.Lens
 import Control.Monad.Trans
 import Control.Monad.Trans.State.Lazy
 
@@ -25,7 +26,9 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = get >>= liftIO . (mapM_ draw)
+sampleDraw = do
+    get >>= liftIO . (mapM_ draw)
+    traversed.position.(element 0) += 0.01   
 
 main = runGlisha sampleLoad sampleDraw
 
