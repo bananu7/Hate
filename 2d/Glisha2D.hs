@@ -91,7 +91,7 @@ keyCallback window key scancode action mods =
         G.setWindowShouldClose window True
 
 type LoadFn userStateType = IO userStateType
-type DrawFn userStateType = userStateType -> IO ()
+type DrawFn userStateType = StateT userStateType IO ()
 
 glishaInit :: IO G.Window
 glishaInit = do
@@ -128,11 +128,11 @@ glishaLoop w drawFn us = unless' (G.windowShouldClose w) $ do
     Just t <- G.getTime
 
     -- call user drawing function
-    drawFn us
+    us' <- execStateT drawFn us
    
     G.swapBuffers w
     G.pollEvents
-    glishaLoop w drawFn us
+    glishaLoop w drawFn us'
 
 runGlisha :: LoadFn us -> DrawFn us -> IO ()
 runGlisha loadFn drawFn = do
