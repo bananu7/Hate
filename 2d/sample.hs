@@ -1,5 +1,8 @@
-import Graphics.Rendering.OpenGL as GL
-import Glisha
+import qualified Graphics.Rendering.OpenGL as GL
+import Glisha2D
+
+import Control.Monad.Trans
+import Control.Monad.Trans.State.Lazy
 
 type SampleState = Instance
 sampleLoad :: LoadFn SampleState
@@ -11,11 +14,11 @@ sampleLoad = do
             0,    0.6
             ]
     mesh <- fromVertArray vertexData
-    let inst = Instance mesh pipeline (Vertex2 0.5 0.5 :: Vertex2 GLfloat)
+    let inst = Instance mesh pipeline (GL.Vertex2 0.5 0.5 :: GL.Vertex2 GL.GLfloat)
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = draw
+sampleDraw = get >>= liftIO . draw
 
 main = runGlisha sampleLoad sampleDraw
 
