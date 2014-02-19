@@ -1,6 +1,6 @@
 {-# LANGUAGE TemplateHaskell #-}
 
-module Glisha where
+module Glisha2D where
 
 -- game imports 
 import Data.List
