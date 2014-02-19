@@ -18,9 +18,7 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = do
-    inst <- get
-    liftIO $ draw inst
+sampleDraw = get >>= liftIO . draw
 
 main = runGlisha sampleLoad sampleDraw
 
