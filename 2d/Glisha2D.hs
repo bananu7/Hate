@@ -81,17 +81,25 @@ createPipeline vertShaderPath fragShaderPath = do
     prog <- linkShaderProgram [vs, fs]
     return $ Pipeline vs fs prog
  
+data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
+type Glisha us a = StateT (GlishaState us) IO a
+
+-- Glisha Monad restricts user operations
+newtype GlishaM us a = UnsafeGlisha { runGlisha :: Glisha us a }
+instance Monad (GlishaM us) where
+    return = UnsafeGlisha . return
+    (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k
+
 type LoadFn userStateType = IO userStateType
-type DrawFn userStateType = StateT userStateType IO ()
+--type DrawFn userStateType = StateT userStateType IO ()
+type DrawFn us = GlishaM us () 
+
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
 data Callbacks us = Callbacks { onKeyUp :: KeyCallbackFn us, onKeyDown :: KeyCallbackFn }
 emptyKeyCallback _ = return ()
 defaultCallbacks = Callbacks { onKeyUp = emptyKeyCallback, onKeyDown = emptyKeyCallback }
 -}
-
-data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
-type Glisha us = StateT (GlishaState us) IO () 
 
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: G.ErrorCallback
@@ -126,7 +134,7 @@ glishaSuccessfulExit window = do
     G.terminate
     exitSuccess          
 
-glishaLoop :: Glisha us
+glishaLoop :: Glisha us ()
 glishaLoop = do
     gs <- get
     let w = window gs
@@ -143,11 +151,13 @@ glishaLoop = do
             --Just t <- G.getTime
 
             -- call user drawing function
-        let us = userState gs
-        let dfn = drawFn gs
-        us' <- liftIO $ execStateT dfn us
+        --let us = userState gs
+        let dfn = drawFn gs        
+--        us' <- UnsafeGlisha $ execStateT (runGlisha dfn) gs
+        runGlisha dfn     
+
         -- TODO: MORE LENSES
-        put $ gs { userState = us' } 
+        --put $ gs { userState = us' } 
    
         liftIO $ do 
             G.swapBuffers w
@@ -156,17 +166,34 @@ glishaLoop = do
 
       else return ()
 
-glishaGetKey k = do
+glishaGetKey :: G.Key -> GlishaM us Bool
+glishaGetKey k = UnsafeGlisha $ do
     gs <- get
     state <- liftIO $ G.getKey (window gs) k 
-    return state
+    return $ keystateToBool state
+    where keystateToBool s
+            | s == G.KeyState'Released = False
+            | otherwise = True
 
-runGlisha :: LoadFn us -> DrawFn us -> IO ()
-runGlisha loadFn drawFn = do
+glishaGetUserState :: GlishaM us us
+glishaGetUserState = UnsafeGlisha $ do
+    glishaState <- get
+    return $ userState glishaState
+
+glishaPutUserState :: us -> GlishaM us ()
+glishaPutUserState s = UnsafeGlisha $ do
+    gs <- get
+    put $ gs { userState = s }
+
+glishaDraw :: Drawable a => a -> GlishaM us ()
+glishaDraw d = UnsafeGlisha $ liftIO $ draw d
+            
+runApp :: LoadFn us -> DrawFn us -> IO ()
+runApp loadFn drawFn = do
     window <- glishaInitWindow
-    userState <- loadFn
+    initialUserState <- loadFn
 
-    evalStateT glishaLoop $ GlishaState userState window drawFn
+    evalStateT glishaLoop $ GlishaState initialUserState window drawFn
 
     glishaSuccessfulExit window
 
