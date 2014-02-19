@@ -6,6 +6,8 @@ module Glisha2D where
 import Data.List
 import Control.Lens
 import Control.Monad(unless, when)
+import Control.Monad.Trans
+import Control.Monad.Trans.State.Lazy
 import Control.Applicative((<$>), (<*>))
 import Control.Concurrent (threadDelay)
  
