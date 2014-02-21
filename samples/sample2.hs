@@ -27,9 +27,6 @@ sampleLoad = do
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
-    --go <- liftM $ glishaGetKey GLFW.Key'Space
-    --if go then do
-
     objects <- get
     mapM_ glishaDraw objects
 
@@ -37,9 +34,9 @@ sampleDraw = do
                               else x - 2.0
         x = element 0
 
-    traversed.position.x %= change
-
-    return ()
+    go <- glishaGetKey GLFW.Key'Space
+    when go $
+        traversed.position.x %= change
 
 main = runApp sampleLoad sampleDraw
 
