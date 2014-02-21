@@ -18,7 +18,7 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = get >>= liftIO . draw
+sampleDraw = getUserState >>= glishaDraw
 
-main = runGlisha sampleLoad sampleDraw
+main = runApp sampleLoad sampleDraw
 

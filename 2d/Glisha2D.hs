@@ -81,18 +81,18 @@ createPipeline vertShaderPath fragShaderPath = do
     prog <- linkShaderProgram [vs, fs]
     return $ Pipeline vs fs prog
  
+-- GlishaInner is the inner Glisha state used by the API
 data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
-type Glisha us a = StateT (GlishaState us) IO a
+type GlishaInner us a = StateT (GlishaState us) IO a
 
 -- Glisha Monad restricts user operations
-newtype GlishaM us a = UnsafeGlisha { runGlisha :: Glisha us a }
-instance Monad (GlishaM us) where
+newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
+instance Monad (Glisha us) where
     return = UnsafeGlisha . return
     (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k
 
 type LoadFn userStateType = IO userStateType
---type DrawFn userStateType = StateT userStateType IO ()
-type DrawFn us = GlishaM us () 
+type DrawFn us = Glisha us () 
 
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
@@ -134,7 +134,7 @@ glishaSuccessfulExit window = do
     G.terminate
     exitSuccess          
 
-glishaLoop :: Glisha us ()
+glishaLoop :: GlishaInner us ()
 glishaLoop = do
     gs <- get
     let w = window gs
@@ -166,7 +166,7 @@ glishaLoop = do
 
       else return ()
 
-glishaGetKey :: G.Key -> GlishaM us Bool
+glishaGetKey :: G.Key -> Glisha us Bool
 glishaGetKey k = UnsafeGlisha $ do
     gs <- get
     state <- liftIO $ G.getKey (window gs) k 
@@ -175,17 +175,24 @@ glishaGetKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
 
-glishaGetUserState :: GlishaM us us
-glishaGetUserState = UnsafeGlisha $ do
+getUserState :: Glisha us us
+getUserState = UnsafeGlisha $ do
     glishaState <- get
     return $ userState glishaState
 
-glishaPutUserState :: us -> GlishaM us ()
-glishaPutUserState s = UnsafeGlisha $ do
+putUserState :: us -> Glisha us ()
+putUserState s = UnsafeGlisha $ do
     gs <- get
     put $ gs { userState = s }
 
-glishaDraw :: Drawable a => a -> GlishaM us ()
+user :: StateT us (Glisha us) r  -> Glisha us r
+user fn = do
+    us <- getUserState
+    (ret, us') <- runStateT fn us
+    putUserState us'
+    return ret
+    
+glishaDraw :: Drawable a => a -> Glisha us ()
 glishaDraw d = UnsafeGlisha $ liftIO $ draw d
             
 runApp :: LoadFn us -> DrawFn us -> IO ()
