@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
 
 module Glisha2D where
 
@@ -6,8 +6,7 @@ module Glisha2D where
 import Data.List
 import Control.Lens
 import Control.Monad(unless, when)
-import Control.Monad.Trans
-import Control.Monad.Trans.State.Lazy
+import Control.Monad.State
 import Control.Applicative((<$>), (<*>))
 import Control.Concurrent (threadDelay)
  
@@ -175,23 +174,15 @@ glishaGetKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
 
-getUserState :: Glisha us us
-getUserState = UnsafeGlisha $ do
-    glishaState <- get
-    return $ userState glishaState
+instance MonadState us (Glisha us) where
+    get = UnsafeGlisha $ do
+            gs <- get
+            return $ userState gs
 
-putUserState :: us -> Glisha us ()
-putUserState s = UnsafeGlisha $ do
-    gs <- get
-    put $ gs { userState = s }
-
-user :: StateT us (Glisha us) r  -> Glisha us r
-user fn = do
-    us <- getUserState
-    (ret, us') <- runStateT fn us
-    putUserState us'
-    return ret
-    
+    put s = UnsafeGlisha $ do
+              gs <- get
+              put $ gs { userState = s }
+   
 glishaDraw :: Drawable a => a -> Glisha us ()
 glishaDraw d = UnsafeGlisha $ liftIO $ draw d
             

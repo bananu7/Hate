@@ -2,7 +2,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Glisha2D
 
 import Control.Monad.Trans
-import Control.Monad.Trans.State.Lazy
+import Control.Monad.State.Class
 
 type SampleState = Instance
 sampleLoad :: LoadFn SampleState
@@ -18,7 +18,10 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = getUserState >>= glishaDraw
+sampleDraw = do
+--    d <- get
+  --  glishaDraw d
+     get >>= glishaDraw
 
 main = runApp sampleLoad sampleDraw
 
