@@ -1,8 +1,5 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha2D
-
-import Control.Monad.Trans
-import Control.Monad.State.Class
+import Glisha
 
 type SampleState = Instance
 sampleLoad :: LoadFn SampleState

@@ -1,9 +1,7 @@
-import qualified Graphics.Rendering.OpenGL as GL
-import Glisha2D
-import qualified Graphics.UI.GLFW as GLFW
-
+import qualified Graphics.Rendering.OpenGL as GL -- Vertex2/Float
+import Glisha
 import Control.Lens
-import Control.Monad.State
+import qualified Graphics.UI.GLFW as GLFW (Key(..)) 
 
 type SampleState = [Instance]
 
