@@ -13,7 +13,9 @@ import Control.Concurrent (threadDelay)
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.GLUtil
+import Graphics.GLUtil as U
+import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
+import Data.Vect.Float (transpose)
 import qualified Graphics.UI.GLFW as G
 import System.Exit
 import System.IO
@@ -79,6 +81,16 @@ createPipeline vertShaderPath fragShaderPath = do
     vs <- loadShader GL.VertexShader vertShaderPath
     fs <- loadShader GL.FragmentShader fragShaderPath
     prog <- linkShaderProgram [vs, fs]
+
+    matLoc <- GL.get (GL.uniformLocation prog "global_projection")
+    GL.currentProgram $= Just prog
+
+    let orthoScreenMat = orthoMatrix (0, 800) (600, 0) (-10, 10)
+        tMat = Data.Vect.Float.transpose orthoScreenMat 
+    
+    glmat <- makeGLMatrix tMat
+    U.uniformGLMat4 matLoc $= glmat
+
     return $ Pipeline vs fs prog
  
 -- GlishaInner is the inner Glisha state used by the API
