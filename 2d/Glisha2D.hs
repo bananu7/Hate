@@ -7,7 +7,7 @@ import Data.List
 import Control.Lens
 import Control.Monad(unless, when)
 import Control.Monad.State
-import Control.Applicative((<$>), (<*>))
+import Control.Applicative((<$>), (<*>), pure)
 import Control.Concurrent (threadDelay)
  
 -- GL & OS imports
@@ -29,8 +29,8 @@ data Pipeline = Pipeline {
     }
 makeLenses ''Pipeline
  
-data Mesh =   Mesh { _vao :: GL.VertexArrayObject,  _vbo :: GL.BufferObject }
-            | IndexedMesh { _vao :: GL.VertexArrayObject, _vbo :: GL.BufferObject, _ibo :: GL.BufferObject }
+data Mesh =   Mesh { _vao :: GL.VertexArrayObject,  _vbo :: GL.BufferObject, _vertNum :: Int }
+            | IndexedMesh { _vao :: GL.VertexArrayObject, _vbo :: GL.BufferObject, _ibo :: GL.BufferObject, _vertNum :: Int }
 makeLenses ''Mesh
  
 -- Mesh holds a lightweight vbo reference, so it is ok to store it "by value"
@@ -45,20 +45,21 @@ fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts = 
     Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
          <*> makeBuffer GL.ArrayBuffer verts
+         <*> pure (length verts)
  
 class Drawable d where
     draw :: d -> IO ()
  
 instance Drawable Mesh where
-    draw (Mesh vao buffer) = do
+    draw (Mesh vao buffer n) = do
         GL.bindVertexArrayObject $= Just vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
         GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 offset0)
  
-        GL.drawArrays GL.TriangleStrip 0 3
+        GL.drawArrays GL.TriangleStrip 0 (fromIntegral n)
  
-    draw (IndexedMesh vao vbo ibo) = do
+    draw (IndexedMesh vao vbo ibo n) = do
         GL.bindVertexArrayObject $= Just vao
         GL.bindBuffer GL.ArrayBuffer $= Just vbo
         GL.bindBuffer GL.ElementArrayBuffer $= Just ibo

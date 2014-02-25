@@ -33,7 +33,7 @@ sampleDraw = do
         x = element 0
 
     go <- glishaGetKey GLFW.Key'Space
-    when go $
+    when go $ do
         traversed.position.x %= change
 
 main = runApp sampleLoad sampleDraw
