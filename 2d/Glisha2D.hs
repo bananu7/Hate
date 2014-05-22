@@ -1,5 +1,18 @@
 {-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
 
+{-|
+Module      : Glisha2D
+Description : 2D part of Glisha rendering features
+License     : MIT
+Maintainer  : bananu7@o2.pl
+Stability   : experimental
+Portability : To whatever has OpenGL in a reasonable version.
+
+This module is meant to be used mostly by 2D games and applications. Many
+concepts and features have been deliberately simplified to make use easier;
+if you need more control over the process, consider using the 3D counterpart.
+-}
+
 module Glisha2D where
 
 -- control & data imports
@@ -20,7 +33,7 @@ import Data.Vect.Float (transpose)
 import Util 
 import GlishaCommon
   
--- actual stuff
+-- |Pipeline object is a complete package needed to render something on the screen.
 data Pipeline = Pipeline {
     _vertexShader   :: GL.Shader,
     _fragmentShader :: GL.Shader,
@@ -28,11 +41,14 @@ data Pipeline = Pipeline {
     }
 makeLenses ''Pipeline
  
+-- |A general type for a graphical mesh, either in indexed or raw form.
 data Mesh =   Mesh { _vao :: GL.VertexArrayObject,  _vbo :: GL.BufferObject, _vertNum :: Int }
             | IndexedMesh { _vao :: GL.VertexArrayObject, _vbo :: GL.BufferObject, _ibo :: GL.BufferObject, _vertNum :: Int }
 makeLenses ''Mesh
  
 -- Mesh holds a lightweight vbo reference, so it is ok to store it "by value"
+{- |Instance object is a Mesh bundled with a pipeline that is to be used to render it, and
+ - its position in the world coordinates -}
 data Instance = Instance { 
     _mesh :: Mesh, 
     _pipeline :: Pipeline,
@@ -45,7 +61,9 @@ fromVertArray verts =
     Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
          <*> makeBuffer GL.ArrayBuffer verts
          <*> pure (length verts)
- 
+
+{- |Drawing a mesh by itself doesn't make much sense; 
+ - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
     draw (Mesh vao buffer n) = do
         GL.bindVertexArrayObject $= Just vao
@@ -69,7 +87,8 @@ instance Drawable Instance where
         GL.currentProgram $= Just prog
         GL.uniform posLoc $= pos
         draw mesh
- 
+
+-- |This function takes paths to vertex and fragment shaders
 createPipeline :: FilePath -> FilePath -> IO Pipeline
 createPipeline vertShaderPath fragShaderPath = do
     vs <- loadShader GL.VertexShader vertShaderPath
