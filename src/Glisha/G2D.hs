@@ -65,7 +65,7 @@ fromVertArray verts =
 {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
-    draw (Mesh vao buffer n) = do
+    draw (Mesh vao buffer n) = UnsafeGlisha $ liftIO $ do
         GL.bindVertexArrayObject $= Just vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
@@ -73,7 +73,7 @@ instance Drawable Mesh where
  
         GL.drawArrays GL.TriangleStrip 0 (fromIntegral n)
  
-    draw (IndexedMesh vao vbo ibo n) = do
+    draw (IndexedMesh vao vbo ibo n) = UnsafeGlisha $ liftIO $ do
         GL.bindVertexArrayObject $= Just vao
         GL.bindBuffer GL.ArrayBuffer $= Just vbo
         GL.bindBuffer GL.ElementArrayBuffer $= Just ibo
@@ -81,11 +81,12 @@ instance Drawable Mesh where
  
 instance Drawable Instance where 
     draw (Instance mesh pip pos) = do 
-        let prog = view program pip
-        posLoc <- GL.get (GL.uniformLocation prog "instance_position")
+        UnsafeGlisha $ liftIO $ do 
+            let prog = view program pip
+            posLoc <- GL.get (GL.uniformLocation prog "instance_position")
  
-        GL.currentProgram $= Just prog
-        GL.uniform posLoc $= pos
+            GL.currentProgram $= Just prog
+            GL.uniform posLoc $= pos
         draw mesh
 
 -- |This function takes paths to vertex and fragment shaders

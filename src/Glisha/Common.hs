@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE ExistentialQuantification #-}
 
 {-|
 Module      : GlishaCommon
@@ -60,7 +61,7 @@ type DrawFn us = Glisha us ()
 
 -- |Anything that can be drawn, basically
 class Drawable d where
-    draw :: d -> IO ()
+    draw :: forall us. d -> Glisha us ()
 
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
@@ -137,9 +138,6 @@ glishaGetKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-glishaDraw :: Drawable a => a -> Glisha us ()
-glishaDraw d = UnsafeGlisha $ liftIO $ draw d
-            
 runApp :: LoadFn us -> DrawFn us -> IO ()
 runApp loadFn drawFn = do
     window <- glishaInitWindow

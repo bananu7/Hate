@@ -1,6 +1,6 @@
 import qualified Graphics.Rendering.OpenGL as GL
 import Glisha.G2D
-import Glisha.Common
+import Glisha
 
 type SampleState = Instance
 sampleLoad :: LoadFn SampleState
@@ -19,7 +19,7 @@ sampleDraw :: DrawFn SampleState
 sampleDraw = do
 --    d <- get
   --  glishaDraw d
-     get >>= glishaDraw
+     get >>= draw
 
 main = runApp sampleLoad sampleDraw
 

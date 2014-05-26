@@ -1,6 +1,6 @@
-import qualified Graphics.Rendering.OpenGL as GL -- Vertex2/Float
+import qualified Graphics.Rendering.OpenGL as GL (Vertex2(..), GLfloat)
 import Glisha.G2D
-import Glisha.Common
+import Glisha
 import Control.Lens
 import qualified Graphics.UI.GLFW as GLFW (Key(..)) 
 
@@ -27,7 +27,7 @@ sampleLoad = do
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
     objects <- get
-    mapM_ glishaDraw objects
+    mapM_ draw objects
 
     let change x = if x < 1.0 then x + 0.01
                               else x - 2.0
