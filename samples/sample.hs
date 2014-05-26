@@ -16,10 +16,7 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = do
---    d <- get
-  --  glishaDraw d
-     get >>= draw
+sampleDraw = get >>= draw
 
 main = runApp sampleLoad sampleDraw
 

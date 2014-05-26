@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 {-# LANGUAGE ExistentialQuantification #-}
 
 {-|
@@ -17,6 +17,7 @@ module Glisha.Common
     ) where 
 
 import Control.Monad.State
+import Control.Monad(when)
 
 import System.Exit
 import System.IO
@@ -72,7 +73,7 @@ defaultCallbacks = Callbacks { onKeyUp = emptyKeyCallback, onKeyDown = emptyKeyC
 
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: G.ErrorCallback
-errorCallback err description = hPutStrLn stderr description
+errorCallback err = hPutStrLn stderr
  
 keyCallback :: G.KeyCallback
 keyCallback window key scancode action mods =
@@ -108,7 +109,7 @@ glishaLoop = do
     let w = window gs
 
     shouldClose <- (liftIO . G.windowShouldClose) w
-    if not shouldClose then do 
+    unless shouldClose $ do 
         liftIO $ do
             (width, height) <- G.getFramebufferSize w
             let ratio = fromIntegral width / fromIntegral height
@@ -127,10 +128,8 @@ glishaLoop = do
             G.pollEvents
         glishaLoop 
 
-      else return ()
-
-glishaGetKey :: G.Key -> Glisha us Bool
-glishaGetKey k = UnsafeGlisha $ do
+getKey :: G.Key -> Glisha us Bool
+getKey k = UnsafeGlisha $ do
     gs <- get
     state <- liftIO $ G.getKey (window gs) k 
     return $ keystateToBool state

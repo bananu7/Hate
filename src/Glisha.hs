@@ -10,5 +10,5 @@ import Glisha.Common
     , Drawable(..)
     , Glisha(..)
     , runApp
-    , glishaGetKey
+    , getKey
     )
