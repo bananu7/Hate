@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
 
 {-|
-Module      : Glisha2D
+Module      : Glisha.G2D
 Description : 2D part of Glisha rendering features
 License     : MIT
 Maintainer  : bananu7@o2.pl

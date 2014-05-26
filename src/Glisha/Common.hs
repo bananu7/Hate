@@ -10,7 +10,10 @@ Portability : requires OpenGL and GLFW build
 
 -}
 
-module Glisha.Common where 
+module Glisha.Common 
+    ( module Glisha.Common
+    , module Control.Monad.State
+    ) where 
 
 import Control.Monad.State
 
@@ -32,6 +35,15 @@ newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
 instance Monad (Glisha us) where
     return = UnsafeGlisha . return
     (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k
+
+instance MonadState us (Glisha us) where
+    get = UnsafeGlisha $ do
+            gs <- get
+            return $ userState gs
+
+    put s = UnsafeGlisha $ do
+              gs <- get
+              put $ gs { userState = s }
 
 {- |This is one of the two functions that the user has to
  - provide in order to use the framework. It's a regular IO
@@ -124,15 +136,6 @@ glishaGetKey k = UnsafeGlisha $ do
     where keystateToBool s
             | s == G.KeyState'Released = False
             | otherwise = True
-
-instance MonadState us (Glisha us) where
-    get = UnsafeGlisha $ do
-            gs <- get
-            return $ userState gs
-
-    put s = UnsafeGlisha $ do
-              gs <- get
-              put $ gs { userState = s }
    
 glishaDraw :: Drawable a => a -> Glisha us ()
 glishaDraw d = UnsafeGlisha $ liftIO $ draw d
