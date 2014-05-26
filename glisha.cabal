@@ -48,9 +48,9 @@ cabal-version:       >=1.8
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Glisha,Glisha2D,GlishaCommon
+  exposed-modules:     Glisha,Glisha.G2D,Glisha.Common
 
-  hs-source-dirs:      .,2d,common
+  hs-source-dirs:      .,src
   -- Modules included in this library but not exported.
   -- other-modules:       
   

@@ -11,7 +11,7 @@ This module contains various utilities missing from @Prelude@
 or @Control.Monad@.
 -}
 
-module Util where
+module Glisha.Util where
 
 import Control.Monad (unless)
 

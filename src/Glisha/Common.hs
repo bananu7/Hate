@@ -10,7 +10,7 @@ Portability : requires OpenGL and GLFW build
 
 -}
 
-module GlishaCommon where 
+module Glisha.Common where 
 
 import Control.Monad.State
 
@@ -21,7 +21,7 @@ import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as G
 
-import Util 
+import Glisha.Util 
 
 -- GlishaInner is the inner Glisha state used by the API
 data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }

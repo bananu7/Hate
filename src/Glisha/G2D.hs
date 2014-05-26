@@ -13,7 +13,7 @@ concepts and features have been deliberately simplified to make use easier;
 if you need more control over the process, consider using the 3D counterpart.
 -}
 
-module Glisha2D where
+module Glisha.G2D where
 
 -- control & data imports
 import Data.List
@@ -30,8 +30,8 @@ import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
 import Data.Vect.Float (transpose)
 
 -- file imports
-import Util 
-import GlishaCommon
+import Glisha.Util 
+import Glisha.Common
   
 -- |Pipeline object is a complete package needed to render something on the screen.
 data Pipeline = Pipeline {
