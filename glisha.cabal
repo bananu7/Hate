@@ -48,7 +48,7 @@ cabal-version:       >=1.8
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Glisha, Glisha.G2D
+  exposed-modules:     Glisha, Glisha.G2D, Glisha.G3D
   other-modules:       Glisha.Common
 
   hs-source-dirs:      .,src
@@ -57,7 +57,7 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends:       base == 4.6.*, GLFW-b == 1.4.*, lens, GLUtil ==0.7.*, OpenGL > 2.9.1,
-                       transformers, mtl, vect, vect-opengl
+                       transformers, mtl, vect, vect-opengl, vector, JuicyPixels
 
 executable sample1
   main-is:          sample.hs
@@ -67,7 +67,7 @@ executable sample1
                     glisha
 
 executable sample2
-  main-is:          sample2.hs
+  main-is:          sample3.hs
   hs-source-dirs:   samples 
   build-depends:    base == 4.6.*, GLFW-b == 1.4.*, lens, GLUtil ==0.7.*, OpenGL > 2.9.1,
                     transformers, mtl,

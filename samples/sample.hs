@@ -1,5 +1,5 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha.G2D
+import Glisha.G3D
 import Glisha
 
 type SampleState = Instance

@@ -1,5 +1,5 @@
 import qualified Graphics.Rendering.OpenGL as GL (Vertex2(..), GLfloat)
-import Glisha.G2D
+import Glisha.G3D
 import Glisha
 import Control.Lens
 import qualified Graphics.UI.GLFW as GLFW (Key(..)) 
