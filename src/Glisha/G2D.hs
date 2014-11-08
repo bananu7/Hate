@@ -32,7 +32,7 @@ import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as GLU
 
 import Data.Vect.Float
-import Data.Vect.Float.Instances
+import Data.Vect.Float.Instances()
 --type Vec2 = GL.Vertex2 Float
 vec2 :: Float -> Float -> Vec2 
 vec2 = Vec2
@@ -124,6 +124,7 @@ loadTexture path = do
                               loadImageDataIntoTexture imgData
                               return texId
 
+sprite :: GL.TextureObject -> Sprite
 sprite = Sprite identityTransform (vec2 1 1)
 
 

@@ -25,7 +25,7 @@ import Control.Concurrent (threadDelay)
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
-import Graphics.GLUtil as U
+import qualified Graphics.GLUtil as U
 import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
 import Data.Vect.Float (transpose)
 
@@ -59,7 +59,7 @@ makeLenses ''Instance
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =
     Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
-         <*> makeBuffer GL.ArrayBuffer verts
+         <*> U.makeBuffer GL.ArrayBuffer verts
          <*> pure (length verts)
 
 {- |Drawing a mesh by itself doesn't make much sense; 
@@ -69,7 +69,7 @@ instance Drawable Mesh where
         GL.bindVertexArrayObject $= Just vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
-        GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 offset0)
+        GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
  
         GL.drawArrays GL.TriangleStrip 0 (fromIntegral n)
  
@@ -92,14 +92,14 @@ instance Drawable Instance where
 -- |This function takes paths to vertex and fragment shaders
 createPipeline :: FilePath -> FilePath -> IO Pipeline
 createPipeline vertShaderPath fragShaderPath = do
-    vs <- loadShader GL.VertexShader vertShaderPath
-    fs <- loadShader GL.FragmentShader fragShaderPath
-    prog <- linkShaderProgram [vs, fs]
+    vs <- U.loadShader GL.VertexShader vertShaderPath
+    fs <- U.loadShader GL.FragmentShader fragShaderPath
+    prog <- U.linkShaderProgram [vs, fs]
 
-    matLoc <- GL.get (GL.uniformLocation prog "global_projection")
+    matLoc <- GL.get (GL.uniformLocation prog "screen_transformation")
     GL.currentProgram $= Just prog
 
-    let orthoScreenMat = orthoMatrix (0, 800) (600, 0) (-10, 10)
+    let orthoScreenMat = orthoMatrix (-1, 2) (-1, 2) (-10, 10)
         tMat = Data.Vect.Float.transpose orthoScreenMat 
     
     glmat <- makeGLMatrix tMat

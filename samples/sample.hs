@@ -5,14 +5,14 @@ import Glisha
 type SampleState = Instance
 sampleLoad :: LoadFn SampleState
 sampleLoad = do
-    pipeline <- createPipeline "shader.vert" "shader.frag"
+    pipeline <- createPipeline "samples/shaders/shader.vert" "samples/shaders/shader.frag"
     let vertexData = [
-            -0.6, -0.4,
-            0.6, -0.4,
-            0,    0.6
+            -1, -1,
+            1, -1,
+            1,  1
             ]
     mesh <- fromVertArray vertexData
-    let inst = Instance mesh pipeline (GL.Vertex2 0.5 0.5 :: GL.Vertex2 GL.GLfloat)
+    let inst = Instance mesh pipeline (GL.Vertex2 0.0 0.0 :: GL.Vertex2 GL.GLfloat)
     return inst
 
 sampleDraw :: DrawFn SampleState
