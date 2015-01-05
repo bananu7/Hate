@@ -12,5 +12,12 @@ sampleDraw = do
     --get >>= draw
     draw $ Polygon [vec2 0 0, vec2 1 0, vec2 0 1]
 
-main = runApp sampleLoad sampleDraw
+config :: Config
+config = 
+    Config
+        { windowTitle = "Sample 3"
+        , windowSize  = (480, 200)
+        }
 
+main :: IO ()
+main = runApp config sampleLoad sampleDraw

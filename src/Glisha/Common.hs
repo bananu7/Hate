@@ -28,6 +28,13 @@ import qualified Graphics.UI.GLFW as G
 
 import Glisha.Util 
 
+{-| Configuration object to pass to `runApp` -}
+data Config
+    = Config
+        { windowTitle :: String
+        , windowSize :: (Int, Int)
+        } deriving (Eq)
+
 -- GlishaInner is the inner Glisha state used by the API
 data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
 type GlishaInner us a = StateT (GlishaState us) IO a
@@ -80,8 +87,8 @@ keyCallback window key scancode action mods =
     when (key == G.Key'Escape && action == G.KeyState'Pressed) $
         G.setWindowShouldClose window True        
 
-glishaInitWindow :: IO G.Window
-glishaInitWindow = do
+glishaInitWindow :: String -> (Int, Int) -> IO G.Window
+glishaInitWindow tit (width, height) = do
   G.setErrorCallback (Just errorCallback)
   successfulInit <- G.init
   -- if init failed, we exit the program
@@ -92,7 +99,7 @@ glishaInitWindow = do
       G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
       G.windowHint (G.WindowHint'OpenGLDebugContext True)
  
-      mw <- G.createWindow 640 480 "Simple example, haskell style" Nothing Nothing
+      mw <- G.createWindow width height tit Nothing Nothing
       maybe' mw (G.terminate >> exitFailure) $ \window -> do
           G.makeContextCurrent mw
           G.setKeyCallback window (Just keyCallback)
@@ -112,7 +119,7 @@ glishaLoop = do
     unless shouldClose $ do 
         liftIO $ do
             (width, height) <- G.getFramebufferSize w
-            let ratio = fromIntegral width / fromIntegral height
+            --let ratio = fromIntegral width / fromIntegral height
     
             GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral width) (fromIntegral height))
             GL.clear [GL.ColorBuffer]
@@ -137,12 +144,9 @@ getKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-runApp :: LoadFn us -> DrawFn us -> IO ()
-runApp loadFn drawFn = do
-    window <- glishaInitWindow
+runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
+runApp config loadFn drawFn = do
+    window <- glishaInitWindow (windowTitle config) (windowSize config)
     initialUserState <- loadFn
-
     evalStateT glishaLoop $ GlishaState initialUserState window drawFn
-
     glishaSuccessfulExit window
-

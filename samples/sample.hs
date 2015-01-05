@@ -3,6 +3,7 @@ import Glisha.G3D
 import Glisha
 
 type SampleState = Instance
+
 sampleLoad :: LoadFn SampleState
 sampleLoad = do
     pipeline <- createPipeline "samples/shaders/shader.vert" "samples/shaders/shader.frag"
@@ -18,5 +19,12 @@ sampleLoad = do
 sampleDraw :: DrawFn SampleState
 sampleDraw = get >>= draw
 
-main = runApp sampleLoad sampleDraw
+config :: Config
+config = 
+    Config
+        { windowTitle = "Sample"
+        , windowSize  = (480, 200)
+        }
 
+main :: IO ()
+main = runApp config sampleLoad sampleDraw
