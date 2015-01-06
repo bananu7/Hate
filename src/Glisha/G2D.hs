@@ -56,7 +56,7 @@ class Transformable t where
     transform :: Transformation -> t -> t
 
 instance Transformable [Vec2] where
-    transform (Transformation pos rot scale) = map ((*scale) . (+pos) . (rotate rot))
+    transform (Transformation pos rot scal) = map ((*scal) . (+pos) . (rotate rot))
 
 singletonPolygonDraw :: Polygon -> Glisha us ()
 --todo: replace by a singleton passtrough streaming buffer setup
@@ -86,7 +86,6 @@ makeLenses ''Sprite
 instance Transformable Sprite where
     transform t s = s & transformation .~ t
 
-loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
     {-
     | (ImageRGBA8 (Image width height dat)) =
   -- Access the data vector pointer
@@ -108,12 +107,12 @@ loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
             -- The pixel data: the vector contains Bytes, in RGBA order
             (GL.PixelData GL.RGBA GL.UnsignedByte ptr)
     -}
-
+loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
 loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) = 
     unsafeWith dat $ \ptr -> GL.texImage2D GL.Texture2D GL.NoProxy 0 GL.RGB8 (GL.TextureSize2D (fromIntegral width) (fromIntegral height)) 0 (GL.PixelData GL.RGB GL.UnsignedByte ptr)
+loadImageDataIntoTexture _ = error "Not yet supported"
 
-type Path = String
-loadTexture :: Path -> IO GL.TextureObject
+loadTexture :: FilePath -> IO GL.TextureObject
 loadTexture path = do
     image <- JP.readImage path
     case image of

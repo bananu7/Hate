@@ -17,7 +17,6 @@ module Glisha.Common
     ) where 
 
 import Control.Monad.State
-import Control.Monad(when)
 
 import System.Exit
 import System.IO
@@ -33,7 +32,7 @@ data Config
     = Config
         { windowTitle :: String
         , windowSize :: (Int, Int)
-        } deriving (Eq)
+        } deriving (Eq, Show)
 
 -- GlishaInner is the inner Glisha state used by the API
 data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
@@ -41,6 +40,7 @@ type GlishaInner us a = StateT (GlishaState us) IO a
 
 -- |Glisha Monad restricts user operations
 newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
+
 instance Monad (Glisha us) where
     return = UnsafeGlisha . return
     (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k
@@ -80,15 +80,15 @@ defaultCallbacks = Callbacks { onKeyUp = emptyKeyCallback, onKeyDown = emptyKeyC
 
 -- type ErrorCallback = Error -> String -> IO ()
 errorCallback :: G.ErrorCallback
-errorCallback err = hPutStrLn stderr
+errorCallback _ = hPutStrLn stderr
  
 keyCallback :: G.KeyCallback
-keyCallback window key scancode action mods =
+keyCallback win key _ action _ =
     when (key == G.Key'Escape && action == G.KeyState'Pressed) $
-        G.setWindowShouldClose window True        
+        G.setWindowShouldClose win True        
 
 glishaInitWindow :: String -> (Int, Int) -> IO G.Window
-glishaInitWindow tit (width, height) = do
+glishaInitWindow titl (width, height) = do
   G.setErrorCallback (Just errorCallback)
   successfulInit <- G.init
   -- if init failed, we exit the program
@@ -99,14 +99,15 @@ glishaInitWindow tit (width, height) = do
       G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
       G.windowHint (G.WindowHint'OpenGLDebugContext True)
  
-      mw <- G.createWindow width height tit Nothing Nothing
-      maybe' mw (G.terminate >> exitFailure) $ \window -> do
+      mw <- G.createWindow width height titl Nothing Nothing
+      maybe' mw (G.terminate >> exitFailure) $ \win -> do
           G.makeContextCurrent mw
-          G.setKeyCallback window (Just keyCallback)
-          return window
+          G.setKeyCallback win (Just keyCallback)
+          return win
 
-glishaSuccessfulExit window = do
-    G.destroyWindow window
+glishaSuccessfulExit :: G.Window -> IO b
+glishaSuccessfulExit win = do
+    G.destroyWindow win
     G.terminate
     exitSuccess          
 
@@ -138,15 +139,15 @@ glishaLoop = do
 getKey :: G.Key -> Glisha us Bool
 getKey k = UnsafeGlisha $ do
     gs <- get
-    state <- liftIO $ G.getKey (window gs) k 
-    return $ keystateToBool state
+    stt <- liftIO $ G.getKey (window gs) k 
+    return $ keystateToBool stt
     where keystateToBool s
             | s == G.KeyState'Released = False
             | otherwise = True
    
 runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
-runApp config loadFn drawFn = do
-    window <- glishaInitWindow (windowTitle config) (windowSize config)
-    initialUserState <- loadFn
-    evalStateT glishaLoop $ GlishaState initialUserState window drawFn
-    glishaSuccessfulExit window
+runApp config ldFn drFn = do
+    win <- glishaInitWindow (windowTitle config) (windowSize config)
+    initialUserState <- ldFn
+    evalStateT glishaLoop $ GlishaState initialUserState win drFn
+    glishaSuccessfulExit win

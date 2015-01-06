@@ -16,11 +16,8 @@ if you need more control over the process, consider using the 3D counterpart.
 module Glisha.G3D where
 
 -- control & data imports
-import Data.List
 import Control.Lens
-import Control.Monad(unless, when)
 import Control.Applicative((<$>), (<*>), pure)
-import Control.Concurrent (threadDelay)
  
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
@@ -30,7 +27,6 @@ import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
 import Data.Vect.Float (transpose)
 
 -- file imports
-import Glisha.Util 
 import Glisha.Common
   
 -- |Pipeline object is a complete package needed to render something on the screen.
@@ -65,29 +61,29 @@ fromVertArray verts =
 {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
-    draw (Mesh vao buffer n) = UnsafeGlisha $ liftIO $ do
-        GL.bindVertexArrayObject $= Just vao
+    draw (Mesh _vao buffer n) = UnsafeGlisha $ liftIO $ do
+        GL.bindVertexArrayObject $= Just _vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
         GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
  
         GL.drawArrays GL.TriangleStrip 0 (fromIntegral n)
  
-    draw (IndexedMesh vao vbo ibo n) = UnsafeGlisha $ liftIO $ do
-        GL.bindVertexArrayObject $= Just vao
-        GL.bindBuffer GL.ArrayBuffer $= Just vbo
-        GL.bindBuffer GL.ElementArrayBuffer $= Just ibo
+    draw (IndexedMesh _vao _vbo _ibo _) = UnsafeGlisha $ liftIO $ do
+        GL.bindVertexArrayObject $= Just _vao
+        GL.bindBuffer GL.ArrayBuffer $= Just _vbo
+        GL.bindBuffer GL.ElementArrayBuffer $= Just _ibo
         error "todo"
  
 instance Drawable Instance where 
-    draw (Instance mesh pip pos) = do 
+    draw (Instance _mesh pip pos) = do 
         UnsafeGlisha $ liftIO $ do 
             let prog = view program pip
             posLoc <- GL.get (GL.uniformLocation prog "instance_position")
  
             GL.currentProgram $= Just prog
             GL.uniform posLoc $= pos
-        draw mesh
+        draw _mesh
 
 -- |This function takes paths to vertex and fragment shaders
 createPipeline :: FilePath -> FilePath -> IO Pipeline
