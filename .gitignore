@@ -1,14 +1,11 @@
-dist
-cabal-dev
-*.o
-*.a
-*.hi
-*.chi
-*.chs.h
-.virthualenv
-
-#windows stuff
-*.exe
-
-# vim
-*.swp
+*
+!samples
+!samples/shaders
+!*.hs
+!LICENSE
+!*.md
+!src
+!src/Glisha
+!*.frag
+!*.vert
+!.gitignore

@@ -9,6 +9,7 @@ import Glisha.Common
     , LoadFn
     , Drawable(..)
     , Glisha(..)
+    , Config(..)
     , runApp
     , getKey
     )
