@@ -17,7 +17,7 @@ cabal-version:       >=1.18
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Glisha, Glisha.G2D, Glisha.G3D
+  exposed-modules:     Glisha, Glisha.G2D, Glisha.G3D, Glisha.Math, Glisha.Api, Glisha.Pipeline
   other-modules:       Glisha.Common
 
   hs-source-dirs:      .,src
@@ -27,10 +27,9 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.8,
                        GLFW-b >= 1.4,
-                       lens > 4,
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
-                       transformers, mtl, vect, vect-opengl, vector, JuicyPixels
+                       transformers, mtl, vect, vect-opengl, vector, JuicyPixels, bytestring
 
   default-language:    Haskell2010
   ghc-options:         -Wall -ferror-spans
@@ -41,7 +40,6 @@ executable sample1
 
   build-depends:    base >= 4.6 && < 4.8,
                     GLFW-b >= 1.4,
-                    lens > 4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
                     transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
@@ -54,10 +52,9 @@ executable sample2
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
                     GLFW-b >= 1.4,
-                    lens > 4,
-                    GLUtil >=0.7,
+                    GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
                     glisha
   default-language: Haskell2010
 

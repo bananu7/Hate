@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-|
 Module      : Glisha.G2D
 Description : 2D part of Glisha rendering features
@@ -15,12 +15,15 @@ if you need more control over the process, consider using the 3D counterpart.
 module Glisha.G2D where
 
 import Glisha.Common
+import Glisha.Math
+import Glisha.G3D
+import Glisha.Pipeline
 
-import qualified Codec.Picture as JP
-import Control.Lens
+--import qualified Codec.Picture as JP
 import Data.Vector.Storable (unsafeWith)
 
-import System.Exit
+import Control.Applicative ((<$>), (<*>))
+
 {-
 import qualified Graphics.Rendering.OpenGL.GL.Texturing.Specification (texImage2D, Level, Border, TextureSize2D(..)) as GL
 import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (Proxy(..), PixelInternalFormat(..)) as GL
@@ -30,61 +33,58 @@ import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (Pix
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as GLU
+import qualified Data.ByteString.Char8 as BS (unlines)
 
-import Data.Vect.Float
-import Data.Vect.Float.Instances()
---type Vec2 = GL.Vertex2 Float
-vec2 :: Float -> Float -> Vec2 
-vec2 = Vec2
 
-type Rotation = Float
+solidColorPipeline :: Glisha us libs Pipeline
+solidColorPipeline = UnsafeGlisha $ liftIO $ createPipelineSource passtroughVsSource solidColorFsSource 
 
-data Transformation = Transformation { 
-    _position :: Vec2,
-    _rotation :: Rotation,
-    _scale :: Vec2
-    }
-makeLenses ''Transformation
+passtroughVsSource = BS.unlines $
+    ["#version 330 core"
+    ,""
+    ,"layout(location = 0) in vec2 position;"
+    --,"uniform vec2 instance_position;"
+    ,""
+    ,"uniform mat4 screen_transformation;"
+    ,""
+    ,"void main() {"
+    ,"    gl_Position = screen_transformation * vec4(position, 0, 1);"
+    ,"}"
+    ]
 
-identityTransform :: Transformation
-identityTransform = Transformation 0 0 1
+solidColorFsSource = BS.unlines $
+    ["#version 330 core"
+    ,"out vec4 color;"
+    ,"void main () {"
+    ,"color = vec4(1.0, 1.0, 0.0, 1.0);"
+    ,"}"
+    ]
 
-rotate :: Rotation -> Vec2 -> Vec2
-rotate a (Vec2 x y) = Vec2 (x * cos a - y * sin a) (x * sin a + y * cos a)
-
-class Transformable t where
-    transform :: Transformation -> t -> t
-
-instance Transformable [Vec2] where
-    transform (Transformation pos rot scal) = map ((*scal) . (+pos) . (rotate rot))
-
-singletonPolygonDraw :: Polygon -> Glisha us ()
+singletonPolygonDraw :: Polygon -> Glisha us libs ()
 --todo: replace by a singleton passtrough streaming buffer setup
 --It would require Glisha to be configurable(?) or simply adding it to it
-singletonPolygonDraw (Polygon verts) = UnsafeGlisha $ liftIO $ do
-    vao <- GL.genObjectName :: IO GL.VertexArrayObject
-    vbo <- GLU.makeBuffer GL.ArrayBuffer verts
-    GL.bindVertexArrayObject $= Just vao
-    GL.bindBuffer GL.ArrayBuffer $= (Just vbo) -- (vertexBuffer buffer)
-    GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
-    GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 GLU.offset0) 
-    GL.drawArrays GL.TriangleStrip 0 (fromIntegral $ length verts)
+singletonPolygonDraw (Polygon verts) = do
+    mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
+    activatePipeline <$> solidColorPipeline
+    draw mesh
+
+    where rawVerts = map realToFrac . concat . map unpackVec $ verts
+          unpackVec (Vec2 x y) = [x, y]
 
 data Polygon = Polygon [Vec2]
 instance Drawable Polygon where
-    draw = singletonPolygonDraw               
+    draw = singletonPolygonDraw
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]
 
 data Sprite = Sprite {
-    _transformation :: Transformation,
-    _size :: Vec2,
-    _texture :: GL.TextureObject
+    transformation :: Transformation,
+    size :: Vec2,
+    texture :: GL.TextureObject
     }
-makeLenses ''Sprite
 
 instance Transformable Sprite where
-    transform t s = s & transformation .~ t
+    transform t s = s { transformation = t }
 
     {-
     | (ImageRGBA8 (Image width height dat)) =
@@ -107,6 +107,8 @@ instance Transformable Sprite where
             -- The pixel data: the vector contains Bytes, in RGBA order
             (GL.PixelData GL.RGBA GL.UnsignedByte ptr)
     -}
+
+{-
 loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
 loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) = 
     unsafeWith dat $ \ptr -> GL.texImage2D GL.Texture2D GL.NoProxy 0 GL.RGB8 (GL.TextureSize2D (fromIntegral width) (fromIntegral height)) 0 (GL.PixelData GL.RGB GL.UnsignedByte ptr)
@@ -135,3 +137,5 @@ sprite = Sprite identityTransform (vec2 1 1)
 
 --instance Drawable Sprite where 
 --    draw = 
+
+-}

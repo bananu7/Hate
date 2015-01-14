@@ -1,5 +1,7 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 {-|
 Module      : GlishaCommon
@@ -17,6 +19,7 @@ module Glisha.Common
     ) where 
 
 import Control.Monad.State
+import Control.Applicative
 
 import System.Exit
 import System.IO
@@ -35,24 +38,39 @@ data Config
         } deriving (Eq, Show)
 
 -- GlishaInner is the inner Glisha state used by the API
-data GlishaState us = GlishaState { userState :: us, window :: G.Window, drawFn :: DrawFn us }
-type GlishaInner us a = StateT (GlishaState us) IO a
+data GlishaState us libs = GlishaState { 
+  userState :: us,
+  libraryState :: libs,
+  window :: G.Window,
+  drawFn :: DrawFn us
+}
+type GlishaInner us libs a = StateT (GlishaState us libs) IO a
 
 -- |Glisha Monad restricts user operations
-newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
+newtype Glisha us libs a = UnsafeGlisha { runGlisha :: GlishaInner us libs a }
+  deriving (Functor, Applicative, Monad)
 
-instance Monad (Glisha us) where
+{-instance Monad (Glisha us libs) where
     return = UnsafeGlisha . return
-    (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k
+    (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k-}
 
-instance MonadState us (Glisha us) where
+instance MonadState us (Glisha us libs) where
     get = UnsafeGlisha $ do
             gs <- get
             return $ userState gs
 
     put s = UnsafeGlisha $ do
-              gs <- get
-              put $ gs { userState = s }
+            gs <- get
+            put $ gs { userState = s }
+
+instance MonadState libs (Glisha us libs) where
+    get = UnsafeGlisha $ do
+            gs <- get
+            return $ libraryState gs
+
+    put s = UnsafeGlisha $ do
+            gs <- get
+            put $ gs { libraryState = s }
 
 {- |This is one of the two functions that the user has to
  - provide in order to use the framework. It's a regular IO
@@ -63,13 +81,13 @@ type LoadFn userStateType = IO userStateType
  - Glisha context. Only safe Glisha functions can be used inside.
  - Because Glisha is an instance of MonadState, it can be treated
  - just as the State monad with the registered user data. -}
-type DrawFn us = Glisha us () 
+type DrawFn us = forall libs. Glisha us libs () 
 
 -- Type classes for 2D and 3D implementations
 
 -- |Anything that can be drawn, basically
 class Drawable d where
-    draw :: forall us. d -> Glisha us ()
+    draw :: forall us. forall libs. d -> Glisha us libs ()
 
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
@@ -111,7 +129,7 @@ glishaSuccessfulExit win = do
     G.terminate
     exitSuccess          
 
-glishaLoop :: GlishaInner us ()
+glishaLoop :: GlishaInner us libs ()
 glishaLoop = do
     gs <- get
     let w = window gs
@@ -136,7 +154,7 @@ glishaLoop = do
             G.pollEvents
         glishaLoop 
 
-getKey :: G.Key -> Glisha us Bool
+getKey :: G.Key -> Glisha us libs Bool
 getKey k = UnsafeGlisha $ do
     gs <- get
     stt <- liftIO $ G.getKey (window gs) k 
@@ -145,9 +163,9 @@ getKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
-runApp config ldFn drFn = do
+runAppInner :: a -> Config -> LoadFn us -> DrawFn us -> IO ()
+runAppInner libCfg config ldFn drFn = do
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     initialUserState <- ldFn
-    evalStateT glishaLoop $ GlishaState initialUserState win drFn
+    evalStateT glishaLoop $ GlishaState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }
     glishaSuccessfulExit win

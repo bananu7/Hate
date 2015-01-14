@@ -14,43 +14,37 @@ if you need more control over the process, consider using the 3D counterpart.
 -}
 
 module Glisha.G3D where
-
+    
 -- control & data imports
-import Control.Lens
 import Control.Applicative((<$>), (<*>), pure)
  
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
-import qualified Graphics.GLUtil as U
-import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
-import Data.Vect.Float (transpose)
+import qualified Graphics.GLUtil as U (makeBuffer, offset0)
 
 -- file imports
 import Glisha.Common
-  
--- |Pipeline object is a complete package needed to render something on the screen.
-data Pipeline = Pipeline {
-    _vertexShader   :: GL.Shader,
-    _fragmentShader :: GL.Shader,
-    _program        :: GL.Program
-    }
-makeLenses ''Pipeline
+import Glisha.Pipeline
  
+-- this defines additional state used by that API
+runApp = runAppInner (0 :: Int)
+
 -- |A general type for a graphical mesh, either in indexed or raw form.
-data Mesh =   Mesh { _vao :: GL.VertexArrayObject,  _vbo :: GL.BufferObject, _vertNum :: Int }
-            | IndexedMesh { _vao :: GL.VertexArrayObject, _vbo :: GL.BufferObject, _ibo :: GL.BufferObject, _vertNum :: Int }
-makeLenses ''Mesh
+data Mesh =   Mesh { vao :: GL.VertexArrayObject,  vbo :: GL.BufferObject, vertNum :: Int }
+            | IndexedMesh { vao :: GL.VertexArrayObject, vbo :: GL.BufferObject, ibo :: GL.BufferObject, vertNum :: Int }
  
 -- Mesh holds a lightweight vbo reference, so it is ok to store it "by value"
 {- |Instance object is a Mesh bundled with a pipeline that is to be used to render it, and
  - its position in the world coordinates -}
 data Instance = Instance { 
-    _mesh :: Mesh, 
-    _pipeline :: Pipeline,
-    _position :: GL.Vertex2 GL.GLfloat
+    mesh :: Mesh, 
+    pipeline :: Pipeline,
+    position :: GL.Vertex2 GL.GLfloat
     }
-makeLenses ''Instance
+
+test :: Glisha us Int Int
+test = get
  
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =
@@ -78,29 +72,11 @@ instance Drawable Mesh where
 instance Drawable Instance where 
     draw (Instance _mesh pip pos) = do 
         UnsafeGlisha $ liftIO $ do 
-            let prog = view program pip
+            let prog = program pip
             posLoc <- GL.get (GL.uniformLocation prog "instance_position")
  
             GL.currentProgram $= Just prog
             GL.uniform posLoc $= pos
         draw _mesh
-
--- |This function takes paths to vertex and fragment shaders
-createPipeline :: FilePath -> FilePath -> IO Pipeline
-createPipeline vertShaderPath fragShaderPath = do
-    vs <- U.loadShader GL.VertexShader vertShaderPath
-    fs <- U.loadShader GL.FragmentShader fragShaderPath
-    prog <- U.linkShaderProgram [vs, fs]
-
-    matLoc <- GL.get (GL.uniformLocation prog "screen_transformation")
-    GL.currentProgram $= Just prog
-
-    let orthoScreenMat = orthoMatrix (-1, 2) (-1, 2) (-10, 10)
-        tMat = Data.Vect.Float.transpose orthoScreenMat 
-    
-    glmat <- makeGLMatrix tMat
-    U.uniformGLMat4 matLoc $= glmat
-
-    return $ Pipeline vs fs prog
 
 

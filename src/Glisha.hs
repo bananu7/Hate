@@ -1,5 +1,6 @@
 module Glisha 
     ( module Glisha.Common
+    , module Glisha.Math
     , module Control.Monad.State
     ) where
 
@@ -10,6 +11,8 @@ import Glisha.Common
     , Drawable(..)
     , Glisha(..)
     , Config(..)
-    , runApp
+    , runAppInner
     , getKey
     )
+
+import Glisha.Math

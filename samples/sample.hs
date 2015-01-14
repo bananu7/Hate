@@ -1,6 +1,7 @@
 import qualified Graphics.Rendering.OpenGL as GL
 import Glisha.G3D
 import Glisha
+import Glisha.Pipeline
 
 type SampleState = Instance
 
