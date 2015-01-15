@@ -50,10 +50,6 @@ type GlishaInner us libs a = StateT (GlishaState us libs) IO a
 newtype Glisha us libs a = UnsafeGlisha { runGlisha :: GlishaInner us libs a }
   deriving (Functor, Applicative, Monad)
 
-{-instance Monad (Glisha us libs) where
-    return = UnsafeGlisha . return
-    (UnsafeGlisha m) >>= k = UnsafeGlisha $ m >>= runGlisha . k-}
-
 instance MonadState us (Glisha us libs) where
     get = UnsafeGlisha $ do
             gs <- get
@@ -62,15 +58,6 @@ instance MonadState us (Glisha us libs) where
     put s = UnsafeGlisha $ do
             gs <- get
             put $ gs { userState = s }
-
-instance MonadState libs (Glisha us libs) where
-    get = UnsafeGlisha $ do
-            gs <- get
-            return $ libraryState gs
-
-    put s = UnsafeGlisha $ do
-            gs <- get
-            put $ gs { libraryState = s }
 
 {- |This is one of the two functions that the user has to
  - provide in order to use the framework. It's a regular IO

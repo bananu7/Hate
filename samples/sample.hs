@@ -18,7 +18,10 @@ sampleLoad = do
     return inst
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = get >>= draw
+sampleDraw = do 
+    get >>= draw
+    test3D
+    return ()
 
 config :: Config
 config = 

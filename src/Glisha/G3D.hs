@@ -1,4 +1,5 @@
 {-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 {-|
 Module      : Glisha.G3D
@@ -13,11 +14,22 @@ concepts and features have been deliberately simplified to make use easier;
 if you need more control over the process, consider using the 3D counterpart.
 -}
 
-module Glisha.G3D where
+module Glisha.G3D 
+    ( Mesh(..)
+    , fromVertArray
+    , Instance(..)
+    , Drawable(..)
+    , runApp
+    , test
+    , lift3D
+    , test3D
+    )
+where
     
 -- control & data imports
 import Control.Applicative((<$>), (<*>), pure)
- 
+import Control.Monad.Trans.Class
+
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
@@ -43,9 +55,27 @@ data Instance = Instance {
     position :: GL.Vertex2 GL.GLfloat
     }
 
-test :: Glisha us Int Int
-test = get
- 
+type LibState = Int
+
+newtype Glisha3D us libs a = Glisha3D (Glisha us libs a) deriving (Monad)
+
+instance MonadState libs (Glisha3D us libs) where
+    get = Glisha3D $ UnsafeGlisha $ do
+            gs <- get
+            return $ libraryState gs
+
+    put s = Glisha3D $ UnsafeGlisha $ do
+            gs <- get
+            put $ gs { libraryState = s }
+
+lift3D :: Glisha3D us libs a -> Glisha us libs a
+lift3D (Glisha3D g) = g
+
+test :: Glisha3D us libs ()
+test = get >> return ()
+
+test3D = lift3D test
+
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =
     Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
