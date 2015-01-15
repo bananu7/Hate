@@ -1,25 +1,25 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
+module Glisha.Graphics where
+
 {-|
-Module      : Glisha.G2D
-Description : 2D part of Glisha rendering features
+Module      : Glisha.Graphics
+Description : Hate graphics 
 License     : MIT
 Maintainer  : bananu7@o2.pl
 Stability   : experimental
 Portability : To whatever has OpenGL in a reasonable version.
 
-This module is meant to be used mostly by 2D games and applications. Many
-concepts and features have been deliberately simplified to make use easier;
-if you need more control over the process, consider using the 3D counterpart.
+This module contains graphics
 -}
-
-module Glisha.G2D where
 
 import Glisha.Common
 import Glisha.Math
-import Glisha.G3D
-import Glisha.Pipeline
+import Glisha.Graphics.Pipeline
+import Glisha.Graphics.Types
+import Glisha.Graphics.Drawable.Class
+import Glisha.Graphics.Instances
 
 --import qualified Codec.Picture as JP
 import Data.Vector.Storable (unsafeWith)
@@ -34,28 +34,14 @@ import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (Pix
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
-import qualified Graphics.GLUtil as GLU
+import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (unlines)
 
-
--- 2D context with state specific to 2D operations
-newtype Glisha2D us libs a = Glisha2D (Glisha us libs a) deriving (Functor, Applicative, Monad)
-
-instance MonadState libs (Glisha2D us libs) where
-    get = Glisha2D $ UnsafeGlisha $ do
-            gs <- get
-            return $ libraryState gs
-
-    put s = Glisha2D $ UnsafeGlisha $ do
-            gs <- get
-            put $ gs { libraryState = s }
-
-lift2D :: Glisha2D us libs a -> Glisha us libs a
-lift2D (Glisha2D g) = g
-
-data LibState2D = LibState2D { mainPipeline :: Pipeline }
-
-runApp = runAppInner solidColorPipeline
+fromVertArray :: [GL.GLfloat] -> IO Mesh
+fromVertArray verts =
+    Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
+         <*> U.makeBuffer GL.ArrayBuffer verts
+         <*> pure (length verts)
 
 solidColorPipeline :: IO Pipeline
 solidColorPipeline = createPipelineSource passtroughVsSource solidColorFsSource 
@@ -81,31 +67,21 @@ solidColorFsSource = BS.unlines $
     ,"}"
     ]
 
-singletonPolygonDraw :: Polygon -> Glisha us libs ()
+singletonPolygonDraw :: Polygon -> Glisha us ()
 --todo: replace by a singleton passtrough streaming buffer setup
 --It would require Glisha to be configurable(?) or simply adding it to it
 singletonPolygonDraw (Polygon verts) = do
     mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
-    lift2D $ gets mainPipeline >>= activatePipeline
+    -- TODO
+    --gets mainPipeline) >>= activatePipeline
     draw mesh
 
     where rawVerts = map realToFrac . concat . map unpackVec $ verts
           unpackVec (Vec2 x y) = [x, y]
 
-data Polygon = Polygon [Vec2]
-instance Drawable Polygon where
-    draw = singletonPolygonDraw
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]
 
-data Sprite = Sprite {
-    transformation :: Transformation,
-    size :: Vec2,
-    texture :: GL.TextureObject
-    }
-
-instance Transformable Sprite where
-    transform t s = s { transformation = t }
 
     {-
     | (ImageRGBA8 (Image width height dat)) =

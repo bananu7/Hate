@@ -17,8 +17,11 @@ cabal-version:       >=1.18
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Glisha, Glisha.G2D, Glisha.G3D, Glisha.Math, Glisha.Api, Glisha.Pipeline
+  exposed-modules:     Glisha,
+                       Glisha.Graphics,
+                       Glisha.Math
   other-modules:       Glisha.Common
+                       
 
   hs-source-dirs:      .,src
   -- Modules included in this library but not exported.

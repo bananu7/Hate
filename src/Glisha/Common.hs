@@ -10,16 +10,15 @@ License     : MIT
 Maintainer  : bananu7@o2.pl
 Stability   : experimental
 Portability : requires OpenGL and GLFW build
-
 -}
 
 module Glisha.Common 
-    ( module Glisha.Common
-    , module Control.Monad.State
-    ) where 
+    ( module Control.Monad.State
+    , module Glisha.Common.Types
+    , Glisha.Common.Types.Glisha(..)
+    ) where
 
 import Control.Monad.State
-import Control.Applicative
 
 import System.Exit
 import System.IO
@@ -29,52 +28,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as G
 
 import Glisha.Util 
-
-{-| Configuration object to pass to `runApp` -}
-data Config
-    = Config
-        { windowTitle :: String
-        , windowSize :: (Int, Int)
-        } deriving (Eq, Show)
-
--- GlishaInner is the inner Glisha state used by the API
-data GlishaState us libs = GlishaState { 
-  userState :: us,
-  libraryState :: libs,
-  window :: G.Window,
-  drawFn :: DrawFn us
-}
-type GlishaInner us libs a = StateT (GlishaState us libs) IO a
-
--- |Glisha Monad restricts user operations
-newtype Glisha us libs a = UnsafeGlisha { runGlisha :: GlishaInner us libs a }
-  deriving (Functor, Applicative, Monad)
-
-instance MonadState us (Glisha us libs) where
-    get = UnsafeGlisha $ do
-            gs <- get
-            return $ userState gs
-
-    put s = UnsafeGlisha $ do
-            gs <- get
-            put $ gs { userState = s }
-
-{- |This is one of the two functions that the user has to
- - provide in order to use the framework. It's a regular IO
- - function, so it's not limited in any way. It has to produce
- - initial state of the user's program. -}
-type LoadFn userStateType = IO userStateType
-{- |The main framework update function runs in the restricted
- - Glisha context. Only safe Glisha functions can be used inside.
- - Because Glisha is an instance of MonadState, it can be treated
- - just as the State monad with the registered user data. -}
-type DrawFn us = forall libs. Glisha us libs () 
-
--- Type classes for 2D and 3D implementations
-
--- |Anything that can be drawn, basically
-class Drawable d where
-    draw :: forall us. forall libs. d -> Glisha us libs ()
+import Glisha.Common.Types
 
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
@@ -116,7 +70,7 @@ glishaSuccessfulExit win = do
     G.terminate
     exitSuccess          
 
-glishaLoop :: GlishaInner us libs ()
+glishaLoop :: GlishaInner us ()
 glishaLoop = do
     gs <- get
     let w = window gs
@@ -141,7 +95,7 @@ glishaLoop = do
             G.pollEvents
         glishaLoop 
 
-getKey :: G.Key -> Glisha us libs Bool
+getKey :: G.Key -> Glisha us Bool
 getKey k = UnsafeGlisha $ do
     gs <- get
     stt <- liftIO $ G.getKey (window gs) k 
@@ -150,7 +104,7 @@ getKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-runAppInner :: IO a -> Config -> LoadFn us -> DrawFn us -> IO ()
+runAppInner :: IO LibraryState -> Config -> LoadFn us -> DrawFn us -> IO ()
 runAppInner libCfgM config ldFn drFn = do
     libCfg <- libCfgM
     win <- glishaInitWindow (windowTitle config) (windowSize config)
