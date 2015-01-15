@@ -1,4 +1,6 @@
-{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
+
 {-|
 Module      : Glisha.G2D
 Description : 2D part of Glisha rendering features
@@ -22,7 +24,7 @@ import Glisha.Pipeline
 --import qualified Codec.Picture as JP
 import Data.Vector.Storable (unsafeWith)
 
-import Control.Applicative ((<$>), (<*>))
+import Control.Applicative
 
 {-
 import qualified Graphics.Rendering.OpenGL.GL.Texturing.Specification (texImage2D, Level, Border, TextureSize2D(..)) as GL
@@ -36,8 +38,27 @@ import qualified Graphics.GLUtil as GLU
 import qualified Data.ByteString.Char8 as BS (unlines)
 
 
-solidColorPipeline :: Glisha us libs Pipeline
-solidColorPipeline = UnsafeGlisha $ liftIO $ createPipelineSource passtroughVsSource solidColorFsSource 
+-- 2D context with state specific to 2D operations
+newtype Glisha2D us libs a = Glisha2D (Glisha us libs a) deriving (Functor, Applicative, Monad)
+
+instance MonadState libs (Glisha2D us libs) where
+    get = Glisha2D $ UnsafeGlisha $ do
+            gs <- get
+            return $ libraryState gs
+
+    put s = Glisha2D $ UnsafeGlisha $ do
+            gs <- get
+            put $ gs { libraryState = s }
+
+lift2D :: Glisha2D us libs a -> Glisha us libs a
+lift2D (Glisha2D g) = g
+
+data LibState2D = LibState2D { mainPipeline :: Pipeline }
+
+runApp = runAppInner solidColorPipeline
+
+solidColorPipeline :: IO Pipeline
+solidColorPipeline = createPipelineSource passtroughVsSource solidColorFsSource 
 
 passtroughVsSource = BS.unlines $
     ["#version 330 core"
@@ -65,7 +86,7 @@ singletonPolygonDraw :: Polygon -> Glisha us libs ()
 --It would require Glisha to be configurable(?) or simply adding it to it
 singletonPolygonDraw (Polygon verts) = do
     mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
-    activatePipeline <$> solidColorPipeline
+    lift2D $ gets mainPipeline >>= activatePipeline
     draw mesh
 
     where rawVerts = map realToFrac . concat . map unpackVec $ verts

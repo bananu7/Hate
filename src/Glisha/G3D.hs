@@ -1,4 +1,4 @@
-{-# LANGUAGE TemplateHaskell, FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 {-|
@@ -27,8 +27,7 @@ module Glisha.G3D
 where
     
 -- control & data imports
-import Control.Applicative((<$>), (<*>), pure)
-import Control.Monad.Trans.Class
+import Control.Applicative
 
 -- GL & OS imports
 import Graphics.Rendering.OpenGL(($=))
@@ -40,7 +39,7 @@ import Glisha.Common
 import Glisha.Pipeline
  
 -- this defines additional state used by that API
-runApp = runAppInner (0 :: Int)
+runApp = runAppInner (return 0)
 
 -- |A general type for a graphical mesh, either in indexed or raw form.
 data Mesh =   Mesh { vao :: GL.VertexArrayObject,  vbo :: GL.BufferObject, vertNum :: Int }
@@ -57,7 +56,7 @@ data Instance = Instance {
 
 type LibState = Int
 
-newtype Glisha3D us libs a = Glisha3D (Glisha us libs a) deriving (Monad)
+newtype Glisha3D us libs a = Glisha3D (Glisha us libs a) deriving (Functor, Applicative, Monad)
 
 instance MonadState libs (Glisha3D us libs) where
     get = Glisha3D $ UnsafeGlisha $ do

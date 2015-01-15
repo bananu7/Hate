@@ -150,8 +150,9 @@ getKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-runAppInner :: a -> Config -> LoadFn us -> DrawFn us -> IO ()
-runAppInner libCfg config ldFn drFn = do
+runAppInner :: IO a -> Config -> LoadFn us -> DrawFn us -> IO ()
+runAppInner libCfgM config ldFn drFn = do
+    libCfg <- libCfgM
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     initialUserState <- ldFn
     evalStateT glishaLoop $ GlishaState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }
