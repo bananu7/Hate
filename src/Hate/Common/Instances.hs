@@ -1,15 +1,15 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
-module Glisha.Common.Instances where
+module Hate.Common.Instances where
 
-import Glisha.Common.Types
+import Hate.Common.Types
 import Control.Monad.State
 
-instance MonadState us (Glisha us) where
-    get = UnsafeGlisha $ do
+instance MonadState us (Hate us) where
+    get = UnsafeHate $ do
             gs <- get
             return $ userState gs
 
-    put s = UnsafeGlisha $ do
+    put s = UnsafeHate $ do
             gs <- get
             put $ gs { userState = s }

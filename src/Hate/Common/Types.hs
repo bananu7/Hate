@@ -1,6 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Glisha.Common.Types where
+module Hate.Common.Types where
 
 import Control.Monad.State
 import Control.Applicative
@@ -16,18 +16,18 @@ data Config
         , windowSize :: (Int, Int)
         } deriving (Eq, Show)
 
--- GlishaInner is the inner Glisha state used by the API
+-- HateInner is the inner Hate state used by the API
 
-data GlishaState us = GlishaState { 
+data HateState us = HateState { 
   userState :: us,
   libraryState :: LibraryState,
   window :: G.Window,
   drawFn :: DrawFn us
 }
-type GlishaInner us a = StateT (GlishaState us) IO a
+type HateInner us a = StateT (HateState us) IO a
 
--- |Glisha Monad restricts user operations
-newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
+-- |Hate Monad restricts user operations
+newtype Hate us a = UnsafeHate { runHate :: HateInner us a }
   deriving (Functor, Applicative, Monad, MonadIO)
 
 {- |This is one of the two functions that the user has to
@@ -36,7 +36,7 @@ newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
  - initial state of the user's program. -}
 type LoadFn userStateType = IO userStateType
 {- |The main framework update function runs in the restricted
- - Glisha context. Only safe Glisha functions can be used inside.
- - Because Glisha is an instance of MonadState, it can be treated
+ - Hate context. Only safe Hate functions can be used inside.
+ - Because Hate is an instance of MonadState, it can be treated
  - just as the State monad with the registered user data. -}
-type DrawFn us = Glisha us () 
+type DrawFn us = Hate us () 

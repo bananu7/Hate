@@ -1,4 +1,4 @@
-module Glisha.Math.Types where
+module Hate.Math.Types where
 	
 import Data.Vect.Float
 import Data.Vect.Float.Instances()

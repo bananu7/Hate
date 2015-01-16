@@ -3,7 +3,7 @@
 --{-# LANGUAGE TypeSynonymInstances #-}
  
 import qualified Graphics.Rendering.OpenGL as GL -- Vertex2/Float
-import Glisha
+import Hate
 import Control.Lens
 import Control.Applicative((<$>), (<*>))
 import Data.Maybe (catMaybes)
@@ -18,10 +18,10 @@ makeFields ''Block
 makeFields ''Ball
 makeLenses ''Arkanoid
  
-instance Glisha.Drawable Player where
+instance Hate.Drawable Player where
     draw p = draw $ _playerInst p 
  
-instance Glisha.Drawable Ball where
+instance Hate.Drawable Ball where
     draw b = draw $ _ballInst b
  
 -- some constants

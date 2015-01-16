@@ -1,7 +1,7 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha
-import Glisha.Graphics
-import Glisha.Graphics.Instances
+import Hate
+import Hate.Graphics
+import Hate.Graphics.Instances
 
 type SampleState = Instance
 

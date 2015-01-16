@@ -1,6 +1,6 @@
 import qualified Graphics.Rendering.OpenGL as GL (Vertex2(..), GLfloat)
-import Glisha.G3D
-import Glisha
+import Hate.G3D
+import Hate
 import Control.Lens
 import qualified Graphics.UI.GLFW as GLFW (Key(..)) 
 

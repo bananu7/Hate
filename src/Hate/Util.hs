@@ -1,7 +1,7 @@
 
 {-|
 Module      : Util
-Description : Various utilities used by Glisha framework
+Description : Various utilities used by Hate framework
 License     : MIT
 Maintainer  : bananu7@o2.pl
 Stability   : stable
@@ -11,7 +11,7 @@ This module contains various utilities missing from @Prelude@
 or @Control.Monad@.
 -}
 
-module Glisha.Util where
+module Hate.Util where
 
 import Control.Monad (unless)
 

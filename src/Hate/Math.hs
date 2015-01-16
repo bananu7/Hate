@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-module Glisha.Math 
+module Hate.Math 
     ( module Data.Vect.Float
     , vec2
     , identityTransform
@@ -11,7 +11,7 @@ where
 import Data.Vect.Float
 import Data.Vect.Float.Instances()
 
-import Glisha.Math.Types
+import Hate.Math.Types
 
 --type Vec2 = GL.Vertex2 Float
 vec2 :: Float -> Float -> Vec2 

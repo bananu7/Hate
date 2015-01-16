@@ -1,7 +1,7 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha
-import Glisha.Graphics
-import Glisha.Graphics.Shapes
+import Hate
+import Hate.Graphics
+import Hate.Graphics.Shapes
 
 type SampleState = Pipeline
 

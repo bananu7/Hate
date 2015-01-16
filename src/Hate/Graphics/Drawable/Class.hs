@@ -1,9 +1,9 @@
 {-# LANGUAGE RankNTypes, ExistentialQuantification #-}
 
-module Glisha.Graphics.Drawable.Class where
+module Hate.Graphics.Drawable.Class where
 
-import Glisha.Common.Types
+import Hate.Common.Types
 
 -- |Anything that can be drawn, basically
 class Drawable d where
-    draw :: forall us. d -> Glisha us ()
+    draw :: forall us. d -> Hate us ()

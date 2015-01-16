@@ -1,11 +1,11 @@
-module Glisha.Graphics.Instances where
+module Hate.Graphics.Instances where
 
-import Glisha.Common
-import Glisha.Math.Transformable.Class
-import Glisha.Graphics.Util
-import Glisha.Graphics.Drawable.Class
-import Glisha.Graphics.Pipeline
-import Glisha.Graphics.Types
+import Hate.Common
+import Hate.Math.Transformable.Class
+import Hate.Graphics.Util
+import Hate.Graphics.Drawable.Class
+import Hate.Graphics.Pipeline
+import Hate.Graphics.Types
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
@@ -16,7 +16,7 @@ import Data.Vect.Float
     {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
-    draw (Mesh _vao buffer n) = UnsafeGlisha $ liftIO $ do
+    draw (Mesh _vao buffer n) = UnsafeHate $ liftIO $ do
         GL.bindVertexArrayObject $= Just _vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
@@ -24,14 +24,14 @@ instance Drawable Mesh where
  
         GL.drawArrays GL.TriangleStrip 0 (fromIntegral n)
  
-    draw (IndexedMesh _vao _vbo _ibo _) = UnsafeGlisha $ liftIO $ do
+    draw (IndexedMesh _vao _vbo _ibo _) = UnsafeHate $ liftIO $ do
         GL.bindVertexArrayObject $= Just _vao
         GL.bindBuffer GL.ArrayBuffer $= Just _vbo
         GL.bindBuffer GL.ElementArrayBuffer $= Just _ibo
         error "todo"
  
 instance Drawable MeshWireframe where
-    draw (MeshWireframe (Mesh _vao buffer n)) = UnsafeGlisha $ liftIO $ do
+    draw (MeshWireframe (Mesh _vao buffer n)) = UnsafeHate $ liftIO $ do
         GL.bindVertexArrayObject $= Just _vao
         GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
         GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
@@ -41,7 +41,7 @@ instance Drawable MeshWireframe where
 
 instance Drawable Instance where 
     draw (Instance _mesh pip pos) = do 
-        UnsafeGlisha $ liftIO $ do 
+        UnsafeHate $ liftIO $ do 
             let prog = program pip
             posLoc <- GL.get (GL.uniformLocation prog "instance_position")
  
@@ -52,11 +52,11 @@ instance Drawable Instance where
 instance Drawable Polygon where
     draw = singletonPolygonDraw
 
-singletonPolygonDraw :: Polygon -> Glisha us ()
+singletonPolygonDraw :: Polygon -> Hate us ()
 --todo: replace by a singleton passtrough streaming buffer setup
---It would require Glisha to be configurable(?) or simply adding it to it
+--It would require Hate to be configurable(?) or simply adding it to it
 singletonPolygonDraw (Polygon verts) = do
-    mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
+    mesh <- UnsafeHate $ liftIO $ fromVertArray rawVerts
     draw mesh
     where rawVerts = map realToFrac . concat . map unpackVec $ verts
           unpackVec (Vec2 x y) = [x, y]
@@ -64,7 +64,7 @@ singletonPolygonDraw (Polygon verts) = do
 
 instance Drawable PolygonWireframe where
     draw (PolygonWireframe (Polygon verts)) = do
-        mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
+        mesh <- UnsafeHate $ liftIO $ fromVertArray rawVerts
         draw (MeshWireframe mesh)
         where rawVerts = map realToFrac . concat . map unpackVec $ verts
               unpackVec (Vec2 x y) = [x, y]

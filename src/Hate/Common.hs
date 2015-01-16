@@ -4,24 +4,24 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
 {-|
-Module      : GlishaCommon
-Description : Core and common parts of the Glisha framework.
+Module      : HateCommon
+Description : Core and common parts of the Hate framework.
 License     : MIT
 Maintainer  : bananu7@o2.pl
 Stability   : experimental
 Portability : requires OpenGL and GLFW build
 -}
 
-module Glisha.Common 
-    ( module Glisha.Common.Types
-    , module Glisha.Common.Instances
-    , Glisha.Common.Types.Glisha(..)    
+module Hate.Common 
+    ( module Hate.Common.Types
+    , module Hate.Common.Instances
+    , Hate.Common.Types.Hate(..)    
     , runApp
     ) where
 
-import Glisha.Util 
-import Glisha.Common.Types
-import Glisha.Common.Instances()
+import Hate.Util 
+import Hate.Common.Types
+import Hate.Common.Instances()
 
 import Control.Monad.State
 
@@ -72,7 +72,7 @@ glishaSuccessfulExit win = do
     G.terminate
     exitSuccess          
 
-glishaLoop :: GlishaInner us ()
+glishaLoop :: HateInner us ()
 glishaLoop = do
     gs <- get
     let w = window gs
@@ -90,15 +90,15 @@ glishaLoop = do
 
         -- call user drawing function
         let dfn = drawFn gs        
-        runGlisha dfn     
+        runHate dfn     
 
         liftIO $ do 
             G.swapBuffers w
             G.pollEvents
         glishaLoop 
 
-getKey :: G.Key -> Glisha us Bool
-getKey k = UnsafeGlisha $ do
+getKey :: G.Key -> Hate us Bool
+getKey k = UnsafeHate $ do
     gs <- get
     stt <- liftIO $ G.getKey (window gs) k 
     return $ keystateToBool stt
@@ -112,5 +112,5 @@ runApp config ldFn drFn = do
     let libCfg = 0
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     initialUserState <- ldFn
-    evalStateT glishaLoop $ GlishaState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }
+    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }
     glishaSuccessfulExit win

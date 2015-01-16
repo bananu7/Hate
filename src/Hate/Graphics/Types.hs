@@ -1,7 +1,7 @@
-module Glisha.Graphics.Types where
+module Hate.Graphics.Types where
 
-import Glisha.Graphics.Pipeline
-import Glisha.Math.Types
+import Hate.Graphics.Pipeline
+import Hate.Math.Types
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Data.Vect.Float

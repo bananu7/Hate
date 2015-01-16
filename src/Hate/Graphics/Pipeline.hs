@@ -1,6 +1,6 @@
-module Glisha.Graphics.Pipeline where
+module Hate.Graphics.Pipeline where
 
-import Glisha.Common
+import Hate.Common
 
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
@@ -20,8 +20,8 @@ data Pipeline = Pipeline {
     program        :: GL.Program
     }
 
-activatePipeline :: Pipeline -> Glisha us ()
-activatePipeline p = UnsafeGlisha $ liftIO $ do 
+activatePipeline :: Pipeline -> Hate us ()
+activatePipeline p = UnsafeHate $ liftIO $ do 
     GL.currentProgram $= Just (program p)
 
 createPipelineSource :: BS.ByteString -> BS.ByteString -> IO Pipeline

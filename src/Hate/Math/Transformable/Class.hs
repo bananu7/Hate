@@ -1,6 +1,6 @@
-module Glisha.Math.Transformable.Class where
+module Hate.Math.Transformable.Class where
 
-import Glisha.Math.Types
+import Hate.Math.Types
 
 class Transformable t where
     transform :: Transformation -> t -> t
