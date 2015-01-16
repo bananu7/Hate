@@ -1,8 +1,11 @@
+{-# LANGUAGE RankNTypes #-}
+
 module Hate.Graphics.Instances where
 
 import Hate.Common
 import Hate.Math.Transformable.Class
 import Hate.Graphics.Util
+import Hate.Graphics.Internal
 import Hate.Graphics.Drawable.Class
 import Hate.Graphics.Pipeline
 import Hate.Graphics.Types
@@ -11,7 +14,9 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 
+import Control.Monad.State
 import Control.Monad.IO.Class
+
 import Data.Vect.Float
     {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
@@ -52,12 +57,12 @@ instance Drawable Instance where
 instance Drawable Polygon where
     draw = singletonPolygonDraw
 
-singletonPolygonDraw :: Polygon -> Hate us ()
---todo: replace by a singleton passtrough streaming buffer setup
---It would require Hate to be configurable(?) or simply adding it to it
+singletonPolygonDraw :: Polygon -> Action ()
 singletonPolygonDraw (Polygon verts) = do
-    mesh <- UnsafeHate $ liftIO $ fromVertArray rawVerts
-    draw mesh
+    fromVertArrayIntoGlobal rawVerts
+    m <- runHate2D $ gets globalMesh
+    draw m
+
     where rawVerts = map realToFrac . concat . map unpackVec $ verts
           unpackVec (Vec2 x y) = [x, y]
 

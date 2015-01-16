@@ -8,7 +8,8 @@ import Data.Vect.Float
 import Data.Vect.Float.Instances()
 
 data GraphicsState = GraphicsState { 
-        mainPipeline :: Pipeline 
+        mainPipeline :: Pipeline,
+        globalMesh :: Mesh
     }
 
 -- |A general type for a graphical mesh, either in indexed or raw form.

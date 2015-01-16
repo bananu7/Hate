@@ -1,4 +1,5 @@
- {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RankNTypes #-}
 
 module Hate.Graphics.Util where
 
@@ -10,9 +11,10 @@ import Hate.Graphics.Pipeline
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Drawable.Class
-
+import Hate.Graphics.Internal
 
 import Control.Applicative
+import Control.Monad.IO.Class
 
 {-
 import qualified Graphics.Rendering.OpenGL.GL.Texturing.Specification (texImage2D, Level, Border, TextureSize2D(..)) as GL
@@ -24,15 +26,32 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (unlines)
+import Control.Monad.State
+
+globalBufferSize = 1000
 
 initialGraphicsState :: IO GraphicsState
-initialGraphicsState = GraphicsState <$> solidColorPipeline
+initialGraphicsState =
+    GraphicsState <$> solidColorPipeline
+                  <*> (fromVertArray $ replicate globalBufferSize 0)
 
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =
     Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
          <*> U.makeBuffer GL.ArrayBuffer verts
          <*> pure (length verts)
+
+fromVertArrayInto :: [Float] -> Mesh -> Action Mesh
+fromVertArrayInto verts m = runHate2D . liftIO $ do
+    GL.bindBuffer GL.ArrayBuffer $= Just (vbo m)
+    U.replaceBuffer GL.ArrayBuffer verts
+    return $ m { vertNum = length verts }
+
+fromVertArrayIntoGlobal :: [Float] -> Action ()
+fromVertArrayIntoGlobal xs = do
+    m <- (runHate2D $ gets globalMesh)
+    m' <- fromVertArrayInto xs m
+    runHate2D $ modify $ \x -> x { globalMesh = m' }
 
 solidColorPipeline :: IO Pipeline
 solidColorPipeline = createPipelineSource passtroughVsSource solidColorFsSource 
