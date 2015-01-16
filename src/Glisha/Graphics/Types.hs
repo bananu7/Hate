@@ -15,6 +15,8 @@ data LibState2D = LibState2D {
 data Mesh =   Mesh { vao :: GL.VertexArrayObject,  vbo :: GL.BufferObject, vertNum :: Int }
             | IndexedMesh { vao :: GL.VertexArrayObject, vbo :: GL.BufferObject, ibo :: GL.BufferObject, vertNum :: Int }
 
+newtype MeshWireframe = MeshWireframe Mesh
+
 -- Mesh holds a lightweight vbo reference, so it is ok to store it "by value"
 {- |Instance object is a Mesh bundled with a pipeline that is to be used to render it, and
  - its position in the world coordinates -}
@@ -25,6 +27,7 @@ data Instance = Instance {
     }
 
 data Polygon = Polygon [Vec2]
+newtype PolygonWireframe = PolygonWireframe Polygon
 
 data Sprite = Sprite {
     transformation :: Transformation,

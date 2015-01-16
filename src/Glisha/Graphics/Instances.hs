@@ -30,6 +30,15 @@ instance Drawable Mesh where
         GL.bindBuffer GL.ElementArrayBuffer $= Just _ibo
         error "todo"
  
+instance Drawable MeshWireframe where
+    draw (MeshWireframe (Mesh _vao buffer n)) = UnsafeGlisha $ liftIO $ do
+        GL.bindVertexArrayObject $= Just _vao
+        GL.bindBuffer GL.ArrayBuffer $= (Just buffer) -- (vertexBuffer buffer)
+        GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
+        GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
+ 
+        GL.drawArrays GL.LineLoop 0 (fromIntegral n)
+
 instance Drawable Instance where 
     draw (Instance _mesh pip pos) = do 
         UnsafeGlisha $ liftIO $ do 
@@ -48,12 +57,17 @@ singletonPolygonDraw :: Polygon -> Glisha us ()
 --It would require Glisha to be configurable(?) or simply adding it to it
 singletonPolygonDraw (Polygon verts) = do
     mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
-    -- TODO
-    --gets mainPipeline) >>= activatePipeline
     draw mesh
     where rawVerts = map realToFrac . concat . map unpackVec $ verts
           unpackVec (Vec2 x y) = [x, y]
 
+
+instance Drawable PolygonWireframe where
+    draw (PolygonWireframe (Polygon verts)) = do
+        mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
+        draw (MeshWireframe mesh)
+        where rawVerts = map realToFrac . concat . map unpackVec $ verts
+              unpackVec (Vec2 x y) = [x, y]
 
 instance Transformable Sprite where
     transform t s = s { transformation = t }

@@ -17,10 +17,11 @@ cabal-version:       >=1.18
 
 library
   -- Modules exported by the library.
-  exposed-modules:     Glisha,
-                       Glisha.Graphics,
-                       Glisha.Graphics.Instances,
-                       Glisha.Math
+  exposed-modules:    Glisha,
+                      Glisha.Graphics,
+                      Glisha.Graphics.Instances,
+                      Glisha.Graphics.Shapes
+                      Glisha.Math
   other-modules:      Glisha.Common
                       Glisha.Common.Types
                       Glisha.Graphics.Pipeline
