@@ -1,7 +1,13 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, OverloadedStrings #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-module Glisha.Graphics where
+module Glisha.Graphics
+    ( fromVertArray
+    , module Glisha.Graphics.Pipeline
+    , module Glisha.Graphics.Types
+    , module Glisha.Graphics.Drawable.Class    
+    )
+where
 
 {-|
 Module      : Glisha.Graphics
@@ -14,15 +20,12 @@ Portability : To whatever has OpenGL in a reasonable version.
 This module contains graphics
 -}
 
-import Glisha.Common
-import Glisha.Math
 import Glisha.Graphics.Pipeline
 import Glisha.Graphics.Types
 import Glisha.Graphics.Drawable.Class
-import Glisha.Graphics.Instances
 
 --import qualified Codec.Picture as JP
-import Data.Vector.Storable (unsafeWith)
+--import Data.Vector.Storable (unsafeWith)
 
 import Control.Applicative
 
@@ -66,18 +69,6 @@ solidColorFsSource = BS.unlines $
     ,"color = vec4(1.0, 1.0, 0.0, 1.0);"
     ,"}"
     ]
-
-singletonPolygonDraw :: Polygon -> Glisha us ()
---todo: replace by a singleton passtrough streaming buffer setup
---It would require Glisha to be configurable(?) or simply adding it to it
-singletonPolygonDraw (Polygon verts) = do
-    mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
-    -- TODO
-    --gets mainPipeline) >>= activatePipeline
-    draw mesh
-
-    where rawVerts = map realToFrac . concat . map unpackVec $ verts
-          unpackVec (Vec2 x y) = [x, y]
 
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]

@@ -19,8 +19,12 @@ library
   -- Modules exported by the library.
   exposed-modules:     Glisha,
                        Glisha.Graphics,
+                       Glisha.Graphics.Instances,
                        Glisha.Math
   other-modules:       Glisha.Common
+                       Glisha.Common.Types
+                       Glisha.Graphics.Pipeline
+                       Glisha.Graphics.Types
                        
 
   hs-source-dirs:      .,src

@@ -9,6 +9,8 @@ import qualified Graphics.GLUtil as U
 import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
 import Data.Vect.Float (transpose)
 
+import Control.Monad.IO.Class
+
 import qualified Data.ByteString as BS
 
 -- |Pipeline object is a complete package needed to render something on the screen.

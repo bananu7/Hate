@@ -13,10 +13,15 @@ Portability : requires OpenGL and GLFW build
 -}
 
 module Glisha.Common 
-    ( module Control.Monad.State
-    , module Glisha.Common.Types
-    , Glisha.Common.Types.Glisha(..)
+    ( module Glisha.Common.Types
+    , module Glisha.Common.Instances
+    , Glisha.Common.Types.Glisha(..)    
+    , runApp
     ) where
+
+import Glisha.Util 
+import Glisha.Common.Types
+import Glisha.Common.Instances()
 
 import Control.Monad.State
 
@@ -26,9 +31,6 @@ import System.IO
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as G
-
-import Glisha.Util 
-import Glisha.Common.Types
 
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
@@ -104,9 +106,10 @@ getKey k = UnsafeGlisha $ do
             | s == G.KeyState'Released = False
             | otherwise = True
    
-runAppInner :: IO LibraryState -> Config -> LoadFn us -> DrawFn us -> IO ()
-runAppInner libCfgM config ldFn drFn = do
-    libCfg <- libCfgM
+
+runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
+runApp config ldFn drFn = do
+    let libCfg = 0
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     initialUserState <- ldFn
     evalStateT glishaLoop $ GlishaState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }

@@ -1,13 +1,18 @@
 module Glisha.Graphics.Instances where
 
-import Glisha.Graphics.Drawable.Class
+import Glisha.Common
 import Glisha.Math.Transformable.Class
-
+import Glisha.Graphics
+import Glisha.Graphics.Drawable.Class
+import Glisha.Graphics.Pipeline
 import Glisha.Graphics.Types
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
+
+import Control.Monad.IO.Class
+import Data.Vect.Float
     {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
@@ -37,6 +42,18 @@ instance Drawable Instance where
 
 instance Drawable Polygon where
     draw = singletonPolygonDraw
+
+singletonPolygonDraw :: Polygon -> Glisha us ()
+--todo: replace by a singleton passtrough streaming buffer setup
+--It would require Glisha to be configurable(?) or simply adding it to it
+singletonPolygonDraw (Polygon verts) = do
+    mesh <- UnsafeGlisha $ liftIO $ fromVertArray rawVerts
+    -- TODO
+    --gets mainPipeline) >>= activatePipeline
+    draw mesh
+    where rawVerts = map realToFrac . concat . map unpackVec $ verts
+          unpackVec (Vec2 x y) = [x, y]
+
 
 instance Transformable Sprite where
     transform t s = s { transformation = t }

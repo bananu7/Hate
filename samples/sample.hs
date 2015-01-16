@@ -1,7 +1,7 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha.G3D
 import Glisha
-import Glisha.Pipeline
+import Glisha.Graphics
+import Glisha.Graphics.Instances
 
 type SampleState = Instance
 
@@ -20,7 +20,6 @@ sampleLoad = do
 sampleDraw :: DrawFn SampleState
 sampleDraw = do 
     get >>= draw
-    test3D
     return ()
 
 config :: Config

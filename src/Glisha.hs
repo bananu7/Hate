@@ -6,13 +6,5 @@ module Glisha
 
 import Control.Monad.State
 import Glisha.Common
-    ( DrawFn
-    , LoadFn
-    , Drawable(..)
-    , Glisha(..)
-    , Config(..)
-    , runAppInner
-    , getKey
-    )
 
 import Glisha.Math

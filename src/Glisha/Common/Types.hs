@@ -28,7 +28,7 @@ type GlishaInner us a = StateT (GlishaState us) IO a
 
 -- |Glisha Monad restricts user operations
 newtype Glisha us a = UnsafeGlisha { runGlisha :: GlishaInner us a }
-  deriving (Functor, Applicative, Monad)
+  deriving (Functor, Applicative, Monad, MonadIO)
 
 {- |This is one of the two functions that the user has to
  - provide in order to use the framework. It's a regular IO
