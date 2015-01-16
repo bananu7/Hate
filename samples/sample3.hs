@@ -2,12 +2,15 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Glisha
 import Glisha.Graphics
 
-type SampleState = ()
+type SampleState = Pipeline
+
 sampleLoad :: LoadFn SampleState
-sampleLoad = return ()
+sampleLoad = do
+    solidColorPipeline
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
+    get >>= activatePipeline
     draw $ Polygon [vec2 0 0, vec2 1 0, vec2 0 1]
 
 config :: Config
