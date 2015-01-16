@@ -25,6 +25,7 @@ library
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Graphics.Pipeline
+                      Hate.Graphics.Pipeline.Util
                       Hate.Graphics.Types
                       Hate.Graphics.Util
                        

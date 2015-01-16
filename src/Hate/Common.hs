@@ -23,7 +23,10 @@ import Hate.Util
 import Hate.Common.Types
 import Hate.Common.Instances()
 
+import Hate.Graphics.Util (initialGraphicsState)
+
 import Control.Monad.State
+import Control.Applicative
 
 import System.Exit
 import System.IO
@@ -105,12 +108,13 @@ getKey k = UnsafeHate $ do
     where keystateToBool s
             | s == G.KeyState'Released = False
             | otherwise = True
-   
+
+initialLibraryState = LibraryState <$> initialGraphicsState
 
 runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
 runApp config ldFn drFn = do
-    let libCfg = 0
     win <- glishaInitWindow (windowTitle config) (windowSize config)
+    libS <- initialLibraryState
     initialUserState <- ldFn
-    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libCfg }
+    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libS }
     glishaSuccessfulExit win

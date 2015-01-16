@@ -7,7 +7,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Data.Vect.Float
 import Data.Vect.Float.Instances()
 
-data LibState2D = LibState2D { 
+data GraphicsState = GraphicsState { 
         mainPipeline :: Pipeline 
     }
 

@@ -7,6 +7,7 @@ module Hate.Graphics.Util where
 
 
 import Hate.Graphics.Pipeline
+import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Drawable.Class
 
@@ -23,6 +24,9 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (unlines)
+
+initialGraphicsState :: IO GraphicsState
+initialGraphicsState = GraphicsState <$> solidColorPipeline
 
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =

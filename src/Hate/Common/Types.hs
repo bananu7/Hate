@@ -6,8 +6,12 @@ import Control.Monad.State
 import Control.Applicative
 import qualified Graphics.UI.GLFW as G
 
+import Hate.Graphics.Types(GraphicsState)
+
 -- TODO
-type LibraryState = Int
+data LibraryState = LibraryState {
+		graphicsState :: GraphicsState
+	}
 
 {-| Configuration object to pass to `runApp` -}
 data Config
