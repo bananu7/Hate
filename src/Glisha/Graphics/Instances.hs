@@ -2,7 +2,7 @@ module Glisha.Graphics.Instances where
 
 import Glisha.Common
 import Glisha.Math.Transformable.Class
-import Glisha.Graphics
+import Glisha.Graphics.Util
 import Glisha.Graphics.Drawable.Class
 import Glisha.Graphics.Pipeline
 import Glisha.Graphics.Types

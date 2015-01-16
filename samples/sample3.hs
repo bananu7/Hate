@@ -1,6 +1,6 @@
 import qualified Graphics.Rendering.OpenGL as GL
-import Glisha.G2D
 import Glisha
+import Glisha.Graphics
 
 type SampleState = ()
 sampleLoad :: LoadFn SampleState

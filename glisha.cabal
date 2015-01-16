@@ -21,10 +21,11 @@ library
                        Glisha.Graphics,
                        Glisha.Graphics.Instances,
                        Glisha.Math
-  other-modules:       Glisha.Common
-                       Glisha.Common.Types
-                       Glisha.Graphics.Pipeline
-                       Glisha.Graphics.Types
+  other-modules:      Glisha.Common
+                      Glisha.Common.Types
+                      Glisha.Graphics.Pipeline
+                      Glisha.Graphics.Types
+                      Glisha.Graphics.Util
                        
 
   hs-source-dirs:      .,src
