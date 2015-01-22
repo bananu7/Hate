@@ -6,7 +6,7 @@ module Hate.Graphics.Util where
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
 
-
+import Hate.Common.Types
 import Hate.Graphics.Pipeline
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types

@@ -14,8 +14,8 @@ import Control.Monad.IO.Class
 
 import qualified Data.ByteString as BS
 
-activatePipeline :: Pipeline -> Hate us ()
-activatePipeline p = UnsafeHate $ liftIO $ do 
+activatePipeline :: Pipeline -> HateDraw us ()
+activatePipeline p = HateDraw $ liftIO $ do 
     GL.currentProgram $= Just (program p)
 
 createPipelineSource :: BS.ByteString -> BS.ByteString -> IO Pipeline

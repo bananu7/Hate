@@ -11,7 +11,7 @@ sampleLoad = do
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
-    get >>= activatePipeline
+    ask >>= activatePipeline
     --draw $ PolygonWireframe $ Polygon [vec2 0 0, vec2 1 0, vec2 0 1]
     --line (vec2 0 0) (vec2 1 1)
     circle Filled (vec2 0 0) 2
