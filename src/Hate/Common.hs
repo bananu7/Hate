@@ -93,7 +93,7 @@ glishaLoop = do
 
         -- call user drawing function
         let dfn = drawFn gs        
-        runHate dfn     
+        runHateDraw dfn
 
         liftIO $ do 
             G.swapBuffers w

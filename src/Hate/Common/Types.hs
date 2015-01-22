@@ -34,13 +34,21 @@ type HateInner us a = StateT (HateState us) IO a
 newtype Hate us a = UnsafeHate { runHate :: HateInner us a }
   deriving (Functor, Applicative, Monad, MonadIO)
 
-{- |This is one of the two functions that the user has to
+-- |This wrapper restricts the operation to read-only
+newtype HateDraw us a = HateDraw { runHateDraw :: HateInner us a }
+  deriving (Functor, Applicative, Monad, MonadIO)
+
+{- |This is one of the three functions that the user has to
  - provide in order to use the framework. It's a regular IO
  - function, so it's not limited in any way. It has to produce
  - initial state of the user's program. -}
 type LoadFn userStateType = IO userStateType
+
+
+type UpdateFn us = Hate us ()
+
 {- |The main framework update function runs in the restricted
  - Hate context. Only safe Hate functions can be used inside.
  - Because Hate is an instance of MonadState, it can be treated
  - just as the State monad with the registered user data. -}
-type DrawFn us = Hate us () 
+type DrawFn us = HateDraw us () 

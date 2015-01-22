@@ -19,7 +19,7 @@ sampleLoad = do
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do 
-    get >>= draw
+    ask >>= draw
     return ()
 
 config :: Config
