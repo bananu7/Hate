@@ -28,6 +28,7 @@ library
                       Hate.Graphics.Pipeline.Util
                       Hate.Graphics.Types
                       Hate.Graphics.Util
+                      Hate.Graphics.Sprite
                        
 
   hs-source-dirs:      .,src
