@@ -38,7 +38,7 @@ drawMesh drawingMode (Mesh _vao buffer n) = HateDraw $ liftIO $ do
     GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
     GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
 
-    GL.drawArrays drawingMode 0 (fromIntegral n)
+    GL.drawArrays drawingMode 0 (fromIntegral n `div` 2) 
 
 instance Drawable Instance where 
     draw (Instance _mesh pip pos) = do 
@@ -56,6 +56,7 @@ instance Drawable Polygon where
 singletonPolygonDraw :: Polygon -> Action ()
 singletonPolygonDraw (Polygon verts) = do
     fromVertArrayIntoGlobal rawVerts
+    HateDraw $ liftIO $ print rawVerts
     m <- gets globalMesh
     draw m
 

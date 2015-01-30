@@ -27,7 +27,7 @@ createPipelineSource vss fss = do
     matLoc <- GL.get (GL.uniformLocation prog "screen_transformation")
     GL.currentProgram $= Just prog
 
-    let orthoScreenMat = orthoMatrix (-1, 2) (-1, 2) (-10, 10)
+    let orthoScreenMat = orthoMatrix (0, 100) (0, 100) (-10, 10)
         tMat = Data.Vect.Float.transpose orthoScreenMat
     
     glmat <- makeGLMatrix tMat
