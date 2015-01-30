@@ -12,13 +12,16 @@ sampleDraw :: DrawFn SampleState
 sampleDraw = do
     activateGlobalPipeline
     p <- fmap fromIntegral ask
-    draw $ PolygonWireframe $ Polygon [vec2 10 10, vec2 10 20, vec2 20 20]
+    --draw $ PolygonWireframe $ Polygon [vec2 10 10, vec2 10 20, vec2 20 20]
     --line (vec2 0 0) (vec2 1 1)
     
-    --circle Filled (vec2 (p/10.0 + 10) 50) 2
+    draw $ circle Filled (vec2 50 50) p
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = return () --modify (+1)
+sampleUpdate = do
+    x <- get
+    if x > 50 then put 0
+              else put $ x + 1
 
 config :: Config
 config = 

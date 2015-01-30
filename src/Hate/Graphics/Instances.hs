@@ -22,7 +22,7 @@ import Data.Vect.Float
     {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
 instance Drawable Mesh where
-    draw m@(Mesh _ _ _) = drawMesh GL.TriangleStrip m
+    draw m@(Mesh _ _ _) = drawMesh GL.TriangleFan m
     draw (IndexedMesh _vao _vbo _ibo _) = HateDraw $ liftIO $ do
         GL.bindVertexArrayObject $= Just _vao
         GL.bindBuffer GL.ArrayBuffer $= Just _vbo
@@ -56,7 +56,6 @@ instance Drawable Polygon where
 singletonPolygonDraw :: Polygon -> Action ()
 singletonPolygonDraw (Polygon verts) = do
     fromVertArrayIntoGlobal rawVerts
-    HateDraw $ liftIO $ print rawVerts
     m <- gets globalMesh
     draw m
 
