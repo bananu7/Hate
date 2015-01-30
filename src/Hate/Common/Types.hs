@@ -26,7 +26,9 @@ data HateState us = HateState {
   userState :: us,
   libraryState :: LibraryState,
   window :: G.Window,
-  drawFn :: DrawFn us
+  drawFn :: DrawFn us,
+  updateFn :: UpdateFn us,
+  lastUpdateTime :: Double
 }
 type HateInner us a = StateT (HateState us) IO a
 

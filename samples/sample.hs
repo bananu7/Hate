@@ -30,4 +30,4 @@ config =
         }
 
 main :: IO ()
-main = runApp config sampleLoad sampleDraw
+main = runApp config sampleLoad (return ()) sampleDraw

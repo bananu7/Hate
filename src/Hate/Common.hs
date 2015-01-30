@@ -35,6 +35,8 @@ import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as G
 
+import Data.Maybe
+
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
 data Callbacks us = Callbacks { onKeyUp :: KeyCallbackFn us, onKeyDown :: KeyCallbackFn }
@@ -53,21 +55,21 @@ keyCallback win key _ action _ =
 
 glishaInitWindow :: String -> (Int, Int) -> IO G.Window
 glishaInitWindow titl (width, height) = do
-  G.setErrorCallback (Just errorCallback)
-  successfulInit <- G.init
-  -- if init failed, we exit the program
-  bool successfulInit exitFailure $ do
-      G.windowHint (G.WindowHint'ContextVersionMajor 3)
-      G.windowHint (G.WindowHint'ContextVersionMinor 3)
-      G.windowHint (G.WindowHint'OpenGLForwardCompat True)
-      G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
-      G.windowHint (G.WindowHint'OpenGLDebugContext True)
- 
-      mw <- G.createWindow width height titl Nothing Nothing
-      maybe' mw (G.terminate >> exitFailure) $ \win -> do
-          G.makeContextCurrent mw
-          G.setKeyCallback win (Just keyCallback)
-          return win
+    G.setErrorCallback (Just errorCallback)
+    successfulInit <- G.init
+    -- if init failed, we exit the program
+    bool successfulInit exitFailure $ do
+        G.windowHint (G.WindowHint'ContextVersionMajor 3)
+        G.windowHint (G.WindowHint'ContextVersionMinor 3)
+        G.windowHint (G.WindowHint'OpenGLForwardCompat True)
+        G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
+        G.windowHint (G.WindowHint'OpenGLDebugContext True)
+
+        mw <- G.createWindow width height titl Nothing Nothing
+        maybe' mw (G.terminate >> exitFailure) $ \win -> do
+            G.makeContextCurrent mw
+            G.setKeyCallback win (Just keyCallback)
+            return win
 
 glishaSuccessfulExit :: G.Window -> IO b
 glishaSuccessfulExit win = do
@@ -88,12 +90,18 @@ glishaLoop = do
     
             GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral width) (fromIntegral height))
             GL.clear [GL.ColorBuffer]
-    
-        -- todo: Time measurements; -- Just t <- G.getTime ...
 
         -- call user drawing function
-        let dfn = drawFn gs        
-        runHateDraw dfn
+        runHateDraw $ drawFn gs
+
+        -- update the game state in constant intervals
+        Just t <- liftIO G.getTime
+        let tDiff = t - (lastUpdateTime gs)
+
+        -- magic constant anyone
+        when (tDiff > (1.0/60.0)) $ do
+            runHate $ updateFn gs
+            modify $ \x -> x { lastUpdateTime = t }
 
         liftIO $ do 
             G.swapBuffers w
@@ -111,10 +119,11 @@ getKey k = UnsafeHate $ do
 
 initialLibraryState = LibraryState <$> initialGraphicsState
 
-runApp :: Config -> LoadFn us -> DrawFn us -> IO ()
-runApp config ldFn drFn = do
+runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
+runApp config ldFn upFn drFn = do
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     libS <- initialLibraryState
     initialUserState <- ldFn
-    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, libraryState = libS }
+    time <- fromJust <$> G.getTime
+    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
     glishaSuccessfulExit win

@@ -56,6 +56,11 @@ fromVertArrayIntoGlobal xs = do
 solidColorPipeline :: IO Pipeline
 solidColorPipeline = createPipelineSource passtroughVsSource solidColorFsSource 
 
+activateGlobalPipeline :: HateDraw us ()
+activateGlobalPipeline = do
+    gp <- gets mainPipeline
+    activatePipeline gp
+
 passtroughVsSource = BS.unlines $
     ["#version 330 core"
     ,""

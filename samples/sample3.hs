@@ -3,18 +3,21 @@ import Hate
 import Hate.Graphics
 import Hate.Graphics.Shapes
 
-type SampleState = Pipeline
+type SampleState = Int
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = do
-    solidColorPipeline
+sampleLoad = return 0
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = do
-    ask >>= activatePipeline
+    activateGlobalPipeline
     --draw $ PolygonWireframe $ Polygon [vec2 0 0, vec2 1 0, vec2 0 1]
     --line (vec2 0 0) (vec2 1 1)
-    circle Filled (vec2 0 0) 2
+    p <- fmap fromIntegral ask
+    circle Filled (vec2 (p/10.0) 0) 2
+
+sampleUpdate :: UpdateFn SampleState
+sampleUpdate = modify (+1)
 
 config :: Config
 config = 
@@ -24,4 +27,4 @@ config =
         }
 
 main :: IO ()
-main = runApp config sampleLoad sampleDraw
+main = runApp config sampleLoad sampleUpdate sampleDraw
