@@ -70,5 +70,12 @@ instance Drawable PolygonWireframe where
         where rawVerts = map realToFrac . concat . map unpackVec $ verts
               unpackVec (Vec2 x y) = [x, y]
 
-instance Transformable Sprite where
-    transform t s = s { transformation = t }
+--instance Transformable Sprite where
+--    transform t s = s { transformation = t }
+
+instance Drawable Sprite where
+    draw (Sprite (Vec2 sx sy) tex) = do
+        HateDraw $ liftIO $ do
+            GL.activeTexture $= GL.TextureUnit 0
+            GL.textureBinding GL.Texture2D $= Just tex
+        draw $ Polygon [Vec2 0 0, Vec2 sx 0, Vec2 sx sy, Vec2 0 sy]

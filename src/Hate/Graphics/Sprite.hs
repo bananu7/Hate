@@ -57,9 +57,8 @@ loadTexture path = do
                               loadImageDataIntoTexture imgData
                               return texId
 
---sprite :: GL.TextureObject -> Sprite
---sprite = Sprite identityTransform (vec2 1 1)
-
+sprite :: GL.TextureObject -> Sprite
+sprite t = Sprite (vec2 1 1) t
 
 --instance Drawable Sprite where
 --    draw = 
