@@ -1,6 +1,8 @@
 module Hate.Graphics.Sprite where
 
 import Hate.Graphics.Internal
+import Hate.Graphics.Types
+import Hate.Math
 
 import qualified Codec.Picture as JP
 import Data.Vector.Storable (unsafeWith)
@@ -24,9 +26,9 @@ loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) =
         0
         (GL.PixelData GL.RGB GL.UnsignedByte ptr)
 
-loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) =
+loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) = do
     -- Access the data vector pointer
-    unsafeWith dat $ \ptr ->
+    {-unsafeWith dat $ \ptr ->
         -- Generate the texture
         GL.texImage2D
         -- No cube map
@@ -42,7 +44,10 @@ loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) =
         -- No borders
         0
         -- The pixel data: the vector contains Bytes, in RGBA order
-        (GL.PixelData GL.RGBA GL.UnsignedByte ptr)
+        (GL.PixelData GL.RGBA GL.UnsignedByte ptr)-}
+    print dat
+    unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGBA8 (fromIntegral width) (fromIntegral height)
+      . GL.PixelData GL.RGBA GL.UnsignedByte
 
 loadImageDataIntoTexture _ = error "Not yet supported"
 
@@ -54,11 +59,13 @@ loadTexture path = do
                          exitWith (ExitFailure 1)
         (Right imgData) -> do texId <- GL.genObjectName :: IO GL.TextureObject
                               GL.textureBinding GL.Texture2D $= Just texId
+                              GL.textureFilter  GL.Texture2D GL.$= ((GL.Linear', Just GL.Nearest), GL.Linear')
                               loadImageDataIntoTexture imgData
+                              print $ "loaded texture" ++ show texId
                               return texId
 
 sprite :: GL.TextureObject -> Sprite
-sprite t = Sprite (vec2 1 1) t
+sprite t = Sprite (vec2 50 50) t
 
 --instance Drawable Sprite where
 --    draw = 

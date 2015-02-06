@@ -3,9 +3,13 @@ module Hate.Graphics.Shader
     )
 where
 
+import qualified Data.ByteString.Char8 as BS (pack)
+
 data Version = Version330
 instance Show Version where
     show Version330 = "#version 330"
+    show Version440 = "#version 440"
+    show Version450 = "#version 450"
 
 data FloatPrecision = HighPrecision | MediumPrecision | LowPrecision
 instance Show FloatPrecision where
@@ -36,13 +40,15 @@ data PreboundInput = PreboundInput Location Input
 instance Show PreboundInput where
     show (PreboundInput loc inp) = "layout(location = " ++ show loc ++ ") " ++ show inp
 
-shader :: Version -> FloatPrecision -> [Input] -> [Output] -> String -> String
-shader v p is body = header ++ "{" ++ body ++ "}"
-    where header = unwords . map show $ [v, p] ++ is
+shaderStr :: Version -> FloatPrecision -> [Input] -> [Output] -> String -> String
+shaderStr v p ins outs body = header ++ "{" ++ body ++ "}"
+    where header = (unlines . map show [v, p]) ++ map show ins ++ map show outs
+
+shader = BS.pack . shader
 
 passThroughVertexShader = shader 
     Version330
     MediumPrecision
-    [PreboundInput 0 (InputVec2 "iposition")]
+    [PreboundInput 0 (InputVec2 "in_position")]
     [OutputVec2 "out_position"]
     "out position = in_position;"

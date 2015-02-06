@@ -16,6 +16,7 @@ module Hate.Graphics
     , module Hate.Graphics.Drawable.Class
     , module Hate.Graphics.Instances
     , module Hate.Graphics.Util
+    , module Hate.Graphics.Sprite
     )
 where
 
@@ -25,3 +26,4 @@ import Hate.Graphics.Types
 import Hate.Graphics.Drawable.Class
 import Hate.Graphics.Instances
 import Hate.Graphics.Util
+import Hate.Graphics.Sprite

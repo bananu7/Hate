@@ -123,7 +123,10 @@ runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do
     win <- glishaInitWindow (windowTitle config) (windowSize config)
     libS <- initialLibraryState
+
+    print $! "Loading user state"
     initialUserState <- ldFn
+
     time <- fromJust <$> G.getTime
     evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
     glishaSuccessfulExit win

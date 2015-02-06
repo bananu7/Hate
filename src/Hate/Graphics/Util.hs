@@ -62,12 +62,13 @@ activateGlobalPipeline = do
     activatePipeline gp
 
 passtroughVsSource = BS.unlines $
-    ["#version 330 core"
+    ["#version 440 core"
     ,""
     ,"layout(location = 0) in vec2 position;"
     --,"uniform vec2 instance_position;"
     ,""
     ,"uniform mat4 screen_transformation;"
+    ,"out vec2 fs_position;"
     ,""
     ,"void main() {"
     ,"    gl_Position = screen_transformation * vec4(position, 0, 1);"
@@ -75,10 +76,13 @@ passtroughVsSource = BS.unlines $
     ]
 
 solidColorFsSource = BS.unlines $
-    ["#version 330 core"
+    ["#version 440 core"
     ,"out vec4 color;"
+    ,"in vec2 fs_position;"
+    ,"layout(binding = 0) uniform sampler2D mainTexture;"
     ,"void main () {"
-    ,"color = vec4(1.0, 1.0, 0.0, 1.0);"
+    --,"      color = vec4(1.0, 1.0, 0.0, 1.0);"
+    ,"      color = vec4(texture(mainTexture, fs_position).rgb, 1.0);"
     ,"}"
     ]
 
