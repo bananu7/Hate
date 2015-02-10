@@ -45,7 +45,6 @@ loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) = do
         0
         -- The pixel data: the vector contains Bytes, in RGBA order
         (GL.PixelData GL.RGBA GL.UnsignedByte ptr)-}
-    print dat
     unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGBA8 (fromIntegral width) (fromIntegral height)
       . GL.PixelData GL.RGBA GL.UnsignedByte
 
@@ -59,8 +58,10 @@ loadTexture path = do
                          exitWith (ExitFailure 1)
         (Right imgData) -> do texId <- GL.genObjectName :: IO GL.TextureObject
                               GL.textureBinding GL.Texture2D $= Just texId
-                              GL.textureFilter  GL.Texture2D GL.$= ((GL.Linear', Just GL.Nearest), GL.Linear')
                               loadImageDataIntoTexture imgData
+                              GL.textureFilter  GL.Texture2D GL.$= ((GL.Nearest, Just GL.Nearest), GL.Nearest)
+                              GL.textureWrapMode GL.Texture2D GL.S $= (GL.Repeated, GL.Repeat)
+                              GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
                               print $ "loaded texture" ++ show texId
                               return texId
 
