@@ -1,11 +1,14 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Hate.Graphics.Shader
-    ( shader
+    ( shader,
+      passThroughVertexShader
     )
 where
 
 import qualified Data.ByteString.Char8 as BS (pack)
 
-data Version = Version330
+data Version = Version330 | Version440 | Version450
 instance Show Version where
     show Version330 = "#version 330"
     show Version440 = "#version 440"
@@ -13,42 +16,41 @@ instance Show Version where
 
 data FloatPrecision = HighPrecision | MediumPrecision | LowPrecision
 instance Show FloatPrecision where
-    show HighPrecision      -> "precision highp float;"
-    show MediumPrecision    -> "precision mediump float;"
-    show LowPrecision       -> "precision lowp float;"
+    show HighPrecision      = "precision highp float;"
+    show MediumPrecision    = "precision mediump float;"
+    show LowPrecision       = "precision lowp float;"
 
-data Input = 
-      InputFloat String
-    | InputVec2 String
-    | InputVec3 String
+newtype Location = Location Int
+instance Show Location where 
+    show (Location loc) =  "layout(location = " ++ show loc ++ ") "
+
+data TypeTag = FloatTag | Vec2Tag | Vec3Tag
+instance Show TypeTag where
+    show FloatTag = "float"
+    show Vec2Tag = "vec2"
+    show Vec3Tag = "vec3"
+
+data Input = Input TypeTag Location String
 instance Show Input where
-    show (InputFloat s) = "in float " ++ s ++ ";"
-    show (InputVec2 s) = "in vec2 " ++ s ++ ";"
-    show (InputVec3 s) = "in vec3 " ++ s ++ ";"
-
-data Output = 
-      OutputFloat String
-    | OutputVec2 String
-    | OutputVec3 String
-instance Show Input where
-    show (OutputFloat s) = "out float " ++ s ++ ";"
-    show (OutputVec2 s) = "out vec2 " ++ s ++ ";"
-    show (OutputVec3 s) = "out vec3 " ++ s ++ ";"
-
-type Location = Int
-data PreboundInput = PreboundInput Location Input
-instance Show PreboundInput where
-    show (PreboundInput loc inp) = "layout(location = " ++ show loc ++ ") " ++ show inp
+    show (Input tag loc name) = show loc ++ "in " ++ show tag ++ " " ++ show name ++ ";"
+    
+data Output = Output TypeTag String
+instance Show Output where
+    show (Output tag name) = "out " ++ show tag ++ " " ++ show name ++ ";"
 
 shaderStr :: Version -> FloatPrecision -> [Input] -> [Output] -> String -> String
-shaderStr v p ins outs body = header ++ "{" ++ body ++ "}"
-    where header = (unlines . map show [v, p]) ++ map show ins ++ map show outs
-
-shader = BS.pack . shader
+shaderStr v p ins outs body = header ++ "{\n" ++ body ++ "\n}\n"
+    where versionStr = show v
+          precisionStr = show p
+          inputsStr = unlines . map show $ ins
+          outputsStr = unlines . map show $ outs
+          header = unlines [versionStr, precisionStr, inputsStr, outputsStr]
+        
+shader v p i o b = BS.pack $ shaderStr v p i o b
 
 passThroughVertexShader = shader 
     Version330
     MediumPrecision
-    [PreboundInput 0 (InputVec2 "in_position")]
-    [OutputVec2 "out_position"]
-    "out position = in_position;"
+    [Input Vec2Tag (Location 0) "in_position"]
+    [Output Vec2Tag "out_position"]
+    "out_position = in_position;"

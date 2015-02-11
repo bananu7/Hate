@@ -21,6 +21,7 @@ library
                       Hate.Graphics,
                       Hate.Graphics.Instances,
                       Hate.Graphics.Shapes
+                      Hate.Graphics.Shader
                       Hate.Math
   other-modules:      Hate.Common
                       Hate.Common.Types
