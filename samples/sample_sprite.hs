@@ -12,9 +12,8 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = sprite <$> loadTexture "samples/image.png"
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = do
-    activateGlobalPipeline
-    s <- ask
+sampleDraw = withGlobalPipeline $ do
+    s <- ask    
     draw s
 
 sampleUpdate :: UpdateFn SampleState

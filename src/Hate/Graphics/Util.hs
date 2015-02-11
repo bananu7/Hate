@@ -12,6 +12,7 @@ import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Drawable.Class
 import Hate.Graphics.Internal
+import Hate.Graphics.Shader
 
 import Control.Applicative
 import Control.Monad.IO.Class
@@ -54,27 +55,39 @@ fromVertArrayIntoGlobal xs = do
     modify $ \x -> x { globalMesh = m' }
 
 solidColorPipeline :: IO Pipeline
-solidColorPipeline = createPipelineSource passtroughVsSource solidColorFsSource 
+solidColorPipeline = createPipelineSource passThroughVertexShader solidColorFsSource 
+
+withGlobalPipeline :: HateDraw us () -> HateDraw us ()
+withGlobalPipeline a = do
+    gp <- gets mainPipeline
+    withPipeline gp a
 
 activateGlobalPipeline :: HateDraw us ()
 activateGlobalPipeline = do
     gp <- gets mainPipeline
     activatePipeline gp
 
-passtroughVsSource = BS.unlines $
-    ["#version 450 core"
-    ,""
-    ,"layout(location = 0) in vec2 position;"
-    --,"uniform vec2 instance_position;"
-    ,""
-    ,"uniform mat4 screen_transformation;"
-    ,"out vec2 fs_position;"
-    ,""
-    ,"void main() {"
-    ,"    gl_Position = screen_transformation * vec4(position, 0, 1);"
-    ,"    fs_position = position / 10;"
-    ,"}"
-    ]
+globalShader = shader Version450 MediumPrecision
+
+passThroughVertexShader = globalShader 
+    [Input Vec2Tag (Location 0) "position"]
+    [Output Vec2Tag "fs_position"]
+    [Uniform Mat4Tag (Location 0) "screen_transformation"]
+    $ unlines
+        ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
+        ,"    fs_position = position / 10;"
+        ]
+
+{-
+solidColorFsSource = globalShader
+    [Input Vec2Tag "fs_position"]
+    [Output Vec4Tag color]
+    [Uniform Mat4Tag (Location 0) "screen_transformation"]
+    $ unlines
+        ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
+        ,"    fs_position = position / 10;"
+        ]
+-}
 
 solidColorFsSource = BS.unlines $
     ["#version 450 core"
@@ -86,4 +99,7 @@ solidColorFsSource = BS.unlines $
     ,"      color = vec4(texture(mainTexture, fs_position).rgb, 1.0);"
     ,"}"
     ]
+
+--withTransformation :: Transformation -> Action () -> Action ()
+--withTransformation t a = do
 

@@ -18,6 +18,22 @@ activatePipeline :: Pipeline -> HateDraw us ()
 activatePipeline p = HateDraw $ liftIO $ do 
     GL.currentProgram $= Just (program p)
 
+withPipeline :: Pipeline -> HateDraw us () -> HateDraw us ()
+withPipeline p action = do
+    currProgram <- HateDraw . liftIO $ GL.get GL.currentProgram
+    HateDraw . liftIO $ GL.currentProgram $= Just (program p)
+    action
+    HateDraw . liftIO $ GL.currentProgram $= currProgram    
+
+{-
+setUniformM4 :: Pipeline -> Data.Vect.Float.Mat4 -> Action ()
+setUniformM4 p m = HateDraw . liftIO . withPipeline p $ do
+    let tMat = Data.Vect.Float.transpose m
+    glmat <- makeGLMatrix tMat
+    U.uniformGLMat4 matLoc $= glmat
+-}
+
+-- "deep" utils
 createPipelineSource :: BS.ByteString -> BS.ByteString -> IO Pipeline
 createPipelineSource vss fss = do 
     vs <- U.loadShaderBS "VertexShader" GL.VertexShader vss
@@ -41,5 +57,3 @@ createPipeline vertShaderPath fragShaderPath = do
     vs <- BS.readFile vertShaderPath
     fs <- BS.readFile fragShaderPath
     createPipelineSource vs fs
-    
-
