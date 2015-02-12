@@ -1,4 +1,7 @@
-module Hate.Graphics.Sprite where
+module Hate.Graphics.Sprite 
+    ( loadSprite
+    )
+where
 
 import Hate.Graphics.Internal
 import Hate.Graphics.Types
@@ -27,46 +30,28 @@ loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) =
         (GL.PixelData GL.RGB GL.UnsignedByte ptr)
 
 loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) = do
-    -- Access the data vector pointer
-    {-unsafeWith dat $ \ptr ->
-        -- Generate the texture
-        GL.texImage2D
-        -- No cube map
-        GL.Texture2D
-        -- No proxy
-        GL.NoProxy
-        -- No mipmaps
-        0
-        -- Internal storage format: use R8G8B8A8 as internal storage
-        GL.RGBA8
-        -- Size of the image
-        (GL.TextureSize2D (fromIntegral width) (fromIntegral height))
-        -- No borders
-        0
-        -- The pixel data: the vector contains Bytes, in RGBA order
-        (GL.PixelData GL.RGBA GL.UnsignedByte ptr)-}
     unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGBA8 (fromIntegral width) (fromIntegral height)
       . GL.PixelData GL.RGBA GL.UnsignedByte
 
 loadImageDataIntoTexture _ = error "Not yet supported"
 
-loadTexture :: FilePath -> IO GL.TextureObject
-loadTexture path = do
+getImageSize :: JP.DynamicImage -> (Int, Int)
+getImageSize (JP.ImageRGBA8 (JP.Image width height _)) = (width, height)
+
+loadSprite :: FilePath -> IO Sprite
+loadSprite path = do
     image <- JP.readImage path
     case image of
         (Left err) -> do print err
                          exitWith (ExitFailure 1)
-        (Right imgData) -> do texId <- GL.genObjectName :: IO GL.TextureObject
-                              GL.textureBinding GL.Texture2D $= Just texId
-                              loadImageDataIntoTexture imgData
-                              GL.textureFilter  GL.Texture2D GL.$= ((GL.Nearest, Just GL.Nearest), GL.Nearest)
-                              GL.textureWrapMode GL.Texture2D GL.S $= (GL.Repeated, GL.Repeat)
-                              GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
-                              print $ "loaded texture" ++ show texId
-                              return texId
-
-sprite :: GL.TextureObject -> Sprite
-sprite t = Sprite (vec2 50 50) t
+        (Right imgData) -> do 
+            texId <- GL.genObjectName :: IO GL.TextureObject
+            GL.textureBinding GL.Texture2D $= Just texId
+            loadImageDataIntoTexture imgData
+            GL.textureFilter  GL.Texture2D GL.$= ((GL.Nearest, Just GL.Nearest), GL.Nearest)
+            GL.textureWrapMode GL.Texture2D GL.S $= (GL.Repeated, GL.Repeat)
+            GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
+            return $ Sprite { texture = texId, size = getImageSize imgData }
 
 --instance Drawable Sprite where
 --    draw = 

@@ -57,6 +57,12 @@ fromVertArrayIntoGlobal xs = do
     m' <- fromVertArrayInto xs m
     modify $ \x -> x { globalMesh = m' }
 
+fromVertArrayIntoGlobalTex :: [Float] -> Action ()
+fromVertArrayIntoGlobalTex xs = do
+    m <- gets globalMesh
+    m' <- fromVertArrayInto xs m
+    modify $ \x -> x { globalMesh = m' }
+
 withGlobalPipeline :: HateDraw us () -> HateDraw us ()
 withGlobalPipeline a = do
     gp <- gets mainPipeline
@@ -123,6 +129,8 @@ texturingPipelineSources = makeGlobalPipelineSources
             ]
         fss = "    color = vec4(texture(mainTexture, var_position).rgb, 1.0);"
 
+
+-- transformation-related thingies
 
 --withTransformation :: Transformation -> Action () -> Action ()
 --withTransformation t a = do

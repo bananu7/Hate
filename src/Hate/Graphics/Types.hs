@@ -32,6 +32,6 @@ newtype PolygonWireframe = PolygonWireframe Polygon
 
 data Sprite = Sprite {
     --transformation :: Transformation,
-    size :: Vec2,
+    size :: (Int, Int),
     texture :: GL.TextureObject
     }

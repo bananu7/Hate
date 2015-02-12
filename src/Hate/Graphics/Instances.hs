@@ -18,6 +18,8 @@ import Control.Monad.State
 import Control.Monad.IO.Class
 
 import Data.Vect.Float
+import Data.List
+import Data.Ord
 
     {- |Drawing a mesh by itself doesn't make much sense; 
  - it has to have a pipeline prepared beforehand. -}
@@ -55,12 +57,22 @@ instance Drawable Polygon where
 
 singletonPolygonDraw :: Polygon -> Action ()
 singletonPolygonDraw (Polygon verts) = do
-    fromVertArrayIntoGlobal rawVerts
     m <- gets globalMesh
+    fromVertArrayIntoGlobal rawVerts
+    --fromVertArrayInto m rawTexCoords
+
     draw m
 
     where rawVerts = map realToFrac . concat . map unpackVec $ verts
           unpackVec (Vec2 x y) = [x, y]
+
+          -- texturing-related computations
+          maxX = _1 $ maximumBy (comparing _1) verts
+          maxY = _2 $ maximumBy (comparing _2) verts
+          scaleFactor = Vec2 (1 / maxX) (1 / maxY)
+
+          texCoords = map (pointwise scaleFactor) verts
+          rawTexCoords = map realToFrac . concat . map unpackVec $ texCoords
 
 
 instance Drawable PolygonWireframe where
@@ -74,8 +86,10 @@ instance Drawable PolygonWireframe where
 --    transform t s = s { transformation = t }
 
 instance Drawable Sprite where
-    draw (Sprite (Vec2 sx sy) tex) = do
+    draw (Sprite (sx, sy) tex) = do
         HateDraw $ liftIO $ do
             GL.activeTexture $= GL.TextureUnit 0
             GL.textureBinding GL.Texture2D $= Just tex
-        draw $ Polygon [Vec2 0 0, Vec2 sx 0, Vec2 sx sy, Vec2 0 sy]
+        let fsx = fromIntegral sx
+            fsy = fromIntegral sy
+        draw $ Polygon [Vec2 0 0, Vec2 fsx 0, Vec2 fsx fsy, Vec2 0 fsy]

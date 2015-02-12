@@ -9,7 +9,7 @@ import Control.Applicative
 type SampleState = Sprite
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = sprite <$> loadTexture "samples/image.png"
+sampleLoad = loadSprite "samples/image.png"
 
 sampleDraw :: DrawFn SampleState
 sampleDraw = withGlobalPipeline $ do
