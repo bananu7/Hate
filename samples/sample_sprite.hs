@@ -12,9 +12,7 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = loadSprite "samples/image.png"
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = withGlobalPipeline $ do
-    s <- ask    
-    draw s
+sampleDraw s = [sprite s]
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = return ()

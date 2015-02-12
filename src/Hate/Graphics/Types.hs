@@ -9,7 +9,8 @@ import Data.Vect.Float.Instances()
 
 -- supposedly needs more vertex streams and pipelines in the future
 data GraphicsState = GraphicsState { 
-        mainPipeline :: Pipeline,
+        solidColorPipeline :: Pipeline,
+        texturingPipeline :: Pipeline,
         globalVertexStream :: VertexStream
     }
 

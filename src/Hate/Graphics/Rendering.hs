@@ -20,7 +20,11 @@ render :: DrawRequest -> Action ()
 render d = do
     loadVertexListIntoGlobalVertexStream $ vertices d
 
-    pip <- gets mainPipeline
+    
+    pip <- case pipeline d of
+                SolidColorPipeline _ -> gets solidColorPipeline
+                TexturingPipeline -> gets texturingPipeline
+
     liftIO $ activatePipeline pip
 
     let orthoScreenMat = orthoMatrix (0, 1024) (0, 768) (-10, 10)

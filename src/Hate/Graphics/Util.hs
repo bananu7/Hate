@@ -22,6 +22,7 @@ import qualified Data.ByteString.Char8 as BS (ByteString)
 initialGraphicsState :: IO GraphicsState
 initialGraphicsState =
     GraphicsState <$> createPipelineFromSources solidColorPipelineSources
+                  <*> createPipelineFromSources texturingPipelineSources
                   <*> createVertexStream
 
 createVertexStream :: IO VertexStream

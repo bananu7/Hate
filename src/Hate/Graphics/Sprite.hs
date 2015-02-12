@@ -1,9 +1,9 @@
 module Hate.Graphics.Sprite 
     ( loadSprite
+    , sprite
     )
 where
 
-import Hate.Graphics.Internal
 import Hate.Graphics.Types
 import Hate.Math
 
@@ -53,11 +53,8 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
---instance Drawable Sprite where
---    draw = 
-
---createSprite :: Texture -> Sprite
-
-
---instance Drawable Sprite where 
---    draw = 
+sprite :: Sprite -> DrawRequest
+sprite (Sprite (w,h) t) = DrawRequest quad FanVertexLayout Nothing identityTransform (TexturingPipeline)
+    where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
+          fw = fromIntegral w
+          fh = fromIntegral h

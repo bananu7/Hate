@@ -57,15 +57,3 @@ fromVertArrayIntoGlobalTex xs = do
           texCoords = map (pointwise scaleFactor) verts
           rawTexCoords = map realToFrac . concat . map unpackVec $ texCoords
 -}
-
-{-
-sprite = 
-    render (Sprite (sx, sy) tex) = do
-        Haterender $ liftIO $ do
-            GL.activeTexture $= GL.TextureUnit 0
-            GL.textureBinding GL.Texture2D $= Just tex
-        let fsx = fromIntegral sx
-            fsy = fromIntegral sy
-        render $ Polygon [Vec2 0 0, Vec2 fsx 0, Vec2 fsx fsy, Vec2 0 fsy]
-
--}
