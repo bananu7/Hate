@@ -26,15 +26,18 @@ import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (Pix
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
-import qualified Data.ByteString.Char8 as BS (unlines)
+import qualified Data.ByteString.Char8 as BS (ByteString, unlines)
 import Control.Monad.State
+
+type ShaderSource = BS.ByteString
 
 globalBufferSize = 1000
 
 initialGraphicsState :: IO GraphicsState
 initialGraphicsState =
-    GraphicsState <$> solidColorPipeline
+    GraphicsState <$> createPipelineFromSources texturingPipelineSources
                   <*> (fromVertArray $ replicate globalBufferSize 0)
+
 
 fromVertArray :: [GL.GLfloat] -> IO Mesh
 fromVertArray verts =
@@ -54,51 +57,72 @@ fromVertArrayIntoGlobal xs = do
     m' <- fromVertArrayInto xs m
     modify $ \x -> x { globalMesh = m' }
 
-solidColorPipeline :: IO Pipeline
-solidColorPipeline = createPipelineSource passThroughVertexShader solidColorFsSource 
-
 withGlobalPipeline :: HateDraw us () -> HateDraw us ()
 withGlobalPipeline a = do
     gp <- gets mainPipeline
     withPipeline gp a
 
-activateGlobalPipeline :: HateDraw us ()
-activateGlobalPipeline = do
-    gp <- gets mainPipeline
-    activatePipeline gp
 
+-- global, shared pipeline things
+globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
 globalShader = shader Version450 MediumPrecision
 
-passThroughVertexShader = globalShader 
-    [Input Vec2Tag (Location 0) "position"]
-    [Output Vec2Tag "fs_position"]
-    [Uniform Mat4Tag (Location 0) "screen_transformation"]
-    $ unlines
-        ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
-        ,"    fs_position = position / 10;"
-        ]
+globalVertexInputs :: [Input]
+globalVertexInputs = [Input Vec2Tag (Just $ Location 0) "position"]
 
-{-
-solidColorFsSource = globalShader
-    [Input Vec2Tag "fs_position"]
-    [Output Vec4Tag color]
-    [Uniform Mat4Tag (Location 0) "screen_transformation"]
-    $ unlines
-        ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
-        ,"    fs_position = position / 10;"
-        ]
--}
+globalVertexUniforms :: [Uniform]
+globalVertexUniforms = [Uniform Mat4Tag Nothing "screen_transformation"]
 
-solidColorFsSource = BS.unlines $
-    ["#version 450 core"
-    ,"out vec4 color;"
-    ,"in vec2 fs_position;"
-    ,"layout(binding = 0) uniform sampler2D mainTexture;"
-    ,"void main () {"
-    --,"      color = vec4(1.0, 1.0, 0.0, 1.0);"
-    ,"      color = vec4(texture(mainTexture, fs_position).rgb, 1.0);"
-    ,"}"
-    ]
+globalVertexShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
+globalVertexShader i o u s = globalShader
+    (globalVertexInputs ++ i)
+    o
+    (globalVertexUniforms ++ u)
+    s
+
+globalFragmentOutputs :: [Output]
+globalFragmentOutputs = [Output Vec4Tag "color"]
+
+globalFragmentUniforms :: [Uniform]
+globalFragmentUniforms = [] -- TODO: add time
+
+globalFragmentShader :: [Input] -> [Uniform] -> String -> ShaderSource
+globalFragmentShader i u s = globalShader
+    i
+    globalFragmentOutputs
+    (globalFragmentUniforms ++ u)
+    s
+
+createPipelineFromSources :: (ShaderSource, ShaderSource) -> IO Pipeline
+createPipelineFromSources (vss,fss) = createPipelineSource vss fss
+
+makeGlobalPipelineSources :: [Input] -> [Uniform] -> [Varying] -> [Uniform] -> String -> String -> (ShaderSource, ShaderSource)
+makeGlobalPipelineSources vertexInputs vertexUniforms varyings fragmentUniforms vss fss =
+    ( globalVertexShader vertexInputs (map toOutput varyings) vertexUniforms vss
+    , globalFragmentShader (map toInput varyings) fragmentUniforms fss
+    )
+
+solidColorPipelineSources :: (ShaderSource, ShaderSource)
+solidColorPipelineSources = makeGlobalPipelineSources [] [] [] [] vss fss
+    where
+        vss = "    gl_Position = screen_transformation * vec4(position, 0, 1);"
+        fss = "    color = vec4(0.8, 0.3, 0.3, 1.0);"
+
+texturingPipelineSources :: (ShaderSource, ShaderSource)
+texturingPipelineSources = makeGlobalPipelineSources 
+    [] -- no additional vertex inputs
+    [] -- no additional vertex uniforms
+    [Varying Vec2Tag "var_position"] -- simple passthrough this time
+    [Uniform Sampler2DTag (Just $ Binding 0) "mainTexture"] -- our sprite texture
+    vss
+    fss
+    where
+        vss = unlines
+            ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
+            ,"    var_position = position / 10;"
+            ]
+        fss = "    color = vec4(texture(mainTexture, var_position).rgb, 1.0);"
+
 
 --withTransformation :: Transformation -> Action () -> Action ()
 --withTransformation t a = do

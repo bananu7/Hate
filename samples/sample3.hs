@@ -9,8 +9,7 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = return 0
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = do
-    activateGlobalPipeline
+sampleDraw = withGlobalPipeline $ do
     p <- fmap fromIntegral ask
     --draw $ PolygonWireframe $ Polygon [vec2 10 10, vec2 10 20, vec2 20 20]
     --line (vec2 0 0) (vec2 1 1)

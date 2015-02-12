@@ -4,6 +4,10 @@ module Hate.Graphics.Shader where
 
 import qualified Data.ByteString.Char8 as BS (ByteString, pack)
 
+showMaybe :: Show a => Maybe a -> String
+showMaybe (Just x) = show x
+showMaybe Nothing = ""
+
 type Name = String
 
 data Version = Version330 | Version440 | Version450
@@ -22,7 +26,7 @@ newtype Location = Location Int
 instance Show Location where 
     show (Location loc) =  "layout(location = " ++ show loc ++ ") "
 
-data TypeTag = FloatTag | Vec2Tag | Vec3Tag | Vec4Tag | Mat2Tag | Mat3Tag | Mat4Tag
+data TypeTag = FloatTag | Vec2Tag | Vec3Tag | Vec4Tag | Mat2Tag | Mat3Tag | Mat4Tag | Sampler2DTag
 instance Show TypeTag where
     show FloatTag = "float"
     show Vec2Tag = "vec2"
@@ -31,18 +35,28 @@ instance Show TypeTag where
     show Mat2Tag = "mat2"
     show Mat3Tag = "mat3"
     show Mat4Tag = "mat4"
+    show Sampler2DTag = "sampler2D"
 
-data Input = Input TypeTag Location Name
+data Input = Input TypeTag (Maybe Location) Name
 instance Show Input where
-    show (Input tag loc name) = show loc ++ "in " ++ show tag ++ " " ++ name ++ ";"
+    show (Input tag loc name) = showMaybe loc ++ "in " ++ show tag ++ " " ++ name ++ ";"
     
 data Output = Output TypeTag Name
 instance Show Output where
     show (Output tag name) = "out " ++ show tag ++ " " ++ name ++ ";"
 
-data Uniform = Uniform TypeTag Location Name
+newtype Binding = Binding Int
+instance Show Binding where 
+    show (Binding bnd) =  "layout(binding = " ++ show bnd ++ ") "
+
+data Uniform = Uniform TypeTag (Maybe Binding) Name
 instance Show Uniform where
-    show (Uniform tag loc name) = show loc ++ "uniform " ++ show tag ++ " " ++ name ++ ";"
+    show (Uniform tag bnd name) = showMaybe bnd ++ "uniform " ++ show tag ++ " " ++ name ++ ";"
+
+-- |This is used simply for the purposes of full pipeline construction
+data Varying = Varying TypeTag Name
+toInput (Varying tag name) = Input tag Nothing name
+toOutput (Varying tag name) = Output tag name
 
 shaderStr :: 
     Version ->
