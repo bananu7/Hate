@@ -19,7 +19,7 @@ library
   -- Modules exported by the library.
   exposed-modules:    Hate,
                       Hate.Graphics,
-                      Hate.Graphics.Instances,
+                      Hate.Graphics.Rendering,
                       Hate.Graphics.Shapes
                       Hate.Graphics.Shader
                       Hate.Math
@@ -35,6 +35,7 @@ library
                       Hate.Graphics.Types
                       Hate.Graphics.Util
                       Hate.Graphics.Sprite
+                      Hate.Graphics.Internal
                        
 
   hs-source-dirs:      .,src
@@ -51,21 +52,8 @@ library
   default-language:    Haskell2010
   ghc-options:         -Wall -ferror-spans
 
-executable sample1
-  main-is:          sample.hs
-  hs-source-dirs:   samples
-
-  build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
-                    Hate
-
-  default-language: Haskell2010
-
-executable sample2
-  main-is:          sample3.hs
+executable sample_shapes
+  main-is:          sample_shapes.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
                     GLFW-b >= 1.4,

@@ -9,12 +9,7 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = return 0
 
 sampleDraw :: DrawFn SampleState
-sampleDraw = withGlobalPipeline $ do
-    p <- fmap fromIntegral ask
-    --draw $ PolygonWireframe $ Polygon [vec2 10 10, vec2 10 20, vec2 20 20]
-    --line (vec2 0 0) (vec2 1 1)
-    
-    draw $ circle Filled (vec2 50 50) p
+sampleDraw p = [translate (Vec2 150 150) $ circle (fromIntegral p)]
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = do
@@ -25,7 +20,7 @@ sampleUpdate = do
 config :: Config
 config = 
     Config
-        { windowTitle = "Sample 3"
+        { windowTitle = "Sample - Shapes"
         , windowSize  = (1024, 768)
         }
 

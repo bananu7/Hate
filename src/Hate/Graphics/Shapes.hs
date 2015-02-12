@@ -3,20 +3,25 @@
 module Hate.Graphics.Shapes where
 
 import Hate.Graphics
-import Hate.Graphics.Internal
+import Hate.Graphics.Types
 import Hate.Math
+import Hate.Math.Types
 
 import Control.Monad.State
-
-data DrawMode = Filled | Outline deriving(Show, Eq)
 
 --line :: Vec2 -> Vec2 -> Action
 --line a b = draw $ Polygon [a, b]
 
-circle :: DrawMode -> Vec2 -> Float -> Polygon
-circle _ p r = Polygon verts
+translate :: Vec2 -> DrawRequest -> DrawRequest
+translate p d = d { transformation = newT }
+    where oldT = transformation d
+          oldP = position oldT
+          newT = oldT { position = p + oldP }
+
+circle :: Float -> DrawRequest
+circle r = DrawRequest verts FanVertexLayout Nothing identityTransform (SolidColorPipeline $ Vec4 1 0 0 1)
     where 
-          verts = map ((+p) . (flip rotate $ vec2 0 r)) $ angles
+          verts = map (flip rotate $ vec2 0 r) $ angles
           angles = map ((* pi2) . (/ segNum)) $ [0..(segNum-1)] 
           pi2 = 2 * pi
           segNum = 100

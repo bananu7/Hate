@@ -24,6 +24,7 @@ import Hate.Common.Types
 import Hate.Common.Instances()
 
 import Hate.Graphics.Util (initialGraphicsState)
+import Hate.Graphics.Rendering
 
 import Control.Monad.State
 import Control.Applicative
@@ -92,7 +93,8 @@ glishaLoop = do
             GL.clear [GL.ColorBuffer]
 
         -- call user drawing function
-        runHateDraw $ drawFn gs
+        let drawRequests = drawFn gs $ userState gs
+        runHateDraw $ mapM_ render drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime

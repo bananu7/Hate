@@ -6,68 +6,38 @@ module Hate.Graphics.Util where
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
 
-import Hate.Common.Types
 import Hate.Graphics.Pipeline
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
-import Hate.Graphics.Drawable.Class
-import Hate.Graphics.Internal
 import Hate.Graphics.Shader
+import Hate.Math
 
 import Control.Applicative
-import Control.Monad.IO.Class
-
-{-
-import qualified Graphics.Rendering.OpenGL.GL.Texturing.Specification (texImage2D, Level, Border, TextureSize2D(..)) as GL
-import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.ColorTable (Proxy(..), PixelInternalFormat(..)) as GL
-import qualified Graphics.Rendering.OpenGL.GL.PixelRectangles.Rasterization (PixelData(..)) as GL
--}
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
-import qualified Data.ByteString.Char8 as BS (ByteString, unlines)
-import Control.Monad.State
-
-type ShaderSource = BS.ByteString
-
-globalBufferSize = 1000
+import qualified Data.ByteString.Char8 as BS (ByteString)
 
 initialGraphicsState :: IO GraphicsState
 initialGraphicsState =
-    GraphicsState <$> createPipelineFromSources texturingPipelineSources
-                  <*> (fromVertArray $ replicate globalBufferSize 0)
+    GraphicsState <$> createPipelineFromSources solidColorPipelineSources
+                  <*> createVertexStream
 
+createVertexStream :: IO VertexStream
+createVertexStream = do
+    _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)
+    _vbo <- U.makeBuffer GL.ArrayBuffer ([] :: [Vec2])
+    let _vertNum = 0
 
-fromVertArray :: [GL.GLfloat] -> IO Mesh
-fromVertArray verts =
-    Mesh <$> (GL.genObjectName :: IO GL.VertexArrayObject)
-         <*> U.makeBuffer GL.ArrayBuffer verts
-         <*> pure (length verts)
+    GL.bindVertexArrayObject $= Just _vao
+    GL.bindBuffer GL.ArrayBuffer $= (Just _vbo)
+    GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
+    GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
 
-fromVertArrayInto :: [Float] -> Mesh -> Action Mesh
-fromVertArrayInto verts m = HateDraw $ liftIO $ do
-    GL.bindBuffer GL.ArrayBuffer $= Just (vbo m)
-    U.replaceBuffer GL.ArrayBuffer verts
-    return $ m { vertNum = length verts }
+    return $ VertexStream { vao = _vao, vbo = _vbo, vertNum = _vertNum }
 
-fromVertArrayIntoGlobal :: [Float] -> Action ()
-fromVertArrayIntoGlobal xs = do
-    m <- gets globalMesh
-    m' <- fromVertArrayInto xs m
-    modify $ \x -> x { globalMesh = m' }
-
-fromVertArrayIntoGlobalTex :: [Float] -> Action ()
-fromVertArrayIntoGlobalTex xs = do
-    m <- gets globalMesh
-    m' <- fromVertArrayInto xs m
-    modify $ \x -> x { globalMesh = m' }
-
-withGlobalPipeline :: HateDraw us () -> HateDraw us ()
-withGlobalPipeline a = do
-    gp <- gets mainPipeline
-    withPipeline gp a
-
+type ShaderSource = BS.ByteString
 
 -- global, shared pipeline things
 globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
@@ -111,7 +81,10 @@ makeGlobalPipelineSources vertexInputs vertexUniforms varyings fragmentUniforms 
 solidColorPipelineSources :: (ShaderSource, ShaderSource)
 solidColorPipelineSources = makeGlobalPipelineSources [] [] [] [] vss fss
     where
-        vss = "    gl_Position = screen_transformation * vec4(position, 0, 1);"
+        vss = unlines
+            ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
+            ]
+        
         fss = "    color = vec4(0.8, 0.3, 0.3, 1.0);"
 
 texturingPipelineSources :: (ShaderSource, ShaderSource)
