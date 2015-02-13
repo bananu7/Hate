@@ -6,13 +6,19 @@ import Hate
 import Hate.Graphics
 
 import Control.Applicative
-import Control.Lens hiding (_1, _2)
+import Control.Lens
 import System.Random
 
 -- sample 4
 
-x = lens (_1) setX
-y = lens (_2) setY
+x :: Simple Lens Vec2 Float
+x = lens getX setX
+
+y :: Simple Lens Vec2 Float
+y = lens getY setY
+
+getX (Vec2 x _) = x
+getY (Vec2 _ y) = y
 
 setX (Vec2 x y) nx = Vec2 nx y
 setY (Vec2 x y) ny = Vec2 x ny
@@ -30,7 +36,7 @@ data SampleState = SampleState {
 makeLenses ''SampleState
 
 generateSehes :: IO [Sehe] 
-generateSehes = replicateM 10000 generateSehe
+generateSehes = replicateM 100 generateSehe
 
 generateSehe :: IO Sehe
 generateSehe = do
@@ -52,15 +58,12 @@ moveSehe :: Sehe -> Sehe
 moveSehe = updatePos . updateVel
     where
         updateVel :: Sehe -> Sehe
-        updateVel s = s & vel .~ newVel
+        updateVel s = s & (if bounceX then vel . x %~ negate else id)
+                        & (if bounceY then vel . y %~ negate else id)
             where
-                newVel = Vec2 nx ny
-                nx = if px < 0 || px > (1024 - 128) then negate oldX else oldX
-                ny = if py < 0 || py > (768 - 128) then negate oldY else oldY
-                oldX = s ^. vel . x
-                oldY = s ^. vel . y
-                px = s ^. pos . x
-                py = s ^. pos . y
+                bounceX = outOfBounds (s ^. pos . x) (0, 1024 - 128)
+                bounceY = outOfBounds (s ^. pos . y) (0, 786 - 128)
+                outOfBounds v (lo, hi) = v < lo || v > hi
 
         updatePos :: Sehe -> Sehe
         updatePos (Sehe p v) = Sehe (p + v) v
