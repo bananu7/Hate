@@ -2,7 +2,6 @@
 
 module Hate.Graphics.Shapes where
 
-import Hate.Graphics
 import Hate.Graphics.Types
 import Hate.Math
 import Hate.Math.Types
@@ -17,6 +16,12 @@ translate p d = d { transformation = newT }
     where oldT = transformation d
           oldP = position oldT
           newT = oldT { position = p + oldP }
+
+scaled :: Vec2 -> DrawRequest -> DrawRequest
+scaled s d = d { transformation = newT }
+    where oldT = transformation d
+          oldS = scale oldT
+          newT = oldT { scale = s * oldS }
 
 circle :: Float -> DrawRequest
 circle r = DrawRequest verts FanVertexLayout Nothing identityTransform (SolidColorPipeline $ Vec4 1 0 0 1)

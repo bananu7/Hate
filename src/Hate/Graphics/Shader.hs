@@ -55,7 +55,11 @@ instance Show Uniform where
 
 -- |This is used simply for the purposes of full pipeline construction
 data Varying = Varying TypeTag Name
+
+toInput :: Varying -> Input
 toInput (Varying tag name) = Input tag Nothing name
+
+toOutput :: Varying -> Output
 toOutput (Varying tag name) = Output tag name
 
 shaderStr :: 

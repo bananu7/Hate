@@ -131,4 +131,4 @@ runApp config ldFn upFn drFn = do
 
     time <- fromJust <$> G.getTime
     evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
-    glishaSuccessfulExit win
+    glishaSuccessfulExit win    

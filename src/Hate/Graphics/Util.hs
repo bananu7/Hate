@@ -29,6 +29,7 @@ createVertexStream :: IO VertexStream
 createVertexStream = do
     _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)
     _vbo <- U.makeBuffer GL.ArrayBuffer ([] :: [Vec2])
+    _texVbo <- U.makeBuffer GL.ArrayBuffer ([] :: [Vec2])
     let _vertNum = 0
 
     GL.bindVertexArrayObject $= Just _vao
@@ -36,7 +37,11 @@ createVertexStream = do
     GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
     GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
 
-    return $ VertexStream { vao = _vao, vbo = _vbo, vertNum = _vertNum }
+    GL.bindBuffer GL.ArrayBuffer $= (Just _texVbo)
+    GL.vertexAttribArray (GL.AttribLocation 1) $= GL.Enabled
+    GL.vertexAttribPointer (GL.AttribLocation 1) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
+
+    return $ VertexStream { vao = _vao, vbo = _vbo, texVbo = _texVbo, vertNum = _vertNum }
 
 type ShaderSource = BS.ByteString
 
@@ -45,7 +50,10 @@ globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
 globalShader = shader Version450 MediumPrecision
 
 globalVertexInputs :: [Input]
-globalVertexInputs = [Input Vec2Tag (Just $ Location 0) "position"]
+globalVertexInputs = 
+    [ Input Vec2Tag (Just $ Location 0) "position"
+    , Input Vec2Tag (Just $ Location 1) "texcoord"
+    ]
 
 globalVertexUniforms :: [Uniform]
 globalVertexUniforms = [Uniform Mat4Tag Nothing "screen_transformation"]
@@ -92,7 +100,9 @@ texturingPipelineSources :: (ShaderSource, ShaderSource)
 texturingPipelineSources = makeGlobalPipelineSources 
     [] -- no additional vertex inputs
     [] -- no additional vertex uniforms
-    [Varying Vec2Tag "var_position"] -- simple passthrough this time
+    [ Varying Vec2Tag "var_position"
+    , Varying Vec2Tag "var_texcoord"
+    ]
     [Uniform Sampler2DTag (Just $ Binding 0) "mainTexture"] -- our sprite texture
     vss
     fss
@@ -100,8 +110,9 @@ texturingPipelineSources = makeGlobalPipelineSources
         vss = unlines
             ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
             ,"    var_position = position / 10;"
+            ,"    var_texcoord = texcoord;"
             ]
-        fss = "    color = vec4(texture(mainTexture, var_position).rgb, 1.0);"
+        fss = "    color = vec4(texture(mainTexture, var_texcoord).rgb, 1.0);"
 
 
 -- transformation-related thingies

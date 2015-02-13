@@ -71,6 +71,7 @@ executable sample_sprite
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
                     transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
-                    Hate
+                    Hate,
+                    random, lens
   default-language: Haskell2010
 

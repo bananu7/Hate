@@ -1,6 +1,5 @@
 import qualified Graphics.Rendering.OpenGL as GL
 import Hate
-import Hate.Graphics
 import Hate.Graphics.Shapes
 
 type SampleState = Int

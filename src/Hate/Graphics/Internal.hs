@@ -15,8 +15,8 @@ import Control.Monad.State
 import Control.Applicative
 
 import Data.Vect.Float
---import Data.List
---import Data.Ord
+import Data.List
+import Data.Ord
 
 instance MonadState GraphicsState (HateDraw us) where
     get = HateDraw $ graphicsState <$> gets libraryState
@@ -31,6 +31,12 @@ fromVertArrayInto :: [Vec2] -> VertexStream -> Action VertexStream
 fromVertArrayInto verts m = HateDraw $ liftIO $ do
     GL.bindBuffer GL.ArrayBuffer $= Just (vbo m)
     U.replaceBuffer GL.ArrayBuffer verts
+    
+    -- fill in texture coordinates
+    let texCoords = calculateTexCoords verts
+    GL.bindBuffer GL.ArrayBuffer $= Just (texVbo m)
+    U.replaceBuffer GL.ArrayBuffer texCoords
+    
     return $ m { vertNum = length verts }
 
 fromVertArrayIntoGlobal :: [Vec2] -> Action ()
@@ -39,21 +45,11 @@ fromVertArrayIntoGlobal xs = do
     m' <- fromVertArrayInto xs m
     modify $ \x -> x { globalVertexStream = m' }
 
-{-
-fromVertArrayIntoGlobalTex :: [Float] -> Action ()
-fromVertArrayIntoGlobalTex xs = do
-    m <- gets globalMesh
-    m' <- fromVertArrayInto xs m
-    modify $ \x -> x { globalMesh = m' }
--}
+calculateTexCoords :: [Vec2] -> [Vec2]
+calculateTexCoords verts = map (flipY . pointwise scaleFactor) verts
+    where
+        maxX = _1 $ maximumBy (comparing _1) verts
+        maxY = _2 $ maximumBy (comparing _2) verts
+        scaleFactor = Vec2 (1 / maxX) (1 / maxY)
+        flipY (Vec2 x y) = Vec2 x (1 - y)
 
-
-{-
-    where -- texturing-related computations
-          maxX = _1 $ maximumBy (comparing _1) verts
-          maxY = _2 $ maximumBy (comparing _2) verts
-          scaleFactor = Vec2 (1 / maxX) (1 / maxY)
-
-          texCoords = map (pointwise scaleFactor) verts
-          rawTexCoords = map realToFrac . concat . map unpackVec $ texCoords
--}
