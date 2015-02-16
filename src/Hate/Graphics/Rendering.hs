@@ -15,6 +15,9 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
 
+renderBatch :: [DrawRequest] -> Action ()
+renderBatch = mapM_ render
+
 -- render takes everything that is needed to output 
 render :: DrawRequest -> Action ()
 render d = do
@@ -22,8 +25,8 @@ render d = do
 
     
     pip <- case pipeline d of
-                SolidColorPipeline _ -> gets solidColorPipeline
-                TexturingPipeline -> gets texturingPipeline
+                SolidColorPipeline _ -> gets solidColorPipeline -- todo set up a proper solid color
+                TexturingPipeline _ -> gets texturingPipeline -- todo use tex information to pick appropriate texture
 
     liftIO $ activatePipeline pip
 

@@ -23,7 +23,7 @@ data VertexStream = VertexStream {
 }
 
 -- userspace data
-data PipelineDescription = SolidColorPipeline Vec4 | TexturingPipeline
+data PipelineDescription = SolidColorPipeline Vec4 | TexturingPipeline GL.TextureObject
 
 data VertexLayout = FanVertexLayout | StripVertexLayout
 

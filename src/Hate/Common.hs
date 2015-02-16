@@ -94,7 +94,7 @@ glishaLoop = do
 
         -- call user drawing function
         let drawRequests = drawFn gs $ userState gs
-        runHateDraw $ mapM_ render drawRequests
+        runHateDraw $ renderBatch drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime

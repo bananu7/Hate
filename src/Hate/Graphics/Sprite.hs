@@ -54,7 +54,7 @@ loadSprite path = do
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
 sprite :: Sprite -> DrawRequest
-sprite (Sprite (w,h) t) = DrawRequest quad FanVertexLayout Nothing identityTransform (TexturingPipeline)
+sprite (Sprite (w,h) t) = DrawRequest quad FanVertexLayout Nothing identityTransform (TexturingPipeline t)
     where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
           fw = fromIntegral w
           fh = fromIntegral h
