@@ -75,3 +75,16 @@ executable sample_sprite
                     random, lens
   default-language: Haskell2010
 
+executable sample_asteroids
+  main-is:          sample_asteroids.hs
+  hs-source-dirs:   samples 
+  build-depends:    base >= 4.6 && < 4.8,
+                    GLFW-b >= 1.4,
+                    GLUtil >= 0.7,
+                    OpenGL > 2.9.1,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    Hate,
+                    random, lens
+  default-language: Haskell2010
+
+

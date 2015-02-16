@@ -112,7 +112,7 @@ texturingPipelineSources = makeGlobalPipelineSources
             ,"    var_position = position / 10;"
             ,"    var_texcoord = texcoord;"
             ]
-        fss = "    color = vec4(texture(mainTexture, var_texcoord).rgb, 1.0);"
+        fss = "    color = texture(mainTexture, var_texcoord);"
 
 
 -- transformation-related thingies

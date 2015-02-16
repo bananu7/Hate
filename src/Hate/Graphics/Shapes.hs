@@ -23,10 +23,16 @@ scaled s d = d { transformation = newT }
           oldS = scale oldT
           newT = oldT { scale = s * oldS }
 
+rotated :: Float -> DrawRequest -> DrawRequest
+rotated r d = d { transformation = newT }
+    where oldT = transformation d
+          oldR = rotation oldT
+          newT = oldT { rotation = r * oldR }
+
 circle :: Float -> DrawRequest
 circle r = DrawRequest verts FanVertexLayout Nothing identityTransform (SolidColorPipeline $ Vec4 1 0 0 1)
     where 
-          verts = map (flip rotate $ vec2 0 r) $ angles
+          verts = map (flip rotateVec $ vec2 0 r) $ angles
           angles = map ((* pi2) . (/ segNum)) $ [0..(segNum-1)] 
           pi2 = 2 * pi
           segNum = 100

@@ -56,8 +56,8 @@ keyCallback win key _ action _ =
     when (key == G.Key'Escape && action == G.KeyState'Pressed) $
         G.setWindowShouldClose win True        
 
-glishaInitWindow :: String -> (Int, Int) -> IO G.Window
-glishaInitWindow titl (width, height) = do
+hateInitWindow :: String -> (Int, Int) -> IO G.Window
+hateInitWindow titl (width, height) = do
     G.setErrorCallback (Just errorCallback)
     successfulInit <- G.init
     -- if init failed, we exit the program
@@ -72,16 +72,23 @@ glishaInitWindow titl (width, height) = do
         maybe' mw (G.terminate >> exitFailure) $ \win -> do
             G.makeContextCurrent mw
             G.setKeyCallback win (Just keyCallback)
+
+            hateInitGL
+
             return win
 
-glishaSuccessfulExit :: G.Window -> IO b
-glishaSuccessfulExit win = do
+hateInitGL = do
+    GL.blend $= GL.Enabled
+    GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
+
+hateSuccessfulExit :: G.Window -> IO b
+hateSuccessfulExit win = do
     G.destroyWindow win
     G.terminate
     exitSuccess          
 
-glishaLoop :: HateInner us ()
-glishaLoop = do
+hateLoop :: HateInner us ()
+hateLoop = do
     gs <- get
     let w = window gs
 
@@ -115,7 +122,7 @@ glishaLoop = do
         liftIO $ do 
             G.swapBuffers w
             G.pollEvents
-        glishaLoop 
+        hateLoop 
 
 getKey :: G.Key -> Hate us Bool
 getKey k = UnsafeHate $ do
@@ -130,12 +137,12 @@ initialLibraryState = LibraryState <$> initialGraphicsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do
-    win <- glishaInitWindow (windowTitle config) (windowSize config)
+    win <- hateInitWindow (windowTitle config) (windowSize config)
     libS <- initialLibraryState
 
     print $! "Loading user state"
     initialUserState <- ldFn
 
     time <- fromJust <$> G.getTime
-    evalStateT glishaLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
-    glishaSuccessfulExit win    
+    evalStateT hateLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
+    hateSuccessfulExit win    

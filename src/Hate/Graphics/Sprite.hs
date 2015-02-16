@@ -19,15 +19,8 @@ import Graphics.Rendering.OpenGL (($=))
 loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
 
 loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) = 
-    unsafeWith dat $ \ptr -> 
-        GL.texImage2D
-        GL.Texture2D
-        GL.NoProxy
-        0
-        GL.RGB8
-        (GL.TextureSize2D (fromIntegral width) (fromIntegral height))
-        0
-        (GL.PixelData GL.RGB GL.UnsignedByte ptr)
+    unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGB8 (fromIntegral width) (fromIntegral height)
+      . GL.PixelData GL.RGB GL.UnsignedByte
 
 loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) = do
     unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGBA8 (fromIntegral width) (fromIntegral height)
@@ -37,6 +30,7 @@ loadImageDataIntoTexture _ = error "Not yet supported"
 
 getImageSize :: JP.DynamicImage -> (Int, Int)
 getImageSize (JP.ImageRGBA8 (JP.Image width height _)) = (width, height)
+getImageSize (JP.ImageRGB8 (JP.Image width height _)) = (width, height)
 
 loadSprite :: FilePath -> IO Sprite
 loadSprite path = do
