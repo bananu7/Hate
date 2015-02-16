@@ -3,10 +3,12 @@ module Hate
     , module Hate.Math
     , module Control.Monad.State
     , module Control.Monad.Reader
+    , module Graphics.UI.GLFW
     ) where
 
 import Control.Monad.State
 import Control.Monad.Reader (ask)
-import Hate.Common
+import Graphics.UI.GLFW (Key(..))
 
+import Hate.Common
 import Hate.Math

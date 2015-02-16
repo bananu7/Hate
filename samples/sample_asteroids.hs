@@ -65,7 +65,7 @@ randomAsteroid = do
     py <- getStdRandom $ randomR (0,800)
     vx <- getStdRandom $ randomR (-2, 2)
     vy <- getStdRandom $ randomR (-2, 2)
-    vr <- getStdRandom $ randomR (-1, 1)
+    vr <- getStdRandom $ randomR (-0.1, 0.1)
     sz <- getStdRandom $ randomR (1, 5)
 
     let e = EntityState (Vec2 px py) (Vec2 vx vy) 0 vr
@@ -96,11 +96,29 @@ sampleDraw s = (map draw (s ^. asteroids)) ++ [draw (s ^. player)]
         entityToTransform a = let e = a ^. entity in (translate (e ^. pos)) . (rotated (e ^. rot))
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = asteroids . traversed %= updateEntity
+sampleUpdate = do
+    asteroids . traversed %= updateEntity
+    player %= updateEntity
+    steerShip
     where
         updateEntity :: HasEntity a EntityState => a -> a
         updateEntity a = a & (entity . pos +~ a ^. entity . vel)
                            & (entity . rot +~ a ^. entity . rotVel)
+                           -- damping:
+                           & (entity . vel *~ 0.99)
+                           & (entity . rotVel *~ 0.99)
+                           & screenWarp
+
+        screenWarp a = a & (if a ^. entity . pos . x > 1024 then entity . pos . x -~ 1024 else id)
+                         & (if a ^. entity . pos . y > 768  then entity . pos . y -~ 768 else id)
+                         & (if a ^. entity . pos . x < 0 then entity . pos . x +~ 1024 else id)
+                         & (if a ^. entity . pos . y < 0 then entity . pos . y +~ 768 else id)
+
+
+        steerShip = do
+            whenKeyPressed Key'Space $ player . entity . vel . y += 1
+            whenKeyPressed Key'Left $ player . entity . rotVel += 0.01
+            whenKeyPressed Key'Right $ player . entity . rotVel -= 0.01
 
 config :: Config
 config = 

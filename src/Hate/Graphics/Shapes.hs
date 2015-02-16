@@ -1,5 +1,3 @@
-{-# LANGUAGE RankNTypes #-}
-
 module Hate.Graphics.Shapes where
 
 import Hate.Graphics.Types
@@ -27,7 +25,7 @@ rotated :: Float -> DrawRequest -> DrawRequest
 rotated r d = d { transformation = newT }
     where oldT = transformation d
           oldR = rotation oldT
-          newT = oldT { rotation = r * oldR }
+          newT = oldT { rotation = r + oldR }
 
 circle :: Float -> DrawRequest
 circle r = DrawRequest verts FanVertexLayout Nothing identityTransform (SolidColorPipeline $ Vec4 1 0 0 1)

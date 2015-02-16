@@ -36,7 +36,7 @@ scaleToMatrix (Vec2 x y) = Mat3
 
 
 toMatrix4 :: Transformation -> Mat4
-toMatrix4 (Transformation p r s) = rotationToMatrix4 r .*. positionToMatrix4 p .*. scaleToMatrix4 s
+toMatrix4 (Transformation p r s) =  positionToMatrix4 p .*. rotationToMatrix4 r .*. scaleToMatrix4 s
 
 positionToMatrix4 :: Vec2 -> Mat4
 positionToMatrix4 (Vec2 x y) = Mat4

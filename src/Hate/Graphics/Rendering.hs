@@ -26,8 +26,11 @@ renderPipelineBatch :: PipelineDescription -> [DrawRequest] -> Action ()
 renderPipelineBatch p ds = do
     pip <- case p of
         SolidColorPipeline _ -> gets solidColorPipeline -- todo set up a proper solid color
-        TexturingPipeline _ -> gets texturingPipeline -- todo use tex information to pick appropriate texture
-    liftIO $ activatePipeline pip
+        TexturingPipeline texId -> do
+            pip <- gets texturingPipeline 
+            liftIO $ activatePipeline pip
+            liftIO $ GL.textureBinding GL.Texture2D $= Just texId
+            return pip
 
     forM_ ds $ \d -> do
         setScreenTransformationUniform (transformation d) pip

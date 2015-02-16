@@ -17,6 +17,8 @@ module Hate.Common
     , module Hate.Common.Instances
     , Hate.Common.Types.Hate(..)    
     , runApp
+    , getKey
+    , whenKeyPressed
     ) where
 
 import Hate.Util 
@@ -132,6 +134,12 @@ getKey k = UnsafeHate $ do
     where keystateToBool s
             | s == G.KeyState'Released = False
             | otherwise = True
+
+whenKeyPressed :: G.Key -> Hate us () -> Hate us ()
+whenKeyPressed k action = do
+    b <- getKey k
+    if b then action 
+         else return ()
 
 initialLibraryState = LibraryState <$> initialGraphicsState
 
