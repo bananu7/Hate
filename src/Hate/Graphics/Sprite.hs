@@ -1,7 +1,6 @@
 module Hate.Graphics.Sprite 
     ( loadSprite
     , sprite
-    , spriteFromCenter
     )
 where
 
@@ -49,14 +48,11 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
-sprite :: Sprite -> DrawRequest
-sprite (Sprite (w,h) t) = DrawRequest quad FanVertexLayout Nothing identityTransform (TexturingPipeline t)
+sprite :: OriginReference -> Sprite -> DrawRequest
+sprite originRef (Sprite (w,h) t) = DrawRequest quad originMat FanVertexLayout Nothing one (TexturingPipeline t)
     where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
           fw = fromIntegral w
           fh = fromIntegral h
-
-spriteFromCenter :: Sprite -> DrawRequest
-spriteFromCenter (Sprite (w,h) t) = translate (Vec2 (fw/2) (fh/2)) $ sprite (Sprite (w,h) t)
-    where
-        fw = fromIntegral w
-        fh = fromIntegral h
+          originMat = case originRef of 
+              TopLeft -> one
+              Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)

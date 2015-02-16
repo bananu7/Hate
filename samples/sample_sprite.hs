@@ -40,7 +40,7 @@ sampleLoad = SampleState <$> loadSprite "samples/image.png"
                          <*> generateSehes
 
 sampleDraw :: DrawFn SampleState
-sampleDraw s = map (\(Sehe p v) -> translate p $ sprite (s ^. seheSprite)) $ s ^. sehes
+sampleDraw s = map (\(Sehe p v) -> translate p $ sprite TopLeft (s ^. seheSprite)) $ s ^. sehes
 
 moveSehe :: Sehe -> Sehe
 moveSehe = updatePos . updateVel

@@ -85,7 +85,7 @@ sampleDraw :: DrawFn SampleState
 sampleDraw s = (map draw (s ^. asteroids)) ++ [draw (s ^. player)]
     where
         draw :: (HasEntity a EntityState, ToVisual a) => a -> DrawRequest
-        draw a = (entityToTransform a) . spriteFromCenter . visualToSprite . toVisual $ a
+        draw a = (entityToTransform a) . sprite Middle . visualToSprite . toVisual $ a
 
         visualToSprite SmallAsteroidSprite = s ^. smallAsteroidSprite
         visualToSprite MediumAsteroidSprite = s ^. mediumAsteroidSprite
@@ -93,7 +93,7 @@ sampleDraw s = (map draw (s ^. asteroids)) ++ [draw (s ^. player)]
         visualToSprite PlayerSprite = s ^. playerSprite
 
         entityToTransform :: HasEntity a EntityState => a -> DrawRequest -> DrawRequest
-        entityToTransform a = let e = a ^. entity in (translate (e ^. pos)) . (rotated (e ^. rot))
+        entityToTransform a = let e = a ^. entity in ((rotated (e ^. rot)) . (translate (e ^. pos)))
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = do

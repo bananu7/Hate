@@ -26,7 +26,6 @@ library
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Common.Instances
-                      Hate.Math.Instances
                       Hate.Math.Transformable.Class
                       Hate.Math.Types
                       Hate.Math.Util

@@ -33,7 +33,8 @@ renderPipelineBatch p ds = do
             return pip
 
     forM_ ds $ \d -> do
-        setScreenTransformationUniform (transformation d) pip
+        let mat = transformation d .*. origin d
+        setScreenTransformationUniform mat pip
 
         loadVertexListIntoGlobalVertexStream $ vertices d
         let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
@@ -47,17 +48,18 @@ singularRender d = do
                 TexturingPipeline _ -> gets texturingPipeline -- todo use tex information to pick appropriate texture
 
     liftIO $ activatePipeline pip
-    setScreenTransformationUniform (transformation d) pip
+    
+    let mat = transformation d .*. origin d
+    setScreenTransformationUniform mat pip
 
     loadVertexListIntoGlobalVertexStream $ vertices d
     let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
     renderGlobalVertexStream primitiveMode
 
-setScreenTransformationUniform :: Transformation -> Pipeline -> Action ()
+setScreenTransformationUniform :: Mat4 -> Pipeline -> Action ()
 setScreenTransformationUniform t pip = do
     let orthoScreenMat = orthoMatrix (0, 1024) (0, 768) (-10, 10)
-    let requestMat = toMatrix4 t
-    let drawMat = (transpose orthoScreenMat) .*. requestMat
+    let drawMat = (transpose orthoScreenMat) .*. t
     liftIO $ setUniformM4 pip "screen_transformation" drawMat
 
 vertexLayoutToGLLayout :: VertexLayout -> GL.PrimitiveMode

@@ -1,7 +1,6 @@
  module Hate.Graphics.Types where
 
 import Hate.Graphics.Pipeline
-import Hate.Math.Types
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Data.Vect.Float
@@ -27,11 +26,14 @@ data PipelineDescription = SolidColorPipeline Vec4 | TexturingPipeline GL.Textur
 
 data VertexLayout = FanVertexLayout | StripVertexLayout deriving (Eq, Show)
 
+data OriginReference = TopLeft | Middle deriving (Eq)
+
 data DrawRequest = DrawRequest { 
     vertices :: [Vec2],
+    origin :: Mat4,
     vertexLayout :: VertexLayout,
     normals :: Maybe [Vec2],
-    transformation :: Transformation,
+    transformation :: Mat4,
     pipeline :: PipelineDescription
 } deriving (Eq, Show)
 
