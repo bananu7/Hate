@@ -102,12 +102,15 @@ glishaLoop = do
         Just t <- liftIO G.getTime
         let tDiff = t - (lastUpdateTime gs)
 
-        -- magic constant anyone
-        when (tDiff > (1.0/60.0)) $ do
+        let desiredFPS = 60.0
+        let desiredSPF = 1.0 / desiredFPS
+
+        when (tDiff > desiredSPF) $ do
             runHate $ updateFn gs
             modify $ \x -> x { lastUpdateTime = t }
 
-        liftIO $ threadDelay 0
+        when (tDiff < desiredSPF) $ liftIO $        
+            threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
 
         liftIO $ do 
             G.swapBuffers w
