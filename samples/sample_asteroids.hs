@@ -85,7 +85,7 @@ sampleDraw :: DrawFn SampleState
 sampleDraw s = (map draw (s ^. asteroids)) ++ [draw (s ^. player)]
     where
         draw :: (HasEntity a EntityState, ToVisual a) => a -> DrawRequest
-        draw a = (entityToTransform a) . sprite . visualToSprite . toVisual $ a
+        draw a = (entityToTransform a) . spriteFromCenter . visualToSprite . toVisual $ a
 
         visualToSprite SmallAsteroidSprite = s ^. smallAsteroidSprite
         visualToSprite MediumAsteroidSprite = s ^. mediumAsteroidSprite
@@ -116,7 +116,8 @@ sampleUpdate = do
 
 
         steerShip = do
-            whenKeyPressed Key'Space $ player . entity . vel . y += 1
+            r <- use $ player . entity . rot
+            whenKeyPressed Key'Up $ player . entity . vel += (rotateVec r (Vec2 0 1))
             whenKeyPressed Key'Left $ player . entity . rotVel += 0.01
             whenKeyPressed Key'Right $ player . entity . rotVel -= 0.01
 

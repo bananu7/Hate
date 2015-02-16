@@ -1,10 +1,12 @@
 module Hate.Graphics.Sprite 
     ( loadSprite
     , sprite
+    , spriteFromCenter
     )
 where
 
 import Hate.Graphics.Types
+import Hate.Graphics.Shapes
 import Hate.Math
 
 import qualified Codec.Picture as JP
@@ -52,3 +54,9 @@ sprite (Sprite (w,h) t) = DrawRequest quad FanVertexLayout Nothing identityTrans
     where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
           fw = fromIntegral w
           fh = fromIntegral h
+
+spriteFromCenter :: Sprite -> DrawRequest
+spriteFromCenter (Sprite (w,h) t) = translate (Vec2 (fw/2) (fh/2)) $ sprite (Sprite (w,h) t)
+    where
+        fw = fromIntegral w
+        fh = fromIntegral h
