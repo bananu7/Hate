@@ -1,4 +1,3 @@
-import qualified Graphics.Rendering.OpenGL as GL
 import Hate
 import Hate.Graphics.Shapes
 

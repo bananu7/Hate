@@ -38,6 +38,8 @@ import qualified Graphics.UI.GLFW as G
 
 import Data.Maybe
 
+import Control.Concurrent (threadDelay)
+
 {-
 type KeyCallbackFn us = G.Key -> StateT us IO ()
 data Callbacks us = Callbacks { onKeyUp :: KeyCallbackFn us, onKeyDown :: KeyCallbackFn }
@@ -104,6 +106,8 @@ glishaLoop = do
         when (tDiff > (1.0/60.0)) $ do
             runHate $ updateFn gs
             modify $ \x -> x { lastUpdateTime = t }
+
+        liftIO $ threadDelay 0
 
         liftIO $ do 
             G.swapBuffers w

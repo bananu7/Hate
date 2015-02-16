@@ -3,6 +3,7 @@
 module Hate.Math 
     ( module Data.Vect.Float
     , module Hate.Math.Util
+    , module Hate.Math.Types
     )
 where
 
