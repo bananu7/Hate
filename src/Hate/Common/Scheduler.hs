@@ -55,7 +55,7 @@ process sched = do
 
                 let sched'' = Prelude.foldr (flip schedule) sched' updatedEvents
 
-                return sched''
+                process sched'' -- recursive call to inspect the next batch
             else return sched -- no events to fire yet
         Nothing -> return sched -- no events scheduled at all
 

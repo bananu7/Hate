@@ -26,16 +26,18 @@ after' t evt = after t evt >>= schedule'
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = do
+    -- repeated action
     use firstRun >>= \p -> when p $ do
-        every' 1 $ radius += 5
+        every' 1 $ radius += 50
         firstRun .= False
     
     use sched >>= process >>= assign sched
 
+    -- queue a waiting action
     whenKeyPressed Key'Space $ after' 2 $ radius += 20
---    put $ x { radius = radius x + 0.1 }
-    --if x > 50 then put 0
-    --          else put $ x + 1
+
+    -- continuous action
+    radius *= 0.95
 
 config :: Config
 config = 
