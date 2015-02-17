@@ -33,7 +33,9 @@ every interval action = do
     return $ RepetitiveEvent t interval action
 
 after :: Time -> Hate us () -> Hate us (ScheduledEvent us)
-after t a = return $ OneTimeEvent t a
+after t a = do
+    currentTime <- UnsafeHate $ gets lastUpdateTime
+    return $ OneTimeEvent (t + currentTime) a
 
 logv str v = UnsafeHate . liftIO $ putStrLn (str ++ " " ++ show v)
 
@@ -67,4 +69,4 @@ schedule sched evt = case evt of
 
 updateEvent :: Time -> ScheduledEvent us -> Maybe (ScheduledEvent us)
 updateEvent _ (OneTimeEvent _ _) = Nothing
-updateEvent t (RepetitiveEvent lastFire interval act) = Just $ RepetitiveEvent (lastFire+interval) interval act
+updateEvent _ (RepetitiveEvent lastFire interval act) = Just $ RepetitiveEvent (lastFire+interval) interval act
