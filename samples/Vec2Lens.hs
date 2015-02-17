@@ -15,6 +15,6 @@ getY :: Vec2 -> Float
 getY (Vec2 _ y') = y'
 
 setX :: Vec2 -> Float -> Vec2
-setX (Vec2 x' y') nx = Vec2 nx y'
+setX (Vec2 _ y') nx = Vec2 nx y'
 setY :: Vec2 -> Float -> Vec2
-setY (Vec2 x' y') ny = Vec2 x' ny
+setY (Vec2 x' _) ny = Vec2 x' ny

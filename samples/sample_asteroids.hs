@@ -71,6 +71,7 @@ randomAsteroid = do
     let e = EntityState (Vec2 px py) (Vec2 vx vy) 0 vr
     return $ Asteroid e sz
 
+initialPlayer :: Player
 initialPlayer = Player $ EntityState (Vec2 200 200) (Vec2 0 0) 0 0
 
 sampleLoad :: LoadFn SampleState
