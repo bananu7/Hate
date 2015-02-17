@@ -74,6 +74,7 @@ hateInitWindow titl (width, height) = do
         maybe' mw (G.terminate >> exitFailure) $ \win -> do
             G.makeContextCurrent mw
             G.setKeyCallback win (Just keyCallback)
+            G.swapInterval 1 --vsync
 
             hateInitGL
 
