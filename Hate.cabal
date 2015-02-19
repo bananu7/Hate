@@ -21,12 +21,12 @@ library
                       Hate.Graphics
                       Hate.Graphics.Shapes
                       Hate.Math
+                      Hate.Math.Types
                       Hate.Common.Scheduler
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Common.Instances
                       Hate.Math.Transformable.Class
-                      Hate.Math.Types
                       Hate.Math.Util
                       Hate.Graphics.Pipeline
                       Hate.Graphics.Pipeline.Util

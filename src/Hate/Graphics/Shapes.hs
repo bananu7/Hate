@@ -36,4 +36,8 @@ circle r = DrawRequest verts one FanVertexLayout one (SolidColorPipeline $ Vec4 
 line :: Vec2 -> Vec2 -> DrawRequest
 line start end = DrawRequest [start, end] one LinesVertexLayout one (SolidColorPipeline $ Vec4 1 0 0 1)
 
+-- TODO: tesselation
+polygon :: [Vec2] -> DrawRequest
+polygon verts = DrawRequest verts one LinesVertexLayout one (SolidColorPipeline $ Vec4 1 0 0 1)
+
 
