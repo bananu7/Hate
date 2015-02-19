@@ -2,9 +2,7 @@
 
 module Hate.Graphics.Rendering where
 
-import Hate.Common.Types
 import Hate.Math
-import Hate.Graphics.Util
 import Hate.Graphics.Internal
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Pipeline
@@ -14,7 +12,7 @@ import Control.Monad.State
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
-import Data.Vect.Float.OpenGL (orthoMatrix, makeGLMatrix)
+import Data.Vect.Float.OpenGL (orthoMatrix)
 import Data.List (groupBy)
 
 renderBatch :: [DrawRequest] -> Action ()
@@ -36,7 +34,7 @@ renderPipelineBatch p ds = do
         let mat = transformation d .*. origin d
         setScreenTransformationUniform mat pip
 
-        loadVertexListIntoGlobalVertexStream $ vertices d
+        fromVertArrayIntoGlobal $ vertices d
         let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
         renderGlobalVertexStream primitiveMode
 
@@ -52,7 +50,7 @@ singularRender d = do
     let mat = transformation d .*. origin d
     setScreenTransformationUniform mat pip
 
-    loadVertexListIntoGlobalVertexStream $ vertices d
+    fromVertArrayIntoGlobal $ vertices d
     let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
     renderGlobalVertexStream primitiveMode
 
@@ -65,12 +63,7 @@ setScreenTransformationUniform t pip = do
 vertexLayoutToGLLayout :: VertexLayout -> GL.PrimitiveMode
 vertexLayoutToGLLayout FanVertexLayout = GL.TriangleFan
 vertexLayoutToGLLayout StripVertexLayout = GL.TriangleStrip
-
-loadVertexListIntoGlobalVertexStream :: [Vec2] -> Action ()
-loadVertexListIntoGlobalVertexStream verts = do
-    vs <- gets globalVertexStream
-    fromVertArrayIntoGlobal verts
-    --fromVertArrayInto m rawTexCoords
+vertexLayoutToGLLayout LinesVertexLayout = GL.Lines
 
 renderGlobalVertexStream :: GL.PrimitiveMode -> Action ()
 renderGlobalVertexStream primitiveMode = do

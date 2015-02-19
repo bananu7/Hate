@@ -1,6 +1,6 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
-module Hate.Common.Instances where
+module Hate.Common.Instances() where
 
 import Hate.Common.Types
 import Control.Monad.State

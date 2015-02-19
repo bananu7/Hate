@@ -1,7 +1,18 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ExistentialQuantification #-}
 
-module Hate.Common.Types where
+module Hate.Common.Types
+    ( Config(..)
+    , LibraryState(..)
+    , HateState(..)
+    , HateInner
+    , Hate(..)
+    , HateDraw(..)
+    , LoadFn
+    , UpdateFn
+    , DrawFn
+    )
+where
 
 import Control.Monad.State
 import Control.Applicative

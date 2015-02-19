@@ -17,11 +17,9 @@ cabal-version:       >=1.18
 
 library
   -- Modules exported by the library.
-  exposed-modules:    Hate,
-                      Hate.Graphics,
-                      Hate.Graphics.Rendering,
+  exposed-modules:    Hate
+                      Hate.Graphics
                       Hate.Graphics.Shapes
-                      Hate.Graphics.Shader
                       Hate.Math
                       Hate.Common.Scheduler
   other-modules:      Hate.Common
@@ -32,8 +30,10 @@ library
                       Hate.Math.Util
                       Hate.Graphics.Pipeline
                       Hate.Graphics.Pipeline.Util
+                      Hate.Graphics.Shader
                       Hate.Graphics.Types
                       Hate.Graphics.Util
+                      Hate.Graphics.Rendering
                       Hate.Graphics.Sprite
                       Hate.Graphics.Internal
                        

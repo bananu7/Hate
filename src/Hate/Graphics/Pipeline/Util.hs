@@ -1,4 +1,10 @@
-module Hate.Graphics.Pipeline.Util where
+module Hate.Graphics.Pipeline.Util
+    ( activatePipeline
+    , setUniformM4
+    , createPipelineSource
+    , createPipeline
+    )
+where
 
 import Hate.Graphics.Pipeline
 

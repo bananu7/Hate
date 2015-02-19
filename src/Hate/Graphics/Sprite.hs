@@ -5,7 +5,6 @@ module Hate.Graphics.Sprite
 where
 
 import Hate.Graphics.Types
-import Hate.Graphics.Shapes
 import Hate.Math
 
 import qualified Codec.Picture as JP
@@ -48,8 +47,10 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
+-- |Creates a 'DrawRequest' that draws a sprite. The 'OriginReference' parameter specifices the
+-- "hooking point" for the rotations and translations.
 sprite :: OriginReference -> Sprite -> DrawRequest
-sprite originRef (Sprite (w,h) t) = DrawRequest quad originMat FanVertexLayout Nothing one (TexturingPipeline t)
+sprite originRef (Sprite (w,h) t) = DrawRequest quad originMat FanVertexLayout one (TexturingPipeline t)
     where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
           fw = fromIntegral w
           fh = fromIntegral h

@@ -7,7 +7,10 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = return 0
 
 sampleDraw :: DrawFn SampleState
-sampleDraw p = [translate (Vec2 150 150) $ circle (fromIntegral p)]
+sampleDraw p =
+    [ translate (Vec2 150 150) $ circle (fromIntegral p)
+    , line (Vec2 150 150) (Vec2 300 300)
+    ]
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = do

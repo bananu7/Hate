@@ -24,7 +24,7 @@ data VertexStream = VertexStream {
 -- userspace data
 data PipelineDescription = SolidColorPipeline Vec4 | TexturingPipeline GL.TextureObject deriving (Eq, Show)
 
-data VertexLayout = FanVertexLayout | StripVertexLayout deriving (Eq, Show)
+data VertexLayout = FanVertexLayout | StripVertexLayout | LinesVertexLayout deriving (Eq, Show)
 
 data OriginReference = TopLeft | Middle deriving (Eq)
 
@@ -32,7 +32,6 @@ data DrawRequest = DrawRequest {
     vertices :: [Vec2],
     origin :: Mat4,
     vertexLayout :: VertexLayout,
-    normals :: Maybe [Vec2],
     transformation :: Mat4,
     pipeline :: PipelineDescription
 } deriving (Eq, Show)

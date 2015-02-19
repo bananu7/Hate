@@ -10,5 +10,5 @@ import Control.Monad.State
 import Control.Monad.Reader (ask)
 import Graphics.UI.GLFW (Key(..))
 
-import Hate.Common
+import Hate.Common (LoadFn, UpdateFn, DrawFn, whenKeyPressed, runApp, Config(..))
 import Hate.Math
