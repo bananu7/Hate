@@ -1,6 +1,7 @@
 module Hate.Graphics.Sprite 
     ( loadSprite
     , sprite
+    , spriteSheet
     )
 where
 
@@ -50,10 +51,33 @@ loadSprite path = do
 -- |Creates a 'DrawRequest' that draws a sprite. The 'OriginReference' parameter specifices the
 -- "hooking point" for the rotations and translations.
 sprite :: OriginReference -> Sprite -> DrawRequest
-sprite originRef (Sprite (w,h) t) = DrawRequest quad originMat FanVertexLayout one (TexturingPipeline t)
+sprite originRef (Sprite (w,h) t) = DrawRequest quad Nothing originMat FanVertexLayout one (TexturingPipeline t)
     where quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
           fw = fromIntegral w
           fh = fromIntegral h
           originMat = case originRef of 
               TopLeft -> one
               Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
+
+-- TODO what should be the key for the irregular sprite sheet?
+data SpriteSheetEntry = SpriteSheetEntry { start :: Vec2, size :: Vec2 }
+-- Regular sprite sheet specifies in how many parts should the file be cut horizontally and vertically
+newtype RegularSpriteSheet = RegularSpriteSheet (Int, Int)
+newtype IrregularSpriteSheet = IrregularSpriteSheet (Data.Map String SpriteSheetEntry)
+
+spriteSheet :: Sprite -> DrawRequest
+spriteSheet (Sprite (w,h) t) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+    where 
+        quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
+        texCoords = Just $ [Vec2 0 0, Vec2 0.5 0, Vec2 0.5 0.5, Vec2 0 0.5]
+        fw = fromIntegral w
+        fh = fromIntegral h
+{-
+regularSpriteSheet :: (Int, Int) -> RegularSpriteSheet -> Sprite -> DrawRequest
+regularSpriteSheet (coordX, coordY) ss (Sprite (w,h) t) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+    where 
+        quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
+        texCoords = Just $ [Vec2 0 0, Vec2 0.5 0, Vec2 0.5 0.5, Vec2 0 0.5]
+        fw = fromIntegral w
+        fh = fromIntegral h
+-}

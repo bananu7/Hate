@@ -30,6 +30,7 @@ data OriginReference = TopLeft | Middle deriving (Eq)
 
 data DrawRequest = DrawRequest { 
     vertices :: [Vec2],
+    texCoords :: Maybe [Vec2],
     origin :: Mat4,
     vertexLayout :: VertexLayout,
     transformation :: Mat4,
