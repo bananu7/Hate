@@ -34,7 +34,7 @@ renderPipelineBatch p ds = do
         let mat = transformation d .*. origin d
         setScreenTransformationUniform mat pip
 
-        fromVertArrayIntoGlobal $ vertices d
+        fromVertArrayIntoGlobal (vertices d, texCoords d)
         let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
         renderGlobalVertexStream primitiveMode
 
@@ -50,7 +50,7 @@ singularRender d = do
     let mat = transformation d .*. origin d
     setScreenTransformationUniform mat pip
 
-    fromVertArrayIntoGlobal $ vertices d
+    fromVertArrayIntoGlobal (vertices d, texCoords d)
     let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
     renderGlobalVertexStream primitiveMode
 

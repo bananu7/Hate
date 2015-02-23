@@ -17,6 +17,7 @@ import Control.Applicative
 import Data.Vect.Float
 import Data.List
 import Data.Ord
+import Data.Maybe
 
 instance MonadState GraphicsState (HateDraw us) where
     get = HateDraw $ graphicsState <$> gets libraryState
@@ -27,19 +28,19 @@ instance MonadState GraphicsState (HateDraw us) where
 
 type Action a = forall us. HateDraw us a
 
-fromVertArrayInto :: [Vec2] -> VertexStream -> Action VertexStream
-fromVertArrayInto verts m = HateDraw $ liftIO $ do
-    GL.bindBuffer GL.ArrayBuffer $= Just (vbo m)
+fromVertArrayInto :: ([Vec2], Maybe [Vec2]) -> VertexStream -> Action VertexStream
+fromVertArrayInto (verts, maybeTexCoords) s = HateDraw $ liftIO $ do
+    GL.bindBuffer GL.ArrayBuffer $= Just (vbo s)
     U.replaceBuffer GL.ArrayBuffer verts
-    
-    -- fill in texture coordinates
-    let texCoords = calculateTexCoords verts
-    GL.bindBuffer GL.ArrayBuffer $= Just (texVbo m)
+
+    -- fill in texture coordinates if needed
+    let texCoords = fromMaybe (calculateTexCoords verts) maybeTexCoords
+    GL.bindBuffer GL.ArrayBuffer $= Just (texVbo s)
     U.replaceBuffer GL.ArrayBuffer texCoords
     
-    return $ m { vertNum = length verts }
+    return $ s { vertNum = length verts }
 
-fromVertArrayIntoGlobal :: [Vec2] -> Action ()
+fromVertArrayIntoGlobal :: ([Vec2], Maybe [Vec2]) -> Action ()
 fromVertArrayIntoGlobal xs = do
     m <- gets globalVertexStream
     m' <- fromVertArrayInto xs m
