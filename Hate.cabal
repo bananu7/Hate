@@ -48,7 +48,7 @@ library
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
                        transformers, mtl, vect, vect-opengl, vector, JuicyPixels, bytestring,
-                       multimap, containers
+                       multimap
 
   default-language:    Haskell2010
   ghc-options:         -Wall -ferror-spans

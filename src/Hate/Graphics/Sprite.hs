@@ -16,7 +16,6 @@ import System.Exit
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 
-import qualified Data.Map as Map
 import Control.Applicative
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]
@@ -66,10 +65,6 @@ sprite originRef (Sprite (w,h) t) = DrawRequest quad Nothing originMat FanVertex
         originMat = case originRef of 
             TopLeft -> one
             Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
-
--- Regular sprite sheet specifies in how many parts should the file be cut horizontally and vertically
-data SpriteAtlasEntry = SpriteAtlasEntry { start :: Vec2, spriteSize :: Vec2 }
-newtype SpriteAtlas = IrregularSpriteSheet (Map.Map String SpriteAtlasEntry)
 
 spriteSheet :: Int -> SpriteSheet -> DrawRequest
 spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
