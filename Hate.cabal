@@ -23,6 +23,9 @@ library
                       Hate.Math
                       Hate.Math.Types
                       Hate.Common.Scheduler
+                      Hate.Events
+                      Hate.Events.Types
+                      
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Common.Instances
@@ -48,7 +51,8 @@ library
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
                        transformers, mtl, vect, vect-opengl, vector, JuicyPixels, bytestring,
-                       multimap
+                       multimap,
+                       stm > 2.4
 
   default-language:    Haskell2010
   ghc-options:         -Wall -ferror-spans

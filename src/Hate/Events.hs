@@ -1,27 +1,24 @@
-module Hate.Common.Events where
+module Hate.Events
+    ( initialEventsState
+    , setCallbacks
+    , fetchEvents
+    , module Hate.Events.Types
+    )
+where
 
 import qualified Graphics.UI.GLFW as GLFW
 
 import Control.Concurrent.STM    (TQueue, atomically, newTQueueIO, tryReadTQueue, writeTQueue)
+import Hate.Events.Types
+import Hate.Common.Types
+
+import Control.Monad.IO.Class (liftIO)
+import Control.Monad.State.Class (gets)
+
+initialEventsState :: IO EventsState
+initialEventsState = newTQueueIO :: IO (TQueue Event)
 
 {- The code has been borrowed from GLFW-b-demo; thanks @bsl -}
-
-data Event =
-    EventError           !GLFW.Error !String
-  | EventWindowPos       !GLFW.Window !Int !Int
-  | EventWindowSize      !GLFW.Window !Int !Int
-  | EventWindowClose     !GLFW.Window
-  | EventWindowRefresh   !GLFW.Window
-  | EventWindowFocus     !GLFW.Window !GLFW.FocusState
-  | EventWindowIconify   !GLFW.Window !GLFW.IconifyState
-  | EventFramebufferSize !GLFW.Window !Int !Int
-  | EventMouseButton     !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
-  | EventCursorPos       !GLFW.Window !Double !Double
-  | EventCursorEnter     !GLFW.Window !GLFW.CursorState
-  | EventScroll          !GLFW.Window !Double !Double
-  | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
-  | EventChar            !GLFW.Window !Char
-  deriving Show
 
 errorCallback           :: TQueue Event -> GLFW.Error -> String                                                            -> IO ()
 windowPosCallback       :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
@@ -53,11 +50,11 @@ scrollCallback          tc win x y        = atomically $ writeTQueue tc $ EventS
 keyCallback             tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey             win k sc ka mk
 charCallback            tc win c          = atomically $ writeTQueue tc $ EventChar            win c
 
--- eventsChan <- newTQueueIO :: IO (TQueue Event)
+setErrorCallback :: TQueue Event -> IO ()
+setErrorCallback eventsChan = GLFW.setErrorCallback $ Just $ errorCallback eventsChan
 
-setCallbacks :: TQueue Event -> GLFW.Window -> IO ()
+setCallbacks :: EventsState -> GLFW.Window -> IO ()
 setCallbacks eventsChan win = do
-    GLFW.setErrorCallback               $ Just $ errorCallback           eventsChan
     GLFW.setWindowPosCallback       win $ Just $ windowPosCallback       eventsChan
     GLFW.setWindowSizeCallback      win $ Just $ windowSizeCallback      eventsChan
     GLFW.setWindowCloseCallback     win $ Just $ windowCloseCallback     eventsChan
@@ -71,3 +68,14 @@ setCallbacks eventsChan win = do
     GLFW.setScrollCallback          win $ Just $ scrollCallback          eventsChan
     GLFW.setKeyCallback             win $ Just $ keyCallback             eventsChan
     GLFW.setCharCallback            win $ Just $ charCallback            eventsChan
+
+fetchEvents :: HateInner us [Event]
+fetchEvents = fetchEvents' []
+    where 
+        fetchEvents' :: [Event] -> HateInner us [Event]
+        fetchEvents' xs = do
+            tc <- gets (eventsState . libraryState)
+            me <- liftIO $ atomically $ tryReadTQueue tc
+            case me of
+                Just e -> fetchEvents' (e:xs)
+                Nothing -> return xs
