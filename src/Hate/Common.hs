@@ -80,6 +80,7 @@ hateInitWindow titl (width, height) = do
 
             return win
 
+hateInitGL :: IO ()
 hateInitGL = do
     GL.blend $= GL.Enabled
     GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
@@ -142,6 +143,7 @@ whenKeyPressed k action = do
     if b then action 
          else return ()
 
+initialLibraryState :: IO LibraryState
 initialLibraryState = LibraryState <$> initialGraphicsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()

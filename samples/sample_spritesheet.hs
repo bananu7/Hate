@@ -3,7 +3,6 @@
 
 import Hate
 import Hate.Graphics
-import Vec2Lens (x,y)
 
 import Control.Applicative
 import Control.Lens

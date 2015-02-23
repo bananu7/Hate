@@ -71,11 +71,3 @@ renderGlobalVertexStream primitiveMode = do
     liftIO $ do
         GL.bindVertexArrayObject $= Just (vao vs)
         GL.drawArrays primitiveMode 0 (fromIntegral $ vertNum vs)
-
-{-
-unpackVerts :: [Vec2] -> [Float]
-unpackVerts verts = map realToFrac . concat . map unpackVec $ verts
-    where
-        unpackVec (Vec2 x y) = [x, y]
-
--}

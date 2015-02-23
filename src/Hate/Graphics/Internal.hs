@@ -34,9 +34,9 @@ fromVertArrayInto (verts, maybeTexCoords) s = HateDraw $ liftIO $ do
     U.replaceBuffer GL.ArrayBuffer verts
 
     -- fill in texture coordinates if needed
-    let texCoords = fromMaybe (calculateTexCoords verts) maybeTexCoords
+    let texCoords' = fromMaybe (calculateTexCoords verts) maybeTexCoords
     GL.bindBuffer GL.ArrayBuffer $= Just (texVbo s)
-    U.replaceBuffer GL.ArrayBuffer texCoords
+    U.replaceBuffer GL.ArrayBuffer texCoords'
     
     return $ s { vertNum = length verts }
 
