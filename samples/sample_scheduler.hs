@@ -25,7 +25,7 @@ every' t evt = every t evt >>= schedule'
 after' t evt = after t evt >>= schedule'
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = do
+sampleUpdate _ = do
     -- repeated action
     use firstRun >>= \p -> when p $ do
         every' 1 $ radius += 50

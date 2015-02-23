@@ -59,6 +59,6 @@ function, so it's not limited in any way. It has to produce
 initial state of the user's program. -}
 type LoadFn userStateType = IO userStateType
 
-type UpdateFn us = Hate us ()
+type UpdateFn us = [Event] -> Hate us ()
 
 type DrawFn us = us -> [DrawRequest]

@@ -13,7 +13,7 @@ sampleDraw p =
     ]
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = do
+sampleUpdate _ = do
     x <- get
     if x > 50 then put 0
               else put $ x + 1

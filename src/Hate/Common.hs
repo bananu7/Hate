@@ -108,14 +108,17 @@ hateLoop = do
         let desiredFPS = 60.0
         let desiredSPF = 1.0 / desiredFPS
 
-        evts <- fetchEvents
-        when (length evts > 0) $ liftIO . print $ (show $ length evts) ++ " new events!"
-
         when (tDiff > desiredSPF) $ do
-            runHate $ updateFn gs
+            evts <- fetchEvents
+
+            -- print all the events out;
+            -- leaving as dead code because might someday be helpful in debug
+            --liftIO $ mapM print evts
+
+            runHate $ (updateFn gs) evts
             modify $ \x -> x { lastUpdateTime = t }
 
-        when (tDiff < desiredSPF) $ liftIO $        
+        when (tDiff < desiredSPF) $ liftIO $
             threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
 
         liftIO $ do 
