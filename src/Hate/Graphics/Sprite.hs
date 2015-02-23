@@ -1,5 +1,6 @@
 module Hate.Graphics.Sprite 
     ( loadSprite
+    , loadSpriteSheet
     , sprite
     , spriteSheet
     )
@@ -16,6 +17,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 
 import qualified Data.Map as Map
+import Control.Applicative
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]
 
@@ -50,6 +52,9 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
+loadSpriteSheet :: FilePath -> (Int, Int) -> IO SpriteSheet
+loadSpriteSheet path sz = SpriteSheet <$> loadSprite path <*> pure sz
+
 -- |Creates a 'DrawRequest' that draws a sprite. The 'OriginReference' parameter specifices the
 -- "hooking point" for the rotations and translations.
 sprite :: OriginReference -> Sprite -> DrawRequest
@@ -62,16 +67,12 @@ sprite originRef (Sprite (w,h) t) = DrawRequest quad Nothing originMat FanVertex
             TopLeft -> one
             Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
 
-
 -- Regular sprite sheet specifies in how many parts should the file be cut horizontally and vertically
-type SpriteSheet = (Int, Int)
-
 data SpriteAtlasEntry = SpriteAtlasEntry { start :: Vec2, spriteSize :: Vec2 }
 newtype SpriteAtlas = IrregularSpriteSheet (Map.Map String SpriteAtlasEntry)
 
-
-spriteSheet :: Int -> SpriteSheet -> Sprite -> DrawRequest
-spriteSheet num (sx, sy) (Sprite (w,h) t) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+spriteSheet :: Int -> SpriteSheet -> DrawRequest
+spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
     where 
         quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
         texCoords = Just $ [ Vec2 txStart tyStart

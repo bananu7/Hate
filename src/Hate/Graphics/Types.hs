@@ -26,7 +26,7 @@ data PipelineDescription = SolidColorPipeline Vec4 | TexturingPipeline GL.Textur
 
 data VertexLayout = FanVertexLayout | StripVertexLayout | LinesVertexLayout deriving (Eq, Show)
 
-data OriginReference = TopLeft | Middle deriving (Eq)
+data OriginReference = TopLeft | Middle deriving (Eq, Show)
 
 data DrawRequest = DrawRequest { 
     vertices :: [Vec2],
@@ -41,3 +41,8 @@ data Sprite = Sprite {
     size :: (Int, Int),
     texture :: GL.TextureObject
 } deriving (Eq, Show)
+
+data SpriteSheet = SpriteSheet {
+    spriteRef :: Sprite,
+    sheetSize :: (Int, Int)
+}
