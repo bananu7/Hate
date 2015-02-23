@@ -39,9 +39,7 @@ sampleLoad = SampleState <$> loadSprite "samples/nooble.png"
                          <*> generateKoalas
 
 sampleDraw :: DrawFn SampleState
-sampleDraw s = map (\(Koala p n) -> translate p $ spriteSheet (numToCoord n) (2,2) (s ^. koalaSpriteSheet)) $ s ^. koalas
-    where
-        numToCoord x = (x `div` 2, x `mod` 2)
+sampleDraw s = map (\(Koala p n) -> translate p $ spriteSheet n (2,2) (s ^. koalaSpriteSheet)) $ s ^. koalas
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate = koalas . traverse . num %= \n -> if n > 3 then 0 else n+1

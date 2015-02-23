@@ -70,8 +70,8 @@ data SpriteAtlasEntry = SpriteAtlasEntry { start :: Vec2, spriteSize :: Vec2 }
 newtype SpriteAtlas = IrregularSpriteSheet (Map.Map String SpriteAtlasEntry)
 
 
-spriteSheet :: (Int, Int) -> SpriteSheet -> Sprite -> DrawRequest
-spriteSheet (coordX, coordY) (sx, sy) (Sprite (w,h) t) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+spriteSheet :: Int -> SpriteSheet -> Sprite -> DrawRequest
+spriteSheet num (sx, sy) (Sprite (w,h) t) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
     where 
         quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
         texCoords = Just $ [ Vec2 txStart tyStart
@@ -79,6 +79,9 @@ spriteSheet (coordX, coordY) (sx, sy) (Sprite (w,h) t) = DrawRequest quad texCoo
                            , Vec2 txEnd tyEnd
                            , Vec2 txStart tyEnd
                            ]
+
+        coordX = num `mod` sx
+        coordY = num `div` sx
 
         txStart = fromIntegral coordX / fromIntegral sx
         tyStart = fromIntegral (coordY + 1) / fromIntegral sy
