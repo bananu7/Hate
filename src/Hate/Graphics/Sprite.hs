@@ -52,7 +52,10 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
-loadSpriteSheet :: FilePath -> (Int, Int) -> IO SpriteSheet
+-- |Loads a sprite sheet from disk.
+loadSpriteSheet :: FilePath
+                -> (Int, Int) -- ^ The size in tiles of the sheet
+                -> IO SpriteSheet
 loadSpriteSheet path sz = SpriteSheet <$> loadSprite path <*> pure sz
 
 -- |Creates a 'DrawRequest' that draws a sprite. The 'OriginReference' parameter specifices the
