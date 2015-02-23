@@ -15,6 +15,8 @@ import Hate.Common.Types
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State.Class (gets)
 
+import GHC.Float (double2Float)
+
 initialEventsState :: IO EventsState
 initialEventsState = newTQueueIO :: IO (TQueue Event)
 
@@ -44,7 +46,7 @@ windowFocusCallback     tc win fa         = atomically $ writeTQueue tc $ EventW
 windowIconifyCallback   tc win ia         = atomically $ writeTQueue tc $ EventWindowIconify   ia
 framebufferSizeCallback tc win w h        = atomically $ writeTQueue tc $ EventFramebufferSize w h
 mouseButtonCallback     tc win mb mba mk  = atomically $ writeTQueue tc $ EventMouseButton     mb mba mk
-cursorPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventCursorPos       x y
+cursorPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventCursorPos       (double2Float x) (double2Float y)
 cursorEnterCallback     tc win ca         = atomically $ writeTQueue tc $ EventCursorEnter     ca
 scrollCallback          tc win x y        = atomically $ writeTQueue tc $ EventScroll          x y
 keyCallback             tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey             k sc ka mk

@@ -15,7 +15,7 @@ data Event =
   | EventWindowIconify   !GLFW.IconifyState
   | EventFramebufferSize !Int !Int
   | EventMouseButton     !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
-  | EventCursorPos       !Double !Double
+  | EventCursorPos       !Float !Float
   | EventCursorEnter     !GLFW.CursorState
   | EventScroll          !Double !Double
   | EventKey             !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
