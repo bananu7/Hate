@@ -36,19 +36,19 @@ keyCallback             :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLF
 charCallback            :: TQueue Event -> GLFW.Window -> Char                                                             -> IO ()
 
 errorCallback           tc e s            = atomically $ writeTQueue tc $ EventError           e s
-windowPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventWindowPos       win x y
-windowSizeCallback      tc win w h        = atomically $ writeTQueue tc $ EventWindowSize      win w h
-windowCloseCallback     tc win            = atomically $ writeTQueue tc $ EventWindowClose     win
-windowRefreshCallback   tc win            = atomically $ writeTQueue tc $ EventWindowRefresh   win
-windowFocusCallback     tc win fa         = atomically $ writeTQueue tc $ EventWindowFocus     win fa
-windowIconifyCallback   tc win ia         = atomically $ writeTQueue tc $ EventWindowIconify   win ia
-framebufferSizeCallback tc win w h        = atomically $ writeTQueue tc $ EventFramebufferSize win w h
-mouseButtonCallback     tc win mb mba mk  = atomically $ writeTQueue tc $ EventMouseButton     win mb mba mk
-cursorPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventCursorPos       win x y
-cursorEnterCallback     tc win ca         = atomically $ writeTQueue tc $ EventCursorEnter     win ca
-scrollCallback          tc win x y        = atomically $ writeTQueue tc $ EventScroll          win x y
-keyCallback             tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey             win k sc ka mk
-charCallback            tc win c          = atomically $ writeTQueue tc $ EventChar            win c
+windowPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventWindowPos       x y
+windowSizeCallback      tc win w h        = atomically $ writeTQueue tc $ EventWindowSize      w h
+windowCloseCallback     tc win            = atomically $ writeTQueue tc $ EventWindowClose
+windowRefreshCallback   tc win            = atomically $ writeTQueue tc $ EventWindowRefresh
+windowFocusCallback     tc win fa         = atomically $ writeTQueue tc $ EventWindowFocus     fa
+windowIconifyCallback   tc win ia         = atomically $ writeTQueue tc $ EventWindowIconify   ia
+framebufferSizeCallback tc win w h        = atomically $ writeTQueue tc $ EventFramebufferSize w h
+mouseButtonCallback     tc win mb mba mk  = atomically $ writeTQueue tc $ EventMouseButton     mb mba mk
+cursorPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventCursorPos       x y
+cursorEnterCallback     tc win ca         = atomically $ writeTQueue tc $ EventCursorEnter     ca
+scrollCallback          tc win x y        = atomically $ writeTQueue tc $ EventScroll          x y
+keyCallback             tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey             k sc ka mk
+charCallback            tc win c          = atomically $ writeTQueue tc $ EventChar            c
 
 setErrorCallback :: TQueue Event -> IO ()
 setErrorCallback eventsChan = GLFW.setErrorCallback $ Just $ errorCallback eventsChan

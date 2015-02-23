@@ -7,17 +7,17 @@ type EventsState = TQueue Event
 
 data Event =
     EventError           !GLFW.Error !String
-  | EventWindowPos       !GLFW.Window !Int !Int
-  | EventWindowSize      !GLFW.Window !Int !Int
-  | EventWindowClose     !GLFW.Window
-  | EventWindowRefresh   !GLFW.Window
-  | EventWindowFocus     !GLFW.Window !GLFW.FocusState
-  | EventWindowIconify   !GLFW.Window !GLFW.IconifyState
-  | EventFramebufferSize !GLFW.Window !Int !Int
-  | EventMouseButton     !GLFW.Window !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
-  | EventCursorPos       !GLFW.Window !Double !Double
-  | EventCursorEnter     !GLFW.Window !GLFW.CursorState
-  | EventScroll          !GLFW.Window !Double !Double
-  | EventKey             !GLFW.Window !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
-  | EventChar            !GLFW.Window !Char
+  | EventWindowPos       !Int !Int
+  | EventWindowSize      !Int !Int
+  | EventWindowClose
+  | EventWindowRefresh
+  | EventWindowFocus     !GLFW.FocusState
+  | EventWindowIconify   !GLFW.IconifyState
+  | EventFramebufferSize !Int !Int
+  | EventMouseButton     !GLFW.MouseButton !GLFW.MouseButtonState !GLFW.ModifierKeys
+  | EventCursorPos       !Double !Double
+  | EventCursorEnter     !GLFW.CursorState
+  | EventScroll          !Double !Double
+  | EventKey             !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
+  | EventChar            !Char
   deriving Show
