@@ -40,6 +40,9 @@ fromVertArrayInto (verts, maybeTexCoords) s = HateDraw $ liftIO $ do
     
     return $ s { vertNum = length verts }
 
+updateScreenSize :: (Int, Int) -> Action ()
+updateScreenSize sz = modify $ \g -> g { screenSize = sz }
+
 fromVertArrayIntoGlobal :: ([Vec2], Maybe [Vec2]) -> Action ()
 fromVertArrayIntoGlobal xs = do
     m <- gets globalVertexStream
@@ -52,5 +55,5 @@ calculateTexCoords verts = map (flipY . pointwise scaleFactor) verts
         maxX = _1 $ maximumBy (comparing _1) verts
         maxY = _2 $ maximumBy (comparing _2) verts
         scaleFactor = Vec2 (1 / maxX) (1 / maxY)
-        flipY (Vec2 x y) = Vec2 x (1 - y)
+        flipY (Vec2 x y) = Vec2 x y
 

@@ -86,9 +86,9 @@ spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCo
         coordY = num `div` sx
 
         txStart = fromIntegral coordX / fromIntegral sx
-        tyStart = fromIntegral (coordY + 1) / fromIntegral sy
+        tyStart = fromIntegral coordY / fromIntegral sy
         txEnd = fromIntegral (coordX + 1) / fromIntegral sx
-        tyEnd = fromIntegral coordY / fromIntegral sy
+        tyEnd = fromIntegral (coordY + 1) / fromIntegral sy
 
         fw = fromIntegral w / fromIntegral sx
         fh = fromIntegral h / fromIntegral sy

@@ -142,14 +142,14 @@ whenKeyPressed k action = do
     if b then action 
          else return ()
 
-initialLibraryState :: IO LibraryState
-initialLibraryState = LibraryState <$> initialGraphicsState 
-                                   <*> initialEventsState
+initialLibraryState :: Config -> IO LibraryState
+initialLibraryState c = LibraryState <$> initialGraphicsState (windowSize c)
+                                     <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do
     win <- hateInitWindow (windowTitle config) (windowSize config)
-    libState <- initialLibraryState
+    libState <- initialLibraryState config
 
     setCallbacks (eventsState libState) win
 

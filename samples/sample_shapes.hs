@@ -28,7 +28,7 @@ config :: Config
 config = 
     Config
         { windowTitle = "Sample - Shapes"
-        , windowSize  = (1024, 768)
+        , windowSize  = (1280, 768)
         }
 
 main :: IO ()

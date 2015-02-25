@@ -10,7 +10,8 @@ import Data.Vect.Float.Instances()
 data GraphicsState = GraphicsState { 
     solidColorPipeline :: Pipeline,
     texturingPipeline :: Pipeline,
-    globalVertexStream :: VertexStream
+    globalVertexStream :: VertexStream,
+    screenSize :: (Int, Int)
 }
 
 -- |A general type for a graphical mesh, either in indexed or raw form.

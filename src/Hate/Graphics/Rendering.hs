@@ -56,7 +56,9 @@ singularRender d = do
 
 setScreenTransformationUniform :: Mat4 -> Pipeline -> Action ()
 setScreenTransformationUniform t pip = do
-    let orthoScreenMat = orthoMatrix (0, 1024) (0, 768) (-10, 10)
+    (screenSizeX, screenSizeY) <- gets screenSize
+
+    let orthoScreenMat = orthoMatrix (0, (fromIntegral screenSizeX)) ((fromIntegral screenSizeY), 0) (-10, 10)
     let drawMat = (transpose orthoScreenMat) .*. t
     liftIO $ setUniformM4 pip "screen_transformation" drawMat
 

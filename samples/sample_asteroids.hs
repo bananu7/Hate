@@ -118,9 +118,9 @@ sampleUpdate _ = do
 
         steerShip = do
             r <- use $ player . entity . rot
-            whenKeyPressed Key'Up $ player . entity . vel += (rotateVec r (Vec2 0 1))
-            whenKeyPressed Key'Left $ player . entity . rotVel += 0.01
-            whenKeyPressed Key'Right $ player . entity . rotVel -= 0.01
+            whenKeyPressed Key'Up $ player . entity . vel += (rotateVec r (Vec2 0 (negate 1)))
+            whenKeyPressed Key'Left $ player . entity . rotVel -= 0.01
+            whenKeyPressed Key'Right $ player . entity . rotVel += 0.01
 
 config :: Config
 config = 
