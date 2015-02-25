@@ -2,6 +2,7 @@ module Hate.Events
     ( initialEventsState
     , setCallbacks
     , fetchEvents
+    , filterEventsForEndUser
     , module Hate.Events.Types
     )
 where
@@ -22,6 +23,8 @@ initialEventsState = newTQueueIO :: IO (TQueue Event)
 
 {- The code has been borrowed from GLFW-b-demo; thanks @bsl -}
 
+-- I assume only one window can be used by the framework
+
 errorCallback           :: TQueue Event -> GLFW.Error -> String                                                            -> IO ()
 windowPosCallback       :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
 windowSizeCallback      :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
@@ -38,19 +41,19 @@ keyCallback             :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLF
 charCallback            :: TQueue Event -> GLFW.Window -> Char                                                             -> IO ()
 
 errorCallback           tc e s            = atomically $ writeTQueue tc $ EventError           e s
-windowPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventWindowPos       x y
-windowSizeCallback      tc win w h        = atomically $ writeTQueue tc $ EventWindowSize      w h
-windowCloseCallback     tc win            = atomically $ writeTQueue tc $ EventWindowClose
-windowRefreshCallback   tc win            = atomically $ writeTQueue tc $ EventWindowRefresh
-windowFocusCallback     tc win fa         = atomically $ writeTQueue tc $ EventWindowFocus     fa
-windowIconifyCallback   tc win ia         = atomically $ writeTQueue tc $ EventWindowIconify   ia
-framebufferSizeCallback tc win w h        = atomically $ writeTQueue tc $ EventFramebufferSize w h
-mouseButtonCallback     tc win mb mba mk  = atomically $ writeTQueue tc $ EventMouseButton     mb mba mk
-cursorPosCallback       tc win x y        = atomically $ writeTQueue tc $ EventCursorPos       (double2Float x) (double2Float y)
-cursorEnterCallback     tc win ca         = atomically $ writeTQueue tc $ EventCursorEnter     ca
-scrollCallback          tc win x y        = atomically $ writeTQueue tc $ EventScroll          x y
-keyCallback             tc win k sc ka mk = atomically $ writeTQueue tc $ EventKey             k sc ka mk
-charCallback            tc win c          = atomically $ writeTQueue tc $ EventChar            c
+windowPosCallback       tc _ x y          = atomically $ writeTQueue tc $ EventWindowPos       x y
+windowSizeCallback      tc _ w h          = atomically $ writeTQueue tc $ EventWindowSize      w h
+windowCloseCallback     tc _              = atomically $ writeTQueue tc $ EventWindowClose
+windowRefreshCallback   tc _              = atomically $ writeTQueue tc $ EventWindowRefresh
+windowFocusCallback     tc _ fa           = atomically $ writeTQueue tc $ EventWindowFocus     fa
+windowIconifyCallback   tc _ ia           = atomically $ writeTQueue tc $ EventWindowIconify   ia
+framebufferSizeCallback tc _ w h          = atomically $ writeTQueue tc $ EventFramebufferSize w h
+mouseButtonCallback     tc _ mb mba mk    = atomically $ writeTQueue tc $ EventMouseButton     mb mba mk
+cursorPosCallback       tc _ x y          = atomically $ writeTQueue tc $ EventCursorPos       (double2Float x) (double2Float y)
+cursorEnterCallback     tc _ ca           = atomically $ writeTQueue tc $ EventCursorEnter     ca
+scrollCallback          tc _ x y          = atomically $ writeTQueue tc $ EventScroll          x y
+keyCallback             tc _ k sc ka mk   = atomically $ writeTQueue tc $ EventKey             k sc ka mk
+charCallback            tc _ c            = atomically $ writeTQueue tc $ EventChar            c
 
 setErrorCallback :: TQueue Event -> IO ()
 setErrorCallback eventsChan = GLFW.setErrorCallback $ Just $ errorCallback eventsChan
@@ -81,3 +84,18 @@ fetchEvents = fetchEvents' []
             case me of
                 Just e -> fetchEvents' (e:xs)
                 Nothing -> return xs
+
+-- | Some events aren't meant to impact the user, and should be handled
+-- internally by framework instead.
+filterEventsForEndUser :: [Event] -> [Event]
+filterEventsForEndUser = filter allowedEvent
+    where
+        allowedEvent :: Event -> Bool
+        allowedEvent EventWindowClose         = True
+        allowedEvent (EventWindowFocus _)     = True
+        allowedEvent (EventMouseButton _ _ _) = True
+        allowedEvent (EventCursorPos _ _)     = True
+        allowedEvent (EventScroll _ _)        = True
+        allowedEvent (EventKey _ _ _ _)       = True
+        allowedEvent (EventChar _)            = True
+        allowedEvent _ = False

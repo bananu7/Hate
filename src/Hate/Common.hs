@@ -110,12 +110,13 @@ hateLoop = do
 
         when (tDiff > desiredSPF) $ do
             evts <- fetchEvents
+            let allowedEvts = filterEventsForEndUser evts
 
             -- print all the events out;
             -- leaving as dead code because might someday be helpful in debug
             --liftIO $ mapM print evts
 
-            runHate $ (updateFn gs) evts
+            runHate $ (updateFn gs) allowedEvts
             modify $ \x -> x { lastUpdateTime = t }
 
         when (tDiff < desiredSPF) $ liftIO $
