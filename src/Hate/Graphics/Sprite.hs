@@ -36,6 +36,7 @@ getImageSize :: JP.DynamicImage -> (Int, Int)
 getImageSize (JP.ImageRGBA8 (JP.Image width height _)) = (width, height)
 getImageSize (JP.ImageRGB8 (JP.Image width height _)) = (width, height)
 
+-- |Loads a file from disk and constructs a drawable sprite.
 loadSprite :: FilePath -> IO Sprite
 loadSprite path = do
     image <- JP.readImage path
@@ -51,7 +52,10 @@ loadSprite path = do
             GL.textureWrapMode GL.Texture2D GL.T $= (GL.Repeated, GL.Repeat)
             return $ Sprite { texture = texId, size = getImageSize imgData }
 
-loadSpriteSheet :: FilePath -> (Int, Int) -> IO SpriteSheet
+-- |Loads a sprite sheet from disk.
+loadSpriteSheet :: FilePath
+                -> (Int, Int) -- ^ The size in tiles of the sheet
+                -> IO SpriteSheet
 loadSpriteSheet path sz = SpriteSheet <$> loadSprite path <*> pure sz
 
 -- |Creates a 'DrawRequest' that draws a sprite. The 'OriginReference' parameter specifices the
@@ -66,6 +70,8 @@ sprite originRef (Sprite (w,h) t) = DrawRequest quad Nothing originMat FanVertex
             TopLeft -> one
             Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
 
+-- |Creates a 'DrawRequest' with a rectangle cut out of a regular sprite sheet. The number specifies the 
+-- index of the sprite, counting from the top-left one.
 spriteSheet :: Int -> SpriteSheet -> DrawRequest
 spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
     where 

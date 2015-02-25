@@ -23,7 +23,6 @@ module Hate.Common.Scheduler
 where
 
 import Hate.Common.Types
-import qualified Graphics.UI.GLFW as G (getTime)
 
 import Data.MultiMap
 import Data.Maybe (catMaybes)

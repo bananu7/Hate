@@ -16,13 +16,16 @@ where
 
 import Control.Monad.State
 import Control.Applicative
+import Control.Concurrent.STM (TQueue)
 import qualified Graphics.UI.GLFW as G
 
 import Hate.Graphics.Types(GraphicsState, DrawRequest)
+import Hate.Events.Types (Event)
 
 data LibraryState = LibraryState {
-		graphicsState :: GraphicsState
-	}
+	graphicsState :: GraphicsState,
+    eventsState :: TQueue Event
+}
 
 {-| Configuration object to pass to `runApp` -}
 data Config
@@ -56,6 +59,6 @@ function, so it's not limited in any way. It has to produce
 initial state of the user's program. -}
 type LoadFn userStateType = IO userStateType
 
-type UpdateFn us = Hate us ()
+type UpdateFn us = [Event] -> Hate us ()
 
 type DrawFn us = us -> [DrawRequest]

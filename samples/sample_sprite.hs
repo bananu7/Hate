@@ -57,7 +57,7 @@ moveSehe = updatePos . updateVel
         updatePos (Sehe p v) = Sehe (p + v) v
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = sehes . traverse %= moveSehe
+sampleUpdate _ = sehes . traverse %= moveSehe
 
 config :: Config
 config = 

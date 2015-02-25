@@ -3,7 +3,6 @@
 
 import Hate
 import Hate.Graphics
-import Vec2Lens (x,y)
 
 import Control.Applicative
 import Control.Lens
@@ -42,7 +41,7 @@ sampleDraw :: DrawFn SampleState
 sampleDraw s = map (\(Koala p n) -> translate p $ spriteSheet n (s ^. koalaSpriteSheet)) $ s ^. koalas
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = koalas . traverse . num %= \n -> if n > 3 then 0 else n+1
+sampleUpdate _ = koalas . traverse . num %= \n -> if n > 3 then 0 else n+1
 
 config :: Config
 config = 

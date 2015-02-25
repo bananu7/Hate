@@ -97,7 +97,7 @@ sampleDraw s = (map draw (s ^. asteroids)) ++ [draw (s ^. player)]
         entityToTransform a = let e = a ^. entity in ((rotated (e ^. rot)) . (translate (e ^. pos)))
 
 sampleUpdate :: UpdateFn SampleState
-sampleUpdate = do
+sampleUpdate _ = do
     asteroids . traversed %= updateEntity
     player %= updateEntity
     steerShip

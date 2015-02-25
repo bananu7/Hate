@@ -24,6 +24,7 @@ module Hate.Common
 import Hate.Util 
 import Hate.Common.Types
 import Hate.Common.Instances()
+import Hate.Events
 
 import Hate.Graphics.Util (initialGraphicsState)
 import Hate.Graphics.Rendering
@@ -42,25 +43,17 @@ import Data.Maybe
 
 import Control.Concurrent (threadDelay)
 
-{-
-type KeyCallbackFn us = G.Key -> StateT us IO ()
-data Callbacks us = Callbacks { onKeyUp :: KeyCallbackFn us, onKeyDown :: KeyCallbackFn }
-emptyKeyCallback _ = return ()
-defaultCallbacks = Callbacks { onKeyUp = emptyKeyCallback, onKeyDown = emptyKeyCallback }
--}
-
--- type ErrorCallback = Error -> String -> IO ()
-errorCallback :: G.ErrorCallback
-errorCallback _ = hPutStrLn stderr
+stderrErrorCallback :: G.ErrorCallback
+stderrErrorCallback _ = hPutStrLn stderr
  
-keyCallback :: G.KeyCallback
-keyCallback win key _ action _ =
-    when (key == G.Key'Escape && action == G.KeyState'Pressed) $
-        G.setWindowShouldClose win True        
+--keyCallback :: G.KeyCallback
+--keyCallback win key _ action _ =
+--    when (key == G.Key'Escape && action == G.KeyState'Pressed) $
+--        G.setWindowShouldClose win True        
 
 hateInitWindow :: String -> (Int, Int) -> IO G.Window
 hateInitWindow titl (width, height) = do
-    G.setErrorCallback (Just errorCallback)
+    G.setErrorCallback (Just stderrErrorCallback)
     successfulInit <- G.init
     -- if init failed, we exit the program
     bool successfulInit exitFailure $ do
@@ -73,13 +66,13 @@ hateInitWindow titl (width, height) = do
         mw <- G.createWindow width height titl Nothing Nothing
         maybe' mw (G.terminate >> exitFailure) $ \win -> do
             G.makeContextCurrent mw
-            G.setKeyCallback win (Just keyCallback)
             G.swapInterval 1 --vsync
 
             hateInitGL
 
             return win
 
+hateInitGL :: IO ()
 hateInitGL = do
     GL.blend $= GL.Enabled
     GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
@@ -88,7 +81,7 @@ hateSuccessfulExit :: G.Window -> IO b
 hateSuccessfulExit win = do
     G.destroyWindow win
     G.terminate
-    exitSuccess          
+    exitSuccess
 
 hateLoop :: HateInner us ()
 hateLoop = do
@@ -116,10 +109,17 @@ hateLoop = do
         let desiredSPF = 1.0 / desiredFPS
 
         when (tDiff > desiredSPF) $ do
-            runHate $ updateFn gs
+            evts <- fetchEvents
+            let allowedEvts = filterEventsForEndUser evts
+
+            -- print all the events out;
+            -- leaving as dead code because might someday be helpful in debug
+            --liftIO $ mapM print evts
+
+            runHate $ (updateFn gs) allowedEvts
             modify $ \x -> x { lastUpdateTime = t }
 
-        when (tDiff < desiredSPF) $ liftIO $        
+        when (tDiff < desiredSPF) $ liftIO $
             threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
 
         liftIO $ do 
@@ -142,16 +142,20 @@ whenKeyPressed k action = do
     if b then action 
          else return ()
 
-initialLibraryState = LibraryState <$> initialGraphicsState
+initialLibraryState :: IO LibraryState
+initialLibraryState = LibraryState <$> initialGraphicsState 
+                                   <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do
     win <- hateInitWindow (windowTitle config) (windowSize config)
-    libS <- initialLibraryState
+    libState <- initialLibraryState
+
+    setCallbacks (eventsState libState) win
 
     print $! "Loading user state"
     initialUserState <- ldFn
 
     time <- fromJust <$> G.getTime
-    evalStateT hateLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libS, lastUpdateTime = time }
+    evalStateT hateLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libState, lastUpdateTime = time }
     hateSuccessfulExit win    
