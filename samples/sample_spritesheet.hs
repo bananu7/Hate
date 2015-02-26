@@ -38,7 +38,7 @@ sampleLoad = SampleState <$> loadSpriteSheet "samples/nooble.png" (2,2)
                          <*> generateKoalas
 
 sampleDraw :: DrawFn SampleState
-sampleDraw s = map (\(Koala p n) -> translate p $ spriteSheet n (s ^. koalaSpriteSheet)) $ s ^. koalas
+sampleDraw s = map (\(Koala p n) -> translate p $ spriteSheet TopLeft n (s ^. koalaSpriteSheet)) $ s ^. koalas
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate _ = koalas . traverse . num %= \n -> if n > 3 then 0 else n+1
