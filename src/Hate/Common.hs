@@ -28,6 +28,7 @@ import Hate.Events
 
 import Hate.Graphics.Util (initialGraphicsState)
 import Hate.Graphics.Rendering
+import Hate.Graphics.Internal (updateScreenSize)
 
 import Control.Monad.State
 import Control.Applicative
@@ -109,8 +110,10 @@ hateLoop = do
         let desiredSPF = 1.0 / desiredFPS
 
         when (tDiff > desiredSPF) $ do
-            evts <- fetchEvents
+            evts <- reverse <$> fetchEvents
             let allowedEvts = filterEventsForEndUser evts
+
+            handleInternalEvents evts
 
             -- print all the events out;
             -- leaving as dead code because might someday be helpful in debug
@@ -126,6 +129,15 @@ hateLoop = do
             G.swapBuffers w
             G.pollEvents
         hateLoop 
+
+handleInternalEvents :: [Event] -> HateInner us ()
+handleInternalEvents = mapM_ handleEvent
+    where
+        handleEvent e = case e of
+            EventWindowSize xs ys -> do
+                liftIO $ GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral xs) (fromIntegral ys))
+                runHateDraw $ updateScreenSize (xs, ys)
+            _ -> return ()
 
 getKey :: G.Key -> Hate us Bool
 getKey k = UnsafeHate $ do

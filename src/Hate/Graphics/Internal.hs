@@ -28,6 +28,9 @@ instance MonadState GraphicsState (HateDraw us) where
 
 type Action a = forall us. HateDraw us a
 
+updateScreenSize :: (Int, Int) -> Action ()
+updateScreenSize sz = modify $ \g -> g { screenSize = sz }
+
 fromVertArrayInto :: ([Vec2], Maybe [Vec2]) -> VertexStream -> Action VertexStream
 fromVertArrayInto (verts, maybeTexCoords) s = HateDraw $ liftIO $ do
     GL.bindBuffer GL.ArrayBuffer $= Just (vbo s)
@@ -39,9 +42,6 @@ fromVertArrayInto (verts, maybeTexCoords) s = HateDraw $ liftIO $ do
     U.replaceBuffer GL.ArrayBuffer texCoords'
     
     return $ s { vertNum = length verts }
-
-updateScreenSize :: (Int, Int) -> Action ()
-updateScreenSize sz = modify $ \g -> g { screenSize = sz }
 
 fromVertArrayIntoGlobal :: ([Vec2], Maybe [Vec2]) -> Action ()
 fromVertArrayIntoGlobal xs = do
