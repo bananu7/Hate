@@ -3,9 +3,9 @@ name:                Hate
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 
-version:             0.1.2.1
-synopsis:            Simple abstraction over OpenGL.
-description:         Simple abstraction over OpenGL. 
+version:             0.1.3.0
+synopsis:            A small 2D game framework.
+description:         A small 2D game framework. 
 stability:           experimental
 homepage:            http://github.com/bananu7/Hate
 license:             MIT
