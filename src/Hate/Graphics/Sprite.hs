@@ -66,14 +66,12 @@ sprite originRef (Sprite (w,h) t) = DrawRequest quad Nothing originMat FanVertex
         quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
         fw = fromIntegral w
         fh = fromIntegral h
-        originMat = case originRef of 
-            TopLeft -> one
-            Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
+        originMat = calcSpriteOriginMatrix originRef fw fh
 
 -- |Creates a 'DrawRequest' with a rectangle cut out of a regular sprite sheet. The number specifies the 
 -- index of the sprite, counting from the top-left one.
-spriteSheet :: Int -> SpriteSheet -> DrawRequest
-spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+spriteSheet :: OriginReference -> Int -> SpriteSheet -> DrawRequest
+spriteSheet originRef num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCoords originMat FanVertexLayout one (TexturingPipeline t)
     where 
         quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
         texCoords = Just $ [ Vec2 txStart tyStart
@@ -92,3 +90,10 @@ spriteSheet num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest quad texCo
 
         fw = fromIntegral w / fromIntegral sx
         fh = fromIntegral h / fromIntegral sy
+        originMat = calcSpriteOriginMatrix originRef fw fh
+
+calcSpriteOriginMatrix :: OriginReference -> Float -> Float -> Mat4
+calcSpriteOriginMatrix originRef fw fh =
+    case originRef of
+        TopLeft -> one
+        Middle -> positionToMatrix4 $ Vec2 (-fw/2) (-fh/2)
