@@ -10,6 +10,7 @@ import Hate.Graphics.Types
 import Hate.Math
 
 import qualified Codec.Picture as JP
+import qualified Codec.Picture.RGBA8 as JPU
 import Data.Vector.Storable (unsafeWith)
 
 import System.Exit
@@ -20,26 +21,20 @@ import Control.Applicative
 
 --drawSquare t = draw $ Polygon $ transform t [vec 0 0, vec 0 1, vec 1 1, vec 1 0]
 
-loadImageDataIntoTexture :: JP.DynamicImage -> IO ()
-
-loadImageDataIntoTexture (JP.ImageRGB8 (JP.Image width height dat)) = 
-    unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGB8 (fromIntegral width) (fromIntegral height)
-      . GL.PixelData GL.RGB GL.UnsignedByte
-
-loadImageDataIntoTexture (JP.ImageRGBA8 (JP.Image width height dat)) = do
+loadImageDataIntoTexture :: JP.Image JP.PixelRGBA8 -> IO ()
+loadImageDataIntoTexture (JP.Image width height dat) = do
     unsafeWith dat $ GL.build2DMipmaps GL.Texture2D GL.RGBA8 (fromIntegral width) (fromIntegral height)
       . GL.PixelData GL.RGBA GL.UnsignedByte
 
 loadImageDataIntoTexture _ = error "Not yet supported"
 
-getImageSize :: JP.DynamicImage -> (Int, Int)
-getImageSize (JP.ImageRGBA8 (JP.Image width height _)) = (width, height)
-getImageSize (JP.ImageRGB8 (JP.Image width height _)) = (width, height)
+getImageSize :: JP.Image JP.PixelRGBA8 -> (Int, Int)
+getImageSize (JP.Image width height _) = (width, height)
 
 -- |Loads a file from disk and constructs a drawable sprite.
 loadSprite :: FilePath -> IO Sprite
 loadSprite path = do
-    image <- JP.readImage path
+    image <- (fmap . fmap) JPU.fromDynamicImage $ JP.readImage path
     case image of
         (Left err) -> do print err
                          exitWith (ExitFailure 1)

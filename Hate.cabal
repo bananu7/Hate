@@ -51,7 +51,14 @@ library
                        GLFW-b >= 1.4,
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
-                       transformers, mtl, vect, vect-opengl, vector, JuicyPixels, bytestring,
+                       transformers,
+                       mtl,
+                       vect,
+                       vect-opengl,
+                       vector,
+                       JuicyPixels,
+                       JuicyPixels-util,
+                       bytestring,
                        multimap,
                        stm > 2.4
 
@@ -65,7 +72,7 @@ executable sample_shapes
                     GLFW-b >= 1.4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate
   default-language: Haskell2010
 
@@ -76,7 +83,7 @@ executable sample_scheduler
                     GLFW-b >= 1.4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     lens
   default-language: Haskell2010
@@ -88,7 +95,7 @@ executable sample_sprite
                     GLFW-b >= 1.4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -100,7 +107,7 @@ executable sample_spritesheet
                     GLFW-b >= 1.4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -112,7 +119,7 @@ executable sample_asteroids
                     GLFW-b >= 1.4,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
