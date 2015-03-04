@@ -30,7 +30,7 @@ instance Renderer BackendModern where
     initialRendererState = initialGraphicsState
     render = renderBatch
     contextRequirements _ = DesktopContext 4 4
-    updateScreenSize _ = return ()
+    updateScreenSize = updateScreenSz
 
 type Action a = (MonadState BackendModern m, MonadIO m) => m a
 
@@ -101,8 +101,8 @@ renderGlobalVertexStream primitiveMode = do
         GL.drawArrays primitiveMode 0 (fromIntegral $ vertNum vs)
 
 
-updateScreenSize :: (Int, Int) -> Action ()
-updateScreenSize sz = modify $ \g -> g { screenSize = sz }
+updateScreenSz :: (Int, Int) -> Action ()
+updateScreenSz sz = modify $ \g -> g { screenSize = sz }
 
 fromVertArrayInto :: ([Vec2], Maybe [Vec2]) -> VertexStream -> Action VertexStream
 fromVertArrayInto (verts, maybeTexCoords) s = liftIO $ do
