@@ -1,5 +1,6 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ExistentialQuantification #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Hate.Common.Types
     ( Config(..)
@@ -7,7 +8,6 @@ module Hate.Common.Types
     , HateState(..)
     , HateInner
     , Hate(..)
-    , HateDraw(..)
     , LoadFn
     , UpdateFn
     , DrawFn
@@ -19,11 +19,12 @@ import Control.Applicative
 import Control.Concurrent.STM (TQueue)
 import qualified Graphics.UI.GLFW as G
 
-import Hate.Graphics.Types(GraphicsState, DrawRequest)
+import Hate.Graphics.Types(DrawRequest)
+import Hate.Graphics.Rendering
 import Hate.Events.Types (Event)
 
-data LibraryState = LibraryState {
-	graphicsState :: GraphicsState,
+data LibraryState = forall r. Renderer r => LibraryState {
+    graphicsState :: r,
     eventsState :: TQueue Event
 }
 
@@ -49,9 +50,6 @@ type HateInner us a = StateT (HateState us) IO a
 -- |Hate Monad restricts user operations
 newtype Hate us a = UnsafeHate { runHate :: HateInner us a }
     deriving (Functor, Applicative, Monad, MonadIO)
-
-newtype HateDraw us a = HateDraw { runHateDraw :: HateInner us a }
-  deriving (Functor, Applicative, Monad, MonadIO)
 
 {- |This is one of the three functions that the user has to
 provide in order to use the framework. It's a regular IO

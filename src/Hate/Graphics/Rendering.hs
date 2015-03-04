@@ -1,18 +1,24 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Hate.Graphics.Rendering where
 
-import Hate.Common.Types (HateDraw)
 import Hate.Graphics.Types (DrawRequest)
+import Control.Monad.State.Class
+import Control.Monad.IO.Class
 
 -- | Context type specifies the expectation on surroundings of the backend
 -- Desktop means OpenGL, ES - OpenGL ES, and Web - WebGL.
 -- Desktop context can require a minor and major version.
 data ContextRequirements = DesktopContext Int Int | ESContext Int | WebContext
 
+type ScreenSize = (Int, Int)
+
+
 -- | A class for renderer backends, i.e. something that can render stuff
 class Renderer a where
-    type RendererState
-    contextRequirements :: a -> ContextRequirements
-    render :: [DrawRequest] -> forall us. HateDraw us ()
+    contextRequirements  :: a -> ContextRequirements
+    initialRendererState :: ScreenSize -> IO a
+    updateScreenSize     :: (MonadState a m, MonadIO m) => ScreenSize -> m ()
+    render               :: (MonadState a m, MonadIO m) => [DrawRequest] -> m ()

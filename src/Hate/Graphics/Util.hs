@@ -19,13 +19,6 @@ import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
 
-initialGraphicsState :: (Int, Int) -> IO GraphicsState
-initialGraphicsState screenSz =
-    GraphicsState <$> createPipelineFromSources solidColorPipelineSources
-                  <*> createPipelineFromSources texturingPipelineSources
-                  <*> createVertexStream
-                  <*> pure screenSz
-
 createVertexStream :: IO VertexStream
 createVertexStream = do
     _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)

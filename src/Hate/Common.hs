@@ -2,6 +2,9 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE RecordWildCards #-}
 
 {-|
 Module      : HateCommon
@@ -26,9 +29,8 @@ import Hate.Common.Types
 import Hate.Common.Instances()
 import Hate.Events
 
-import Hate.Graphics.Util (initialGraphicsState)
 import Hate.Graphics.Rendering
-import Hate.Graphics.Internal (updateScreenSize)
+import Hate.Graphics.Backend
 
 import Control.Monad.State
 import Control.Applicative
@@ -84,6 +86,37 @@ hateSuccessfulExit win = do
     G.terminate
     exitSuccess
 
+updateGS :: (forall r. Renderer r => (r -> IO r)) -> LibraryState -> IO LibraryState
+updateGS mutator (LibraryState{ graphicsState = gs, ..}) = do
+    ngs <- mutator gs
+    return $ LibraryState{ graphicsState = ngs, ..}
+
+updateGS2 :: (forall r. Renderer r => (r -> IO (a, r))) -> LibraryState -> IO (a, LibraryState)
+updateGS2 mutator (LibraryState{ graphicsState = gs, ..}) = do
+    (ret, ngs) <- mutator gs
+    return $ (ret, LibraryState{ graphicsState = ngs, ..})
+
+updateGS3 :: (forall r. Renderer r => (r -> IO (a, r))) -> LibraryState -> HateInner us a
+updateGS3 mutator (LibraryState{ graphicsState = gs, ..}) = do
+    (ret, ngs) <- liftIO $ mutator gs
+    modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
+    return $ ret
+
+updateGS4 :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateGS4 mutator = do
+    g <- gets libraryState
+    case g of 
+        (LibraryState{ graphicsState = gs, ..}) -> do
+            (ret, ngs) <- liftIO $ mutator gs
+            modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
+            return $ ret
+        _ -> error "No fucking way"
+
+updateGS5 :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
+updateGS5 m = updateGS4 (runStateT m)
+
+runHateDraw = updateGS5
+
 hateLoop :: HateInner us ()
 hateLoop = do
     gs <- get
@@ -100,7 +133,7 @@ hateLoop = do
 
         -- call user drawing function
         let drawRequests = drawFn gs $ userState gs
-        runHateDraw $ renderBatch drawRequests
+        runHateDraw $ render drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime
@@ -155,7 +188,7 @@ whenKeyPressed k action = do
          else return ()
 
 initialLibraryState :: Config -> IO LibraryState
-initialLibraryState c = LibraryState <$> initialGraphicsState (windowSize c)
+initialLibraryState c = LibraryState <$> (initialRendererState (windowSize c) :: IO BackendModern)
                                      <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
