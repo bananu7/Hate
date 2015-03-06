@@ -10,7 +10,7 @@ import Hate.Graphics.Rendering
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Pipeline
 import Hate.Graphics.Types
-import Hate.Graphics.Util
+import Hate.Graphics.Backend.Util
 
 import Control.Monad.State
 
@@ -63,22 +63,6 @@ renderPipelineBatch p ds = do
         fromVertArrayIntoGlobal (vertices d, texCoords d)
         let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
         renderGlobalVertexStream primitiveMode
-
--- render takes everything that is needed to output 
-singularRender :: DrawRequest -> Action ()
-singularRender d = do
-    pip <- case pipeline d of
-                SolidColorPipeline _ -> gets solidColorPipeline -- todo set up a proper solid color
-                TexturingPipeline _ -> gets texturingPipeline -- todo use tex information to pick appropriate texture
-
-    liftIO $ activatePipeline pip
-    
-    let mat = transformation d .*. origin d
-    setScreenTransformationUniform mat pip
-
-    fromVertArrayIntoGlobal (vertices d, texCoords d)
-    let primitiveMode = vertexLayoutToGLLayout $ vertexLayout d
-    renderGlobalVertexStream primitiveMode
 
 setScreenTransformationUniform :: Mat4 -> Pipeline -> Action ()
 setScreenTransformationUniform t pip = do

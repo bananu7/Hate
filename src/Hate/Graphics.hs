@@ -14,7 +14,6 @@ module Hate.Graphics
     , module Hate.Graphics.Pipeline.Util
     , module Hate.Graphics.Types
     , module Hate.Graphics.Rendering
-    , module Hate.Graphics.Util
     , module Hate.Graphics.Sprite
     , module Hate.Graphics.Shapes
     )
@@ -24,6 +23,5 @@ import Hate.Graphics.Pipeline
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Rendering
-import Hate.Graphics.Util
 import Hate.Graphics.Sprite
 import Hate.Graphics.Shapes

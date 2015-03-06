@@ -1,7 +1,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Hate.Graphics.Util where
+module Hate.Graphics.Backend.Util where
 
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
@@ -107,10 +107,4 @@ texturingPipelineSources = makeGlobalPipelineSources
             ,"    var_texcoord = texcoord;"
             ]
         fss = "    color = texture(mainTexture, var_texcoord);"
-
-
--- transformation-related thingies
-
---withTransformation :: Transformation -> Action () -> Action ()
---withTransformation t a = do
 
