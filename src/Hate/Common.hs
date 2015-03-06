@@ -86,36 +86,18 @@ hateSuccessfulExit win = do
     G.terminate
     exitSuccess
 
-updateGS :: (forall r. Renderer r => (r -> IO r)) -> LibraryState -> IO LibraryState
-updateGS mutator (LibraryState{ graphicsState = gs, ..}) = do
-    ngs <- mutator gs
-    return $ LibraryState{ graphicsState = ngs, ..}
 
-updateGS2 :: (forall r. Renderer r => (r -> IO (a, r))) -> LibraryState -> IO (a, LibraryState)
-updateGS2 mutator (LibraryState{ graphicsState = gs, ..}) = do
-    (ret, ngs) <- mutator gs
-    return $ (ret, LibraryState{ graphicsState = ngs, ..})
-
-updateGS3 :: (forall r. Renderer r => (r -> IO (a, r))) -> LibraryState -> HateInner us a
-updateGS3 mutator (LibraryState{ graphicsState = gs, ..}) = do
-    (ret, ngs) <- liftIO $ mutator gs
-    modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
-    return $ ret
-
-updateGS4 :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateGS4 mutator = do
+updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateRendererState mutator = do
     g <- gets libraryState
     case g of 
         (LibraryState{ graphicsState = gs, ..}) -> do
             (ret, ngs) <- liftIO $ mutator gs
             modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
-            return $ ret
-        _ -> error "No fucking way"
+            return $ ret        
 
-updateGS5 :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
-updateGS5 m = updateGS4 (runStateT m)
-
-runHateDraw = updateGS5
+runHateDraw :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
+runHateDraw m = updateRendererState (runStateT m)
 
 hateLoop :: HateInner us ()
 hateLoop = do
