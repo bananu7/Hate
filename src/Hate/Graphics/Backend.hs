@@ -1,9 +1,9 @@
 module Hate.Graphics.Backend 
-    ( module Hate.Graphics.BackendModern
-    , module Hate.Graphics.BackendCompat
+    ( module Hate.Graphics.Backend.Modern
+    , module Hate.Graphics.Backend.Compat
     )
 where
 
-import Hate.Graphics.BackendModern
-import Hate.Graphics.BackendCompat
+import Hate.Graphics.Backend.Modern
+import Hate.Graphics.Backend.Compat
 

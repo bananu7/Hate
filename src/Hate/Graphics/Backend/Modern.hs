@@ -1,9 +1,9 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Hate.Graphics.BackendModern (BackendModern()) where
+module Hate.Graphics.Backend.Modern (BackendModern()) where
 
-import Hate.Graphics.BackendModern.Types
+import Hate.Graphics.Backend.Modern.Types
 
 import Hate.Math
 import Hate.Graphics.Rendering

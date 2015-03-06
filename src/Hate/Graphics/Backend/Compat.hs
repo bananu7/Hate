@@ -1,4 +1,4 @@
-module Hate.Graphics.BackendCompat where
+module Hate.Graphics.Backend.Compat where
 
 import Hate.Graphics.Rendering
 

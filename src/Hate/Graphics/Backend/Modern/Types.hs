@@ -1,4 +1,4 @@
-module Hate.Graphics.BackendModern.Types where
+module Hate.Graphics.Backend.Modern.Types where
 
 import Hate.Graphics.Types
 import Hate.Graphics.Pipeline

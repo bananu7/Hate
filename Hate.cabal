@@ -39,9 +39,9 @@ library
                       Hate.Graphics.Util
                       Hate.Graphics.Rendering
                       Hate.Graphics.Sprite
-                      Hate.Graphics.BackendCompat
-                      Hate.Graphics.BackendModern
-                      Hate.Graphics.BackendModern.Types
+                      Hate.Graphics.Backend.Compat
+                      Hate.Graphics.Backend.Modern
+                      Hate.Graphics.Backend.Modern.Types
                        
 
   hs-source-dirs:      .,src
