@@ -59,7 +59,7 @@ hateInitWindow titl (width, height) = do
     -- if init failed, we exit the program
     bool successfulInit exitFailure $ do
         G.windowHint (G.WindowHint'ContextVersionMajor 4)
-        G.windowHint (G.WindowHint'ContextVersionMinor 5)
+        G.windowHint (G.WindowHint'ContextVersionMinor 0)
         G.windowHint (G.WindowHint'OpenGLForwardCompat True)
         G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
         G.windowHint (G.WindowHint'OpenGLDebugContext True)

@@ -48,7 +48,7 @@ type ShaderSource = BS.ByteString
 
 -- global, shared pipeline things
 globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
-globalShader = shader Version450 MediumPrecision
+globalShader = shader Version330 MediumPrecision
 
 globalVertexInputs :: [Input]
 globalVertexInputs = 
