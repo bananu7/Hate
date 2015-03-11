@@ -3,7 +3,7 @@ name:                Hate
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 
-version:             0.1.3.0
+version:             0.1.3.1
 synopsis:            A small 2D game framework.
 description:         A small 2D game framework. 
 stability:           experimental
@@ -48,10 +48,17 @@ library
   
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.8,
-                       GLFW-b >= 1.4,
+                       GLFW-b >= 1.4 && < 1.4.7,
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
-                       transformers, mtl, vect, vect-opengl, vector, JuicyPixels, bytestring,
+                       transformers,
+                       mtl,
+                       vect,
+                       vect-opengl,
+                       vector,
+                       JuicyPixels,
+                       JuicyPixels-util,
+                       bytestring,
                        multimap,
                        stm > 2.4
 
@@ -62,10 +69,10 @@ executable sample_shapes
   main-is:          sample_shapes.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
+                    GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate
   default-language: Haskell2010
 
@@ -73,10 +80,10 @@ executable sample_scheduler
   main-is:          sample_scheduler.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
+                    GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     lens
   default-language: Haskell2010
@@ -85,10 +92,10 @@ executable sample_sprite
   main-is:          sample_sprite.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
+                    GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -97,10 +104,10 @@ executable sample_spritesheet
   main-is:          sample_spritesheet.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
+                    GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -109,10 +116,10 @@ executable sample_asteroids
   main-is:          sample_asteroids.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.8,
-                    GLFW-b >= 1.4,
+                    GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels,
+                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
                     Hate,
                     random, lens
   default-language: Haskell2010
