@@ -59,7 +59,7 @@ hateInitWindow titl (width, height) = do
     G.setErrorCallback (Just stderrErrorCallback)
     successfulInit <- G.init
     -- if init failed, we exit the program
-    bool successfulInit exitFailure $ do
+    bool successfulInit (hateFailureExit "GLFW Init failed") $ do
         G.windowHint (G.WindowHint'ContextVersionMajor 4)
         G.windowHint (G.WindowHint'ContextVersionMinor 5)
         G.windowHint (G.WindowHint'OpenGLForwardCompat True)
@@ -67,7 +67,7 @@ hateInitWindow titl (width, height) = do
         G.windowHint (G.WindowHint'OpenGLDebugContext True)
 
         mw <- G.createWindow width height titl Nothing Nothing
-        maybe' mw (G.terminate >> exitFailure) $ \win -> do
+        maybe' mw (G.terminate >> (hateFailureExit "Window creation failed")) $ \win -> do
             G.makeContextCurrent mw
             G.swapInterval 1 --vsync
 
@@ -80,21 +80,28 @@ hateInitGL = do
     GL.blend $= GL.Enabled
     GL.blendFunc $= (GL.SrcAlpha, GL.OneMinusSrcAlpha)
 
+hateFailureExit :: String -> IO a
+hateFailureExit errMsg = do
+    hPutStrLn stderr errMsg
+    exitFailure
+
 hateSuccessfulExit :: G.Window -> IO b
 hateSuccessfulExit win = do
     G.destroyWindow win
     G.terminate
     exitSuccess
 
-
+-- this function is so generic because it used to work with universally
+-- quantified Renderer. Now that libraryState uses RendererI it's not strictly
+-- necessary, but I don't mind leaving it here either.
 updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
 updateRendererState mutator = do
     g <- gets libraryState
-    case g of 
+    case g of
         (LibraryState{ graphicsState = gs, ..}) -> do
             (ret, ngs) <- liftIO $ mutator gs
             modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
-            return $ ret        
+            return $ ret
 
 runHateDraw :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
 runHateDraw m = updateRendererState (runStateT m)

@@ -1,6 +1,5 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE ExistentialQuantification #-}
-{-# LANGUAGE AllowAmbiguousTypes #-}
 
 module Hate.Common.Types
     ( Config(..)
