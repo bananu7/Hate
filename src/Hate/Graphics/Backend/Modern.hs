@@ -6,6 +6,7 @@ module Hate.Graphics.Backend.Modern (BackendModern(), initialGraphicsState) wher
 import Hate.Graphics.Backend.Modern.Types
 
 import Hate.Math
+import Hate.Graphics.Backend.Modern.Shaders
 import Hate.Graphics.Rendering
 import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Pipeline
@@ -36,8 +37,8 @@ type Action a = (MonadState BackendModern m, MonadIO m) => m a
 
 initialGraphicsState :: (Int, Int) -> IO BackendModern
 initialGraphicsState screenSz =
-    BackendModern <$> createPipelineFromSources solidColorPipelineSources
-                  <*> createPipelineFromSources texturingPipelineSources
+    BackendModern <$> createPipeline solidColorPipelineDescs
+                  <*> createPipeline texturingPipelineDescs
                   <*> createVertexStream
                   <*> pure screenSz
 

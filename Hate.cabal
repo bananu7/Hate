@@ -41,6 +41,7 @@ library
                       Hate.Graphics.Backend
                       Hate.Graphics.Backend.Util
                       Hate.Graphics.Backend.Compat
+                      Hate.Graphics.Backend.Compat.Shaders
                       Hate.Graphics.Backend.Compat.Types
                       Hate.Graphics.Backend.Modern
                       Hate.Graphics.Backend.Modern.Shaders

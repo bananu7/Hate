@@ -2,8 +2,6 @@
 
 module Hate.Graphics.Shader where
 
-import qualified Data.ByteString.Char8 as BS (ByteString, pack)
-
 type Name = String
 
 data FloatPrecision = HighPrecision | MediumPrecision | LowPrecision
@@ -27,3 +25,11 @@ toInput (Varying tag name) = Input tag Nothing name
 
 toOutput :: Varying -> Output
 toOutput (Varying tag name) = Output tag name
+
+data ShaderDesc = ShaderDesc {
+    sdFloatPrecision :: FloatPrecision,
+    sdInputs :: [Input],
+    sdOutputs :: [Output],
+    sdUniforms :: [Uniform],
+    sdBody :: String
+}

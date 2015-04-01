@@ -4,6 +4,7 @@
 module Hate.Graphics.Backend.Compat (BackendCompat(), initialGraphicsState) where
 
 import Hate.Graphics.Backend.Compat.Types
+import Hate.Graphics.Backend.Compat.Shaders
 
 import Hate.Math
 import Hate.Graphics.Rendering
@@ -11,6 +12,7 @@ import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Pipeline
 import Hate.Graphics.Types
 import Hate.Graphics.Backend.Util
+
 
 import Control.Monad.State
 
@@ -36,8 +38,8 @@ type Action a = (MonadState BackendCompat m, MonadIO m) => m a
 
 initialGraphicsState :: (Int, Int) -> IO BackendCompat
 initialGraphicsState screenSz =
-    BackendCompat <$> createPipelineFromSources solidColorPipelineSources
-                  <*> createPipelineFromSources texturingPipelineSources
+    BackendCompat <$> createPipelineNoUniformBindings solidColorPipelineDescs
+                  <*> createPipelineNoUniformBindings texturingPipelineDescs
                   <*> createVertexStream
                   <*> pure screenSz
 
