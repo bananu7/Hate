@@ -25,6 +25,8 @@ instance Renderer RendererI where
         a' <- execStateT (render x) a
         put $ RendererImpl a'
 
+initialRendererStateModern :: (Int, Int) -> IO RendererI
+initialRendererStateCompat :: (Int, Int) -> IO RendererI
 
 initialRendererStateModern s = fmap RendererImpl $ Modern.initialGraphicsState s
 initialRendererStateCompat s = fmap RendererImpl $ Compat.initialGraphicsState s

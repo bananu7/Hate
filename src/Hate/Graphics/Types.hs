@@ -1,6 +1,4 @@
- module Hate.Graphics.Types where
-
-import Hate.Graphics.Pipeline
+module Hate.Graphics.Types where
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Data.Vect.Float

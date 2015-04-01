@@ -6,20 +6,14 @@ module Hate.Graphics.Backend.Util where
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
 
-import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Shader
 import Hate.Math
-
-import Control.Applicative
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
-
--- TODO KILL WITH FIRE ASAP
-import Hate.Graphics.Backend.Modern.Shaders
 
 createVertexStream :: IO VertexStream
 createVertexStream = do
