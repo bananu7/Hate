@@ -15,6 +15,9 @@ import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
 
+import Data.List (maximumBy)
+import Data.Ord
+
 createVertexStream :: IO VertexStream
 createVertexStream = do
     _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)
@@ -32,6 +35,19 @@ createVertexStream = do
     GL.vertexAttribPointer (GL.AttribLocation 1) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
 
     return $ VertexStream { vao = _vao, vbo = _vbo, texVbo = _texVbo, vertNum = _vertNum }
+
+calculateTexCoords :: [Vec2] -> [Vec2]
+calculateTexCoords verts = map (flipY . pointwise scaleFactor) verts
+    where
+        maxX = _1 $ maximumBy (comparing _1) verts
+        maxY = _2 $ maximumBy (comparing _2) verts
+        scaleFactor = Vec2 (1 / maxX) (1 / maxY)
+        flipY (Vec2 x y) = Vec2 x y
+
+vertexLayoutToGLLayout :: VertexLayout -> GL.PrimitiveMode
+vertexLayoutToGLLayout FanVertexLayout = GL.TriangleFan
+vertexLayoutToGLLayout StripVertexLayout = GL.TriangleStrip
+vertexLayoutToGLLayout LinesVertexLayout = GL.Lines
 
 type ShaderSource = BS.ByteString
 

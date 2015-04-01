@@ -20,11 +20,8 @@ import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 
 import Data.Vect.Float.OpenGL (orthoMatrix)
-import Data.List (groupBy, maximumBy)
-
-import Data.Ord
+import Data.List (groupBy)
 import Data.Maybe
-
 import Control.Applicative
 
 instance Renderer BackendModern where
@@ -73,11 +70,6 @@ setScreenTransformationUniform t pip = do
     let drawMat = (transpose orthoScreenMat) .*. t
     liftIO $ setUniformM4 pip "screen_transformation" drawMat
 
-vertexLayoutToGLLayout :: VertexLayout -> GL.PrimitiveMode
-vertexLayoutToGLLayout FanVertexLayout = GL.TriangleFan
-vertexLayoutToGLLayout StripVertexLayout = GL.TriangleStrip
-vertexLayoutToGLLayout LinesVertexLayout = GL.Lines
-
 renderGlobalVertexStream :: GL.PrimitiveMode -> Action ()
 renderGlobalVertexStream primitiveMode = do
     vs <- gets globalVertexStream
@@ -106,12 +98,3 @@ fromVertArrayIntoGlobal xs = do
     m <- gets globalVertexStream
     m' <- fromVertArrayInto xs m
     modify $ \x -> x { globalVertexStream = m' }
-
-calculateTexCoords :: [Vec2] -> [Vec2]
-calculateTexCoords verts = map (flipY . pointwise scaleFactor) verts
-    where
-        maxX = _1 $ maximumBy (comparing _1) verts
-        maxY = _2 $ maximumBy (comparing _2) verts
-        scaleFactor = Vec2 (1 / maxX) (1 / maxY)
-        flipY (Vec2 x y) = Vec2 x y
-
