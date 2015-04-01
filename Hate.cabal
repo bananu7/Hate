@@ -38,9 +38,12 @@ library
                       Hate.Graphics.Types
                       Hate.Graphics.Rendering
                       Hate.Graphics.Sprite
+                      Hate.Graphics.Backend
                       Hate.Graphics.Backend.Util
                       Hate.Graphics.Backend.Compat
+                      Hate.Graphics.Backend.Compat.Types
                       Hate.Graphics.Backend.Modern
+                      Hate.Graphics.Backend.Modern.Shaders
                       Hate.Graphics.Backend.Modern.Types
                        
 

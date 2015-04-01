@@ -19,6 +19,9 @@ import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
 
+-- TODO KILL WITH FIRE ASAP
+import Hate.Graphics.Backend.Modern.Shaders
+
 createVertexStream :: IO VertexStream
 createVertexStream = do
     _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)
@@ -41,7 +44,7 @@ type ShaderSource = BS.ByteString
 
 -- global, shared pipeline things
 globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
-globalShader = shader Version450 MediumPrecision
+globalShader = shader MediumPrecision
 
 globalVertexInputs :: [Input]
 globalVertexInputs = 
@@ -108,3 +111,6 @@ texturingPipelineSources = makeGlobalPipelineSources
             ]
         fss = "    color = texture(mainTexture, var_texcoord);"
 
+showMaybe :: Show a => Maybe a -> String
+showMaybe (Just x) = show x
+showMaybe Nothing = ""

@@ -1,7 +1,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE FlexibleContexts #-}
 
-module Hate.Graphics.Backend.Modern (BackendModern()) where
+module Hate.Graphics.Backend.Modern (BackendModern(), initialGraphicsState) where
 
 import Hate.Graphics.Backend.Modern.Types
 
@@ -27,7 +27,7 @@ import Data.Maybe
 import Control.Applicative
 
 instance Renderer BackendModern where
-    initialRendererState = initialGraphicsState
+    --initialRendererState = initialGraphicsState
     render = renderBatch
     contextRequirements _ = DesktopContext 4 4
     updateScreenSize = updateScreenSz

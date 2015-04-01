@@ -23,8 +23,8 @@ import Hate.Graphics.Types(DrawRequest)
 import Hate.Graphics.Rendering
 import Hate.Events.Types (Event)
 
-data LibraryState = forall r. Renderer r => LibraryState {
-    graphicsState :: r,
+data LibraryState = LibraryState {
+    graphicsState :: RendererI,
     eventsState :: TQueue Event
 }
 

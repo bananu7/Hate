@@ -170,7 +170,7 @@ whenKeyPressed k action = do
          else return ()
 
 initialLibraryState :: Config -> IO LibraryState
-initialLibraryState c = LibraryState <$> (initialRendererState (windowSize c) :: IO BackendModern)
+initialLibraryState c = LibraryState <$> initialRendererStateModern (windowSize c)
                                      <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
