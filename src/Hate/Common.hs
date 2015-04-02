@@ -53,26 +53,44 @@ stderrErrorCallback _ = hPutStrLn stderr
 --    when (key == G.Key'Escape && action == G.KeyState'Pressed) $
 --        G.setWindowShouldClose win True        
 
+choose :: [IO (Maybe a)] -> IO (Maybe a)
+choose [] = return Nothing
+choose (x:xs) = do
+    a <- x
+    if isJust a
+        then return a -- short-circuit
+        else choose xs -- eventually fall to Nothing
+
 hateInitWindow :: String -> (Int, Int) -> IO G.Window
-hateInitWindow titl (width, height) = do
+hateInitWindow titl wSize = do
     G.setErrorCallback (Just stderrErrorCallback)
     successfulInit <- G.init
     -- if init failed, we exit the program
     bool successfulInit (hateFailureExit "GLFW Init failed") $ do
-        G.windowHint (G.WindowHint'ContextVersionMajor 4)
-        G.windowHint (G.WindowHint'ContextVersionMinor 5)
-        G.windowHint (G.WindowHint'OpenGLForwardCompat True)
-        G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
-        G.windowHint (G.WindowHint'OpenGLDebugContext True)
+        mw <- choose
+            [ tryOpenWindow (4,5) wSize titl
+            , tryOpenWindow (3,3) wSize titl
+            ]
 
-        mw <- G.createWindow width height titl Nothing Nothing
-        maybe' mw (G.terminate >> (hateFailureExit "Window creation failed")) $ \win -> do
-            G.makeContextCurrent mw
-            G.swapInterval 1 --vsync
+        case mw of
+            Nothing -> G.terminate >> (hateFailureExit "Window creation failed")
+            Just win -> do
+                G.makeContextCurrent mw
+                G.swapInterval 1 --vsync
+                hateInitGL
+                return win
 
-            hateInitGL
+type OpenGLVersionReq = (Int, Int)
+tryOpenWindow :: OpenGLVersionReq -> (Int, Int) -> String -> IO (Maybe G.Window)
+tryOpenWindow (vMinor, vMajor) (width, height) titl = do
+    putStrLn $ "Opening Window (" ++ show vMinor ++ "," ++ show vMajor ++ ")"
 
-            return win
+    G.windowHint (G.WindowHint'ContextVersionMajor vMajor)
+    G.windowHint (G.WindowHint'ContextVersionMinor vMinor)
+    G.windowHint (G.WindowHint'OpenGLForwardCompat True)
+    G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
+    G.windowHint (G.WindowHint'OpenGLDebugContext True)
+    G.createWindow width height titl Nothing Nothing
 
 hateInitGL :: IO ()
 hateInitGL = do
@@ -176,7 +194,7 @@ whenKeyPressed k action = do
          else return ()
 
 initialLibraryState :: Config -> IO LibraryState
-initialLibraryState c = LibraryState <$> initialRendererStateModern (windowSize c)
+initialLibraryState c = LibraryState <$> initialRendererStateCompat (windowSize c)
                                      <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
