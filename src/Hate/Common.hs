@@ -61,6 +61,13 @@ choose (x:xs) = do
         then return a -- short-circuit
         else choose xs -- eventually fall to Nothing
 
+data GlContextDescriptor = GlContextDescriptor {
+    majVersion :: Int,
+    minVersion :: Int,
+    forwardCompat :: Bool
+} deriving Show
+
+
 hateInitWindow :: String -> (Int, Int) -> IO G.Window
 hateInitWindow titl wSize = do
     G.setErrorCallback (Just stderrErrorCallback)
@@ -68,8 +75,11 @@ hateInitWindow titl wSize = do
     -- if init failed, we exit the program
     bool successfulInit (hateFailureExit "GLFW Init failed") $ do
         mw <- choose
-            [ tryOpenWindow (4,5) wSize titl
-            , tryOpenWindow (3,3) wSize titl
+            [ tryOpenWindow (GlContextDescriptor 4 5 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 5 False) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 4 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 3 3 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 3 3 False) wSize titl
             ]
 
         case mw of
@@ -80,14 +90,13 @@ hateInitWindow titl wSize = do
                 hateInitGL
                 return win
 
-type OpenGLVersionReq = (Int, Int)
-tryOpenWindow :: OpenGLVersionReq -> (Int, Int) -> String -> IO (Maybe G.Window)
-tryOpenWindow (vMinor, vMajor) (width, height) titl = do
-    putStrLn $ "Opening Window (" ++ show vMinor ++ "," ++ show vMajor ++ ")"
+tryOpenWindow :: GlContextDescriptor -> (Int, Int) -> String -> IO (Maybe G.Window)
+tryOpenWindow cd (width, height) titl = do
+    putStrLn $ "Opening Window (" ++ show cd ++ ")"
 
-    G.windowHint (G.WindowHint'ContextVersionMajor vMajor)
-    G.windowHint (G.WindowHint'ContextVersionMinor vMinor)
-    G.windowHint (G.WindowHint'OpenGLForwardCompat True)
+    G.windowHint (G.WindowHint'ContextVersionMajor (majVersion cd))
+    G.windowHint (G.WindowHint'ContextVersionMinor (minVersion cd))
+    G.windowHint (G.WindowHint'OpenGLForwardCompat (forwardCompat cd))
     G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
     G.windowHint (G.WindowHint'OpenGLDebugContext True)
     G.createWindow width height titl Nothing Nothing
