@@ -202,9 +202,17 @@ whenKeyPressed k action = do
     if b then action 
          else return ()
 
+-- This function is called after the window has been created
+pickRenderer :: (Int, Int) -> IO RendererI
+pickRenderer ws = do
+    (G.Version vMaj vMin _) <- G.getVersion
+    if vMaj >= 4
+        then initialRendererStateModern ws
+        else initialRendererStateCompat ws
+
 initialLibraryState :: Config -> IO LibraryState
-initialLibraryState c = LibraryState <$> initialRendererStateCompat (windowSize c)
-                                     <*> initialEventsState
+initialLibraryState cfg = LibraryState <$> pickRenderer (windowSize cfg)
+                                       <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do
