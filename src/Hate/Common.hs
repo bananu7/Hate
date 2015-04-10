@@ -45,6 +45,12 @@ import Data.Maybe
 
 import Control.Concurrent (threadDelay)
 
+-- Assuming this doesn't change, for now
+-- this actually controls update rate, as the display
+-- rate is vsynced
+desiredFPS = 60.0
+desiredSPF = 1.0 / desiredFPS
+
 stderrErrorCallback :: G.ErrorCallback
 stderrErrorCallback _ = hPutStrLn stderr
  
@@ -66,7 +72,6 @@ data GlContextDescriptor = GlContextDescriptor {
     minVersion :: Int,
     forwardCompat :: Bool
 } deriving Show
-
 
 hateInitWindow :: String -> (Int, Int) -> IO G.Window
 hateInitWindow titl wSize = do
@@ -154,21 +159,8 @@ hateLoop = do
         Just t <- liftIO G.getTime
         let tDiff = t - (lastUpdateTime gs)
 
-        let desiredFPS = 60.0
-        let desiredSPF = 1.0 / desiredFPS
-
-        when (tDiff > desiredSPF) $ do
-            evts <- reverse <$> fetchEvents
-            let allowedEvts = filterEventsForEndUser evts
-
-            handleInternalEvents evts
-
-            -- print all the events out;
-            -- leaving as dead code because might someday be helpful in debug
-            --liftIO $ mapM print evts
-
-            runHate $ (updateFn gs) allowedEvts
-            modify $ \x -> x { lastUpdateTime = t }
+        let nUpdates = floor $ tDiff / desiredSPF
+        when (tDiff > desiredSPF) $ replicateM_ nUpdates hateUpdate
 
         when (tDiff < desiredSPF) $ liftIO $
             threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
@@ -176,7 +168,22 @@ hateLoop = do
         liftIO $ do 
             G.swapBuffers w
             G.pollEvents
-        hateLoop 
+        hateLoop
+
+hateUpdate :: HateInner us ()
+hateUpdate = do
+    evts <- reverse <$> fetchEvents
+    let allowedEvts = filterEventsForEndUser evts
+
+    handleInternalEvents evts
+
+    -- print all the events out;
+    -- leaving as dead code because might someday be helpful in debug
+    --liftIO $ mapM print evts
+
+    gs <- get
+    runHate $ (updateFn gs) allowedEvts
+    modify $ \x -> x { lastUpdateTime = lastUpdateTime x + desiredSPF }
 
 handleInternalEvents :: [Event] -> HateInner us ()
 handleInternalEvents = mapM_ handleEvent
