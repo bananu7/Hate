@@ -189,7 +189,7 @@ handleInternalEvents :: [Event] -> HateInner us ()
 handleInternalEvents = mapM_ handleEvent
     where
         handleEvent e = case e of
-            EventWindowSize xs ys -> do
+            EventWindowSize xs ys _ -> do
                 liftIO $ GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral xs) (fromIntegral ys))
                 runHateDraw $ updateScreenSize (xs, ys)
             _ -> return ()
