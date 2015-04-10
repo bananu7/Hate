@@ -5,7 +5,7 @@ Hate is a small framework for graphical haskell games and applications. It's hea
 
 Hate features a pure 2D rendering API, backed by raw, low-level OpenGL, and a simple way to gather input from the user (via [GLFW-b](http://hackage.haskell.org/package/GLFW-b)).
 
-The `samples` folder features a few examples on how to get started, but you have to consider the API to be extremely unstable and it's subject to change at any time. That's why it all resides on `develop` branch.
+The `samples` folder features a few examples on how to get started, but you have to consider the API to be extremely unstable and it's subject to change at any time.
 
 Feel free to submit feature requests, opinions etc. through the GitHub issues system.
 
