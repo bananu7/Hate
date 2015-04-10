@@ -2,6 +2,8 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
+{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE RecordWildCards #-}
 
 {-|
 Module      : HateCommon
@@ -26,9 +28,8 @@ import Hate.Common.Types
 import Hate.Common.Instances()
 import Hate.Events
 
-import Hate.Graphics.Util (initialGraphicsState)
 import Hate.Graphics.Rendering
-import Hate.Graphics.Internal (updateScreenSize)
+import Hate.Graphics.Backend
 
 import Control.Monad.State
 import Control.Applicative
@@ -52,26 +53,53 @@ stderrErrorCallback _ = hPutStrLn stderr
 --    when (key == G.Key'Escape && action == G.KeyState'Pressed) $
 --        G.setWindowShouldClose win True        
 
+choose :: [IO (Maybe a)] -> IO (Maybe a)
+choose [] = return Nothing
+choose (x:xs) = do
+    a <- x
+    if isJust a
+        then return a -- short-circuit
+        else choose xs -- eventually fall to Nothing
+
+data GlContextDescriptor = GlContextDescriptor {
+    majVersion :: Int,
+    minVersion :: Int,
+    forwardCompat :: Bool
+} deriving Show
+
+
 hateInitWindow :: String -> (Int, Int) -> IO G.Window
-hateInitWindow titl (width, height) = do
+hateInitWindow titl wSize = do
     G.setErrorCallback (Just stderrErrorCallback)
     successfulInit <- G.init
     -- if init failed, we exit the program
     bool successfulInit (hateFailureExit "GLFW Init failed") $ do
-        G.windowHint (G.WindowHint'ContextVersionMajor 4)
-        G.windowHint (G.WindowHint'ContextVersionMinor 5)
-        G.windowHint (G.WindowHint'OpenGLForwardCompat True)
-        G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
-        G.windowHint (G.WindowHint'OpenGLDebugContext True)
+        mw <- choose
+            [ tryOpenWindow (GlContextDescriptor 4 5 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 5 False) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 4 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 3 3 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 3 3 False) wSize titl
+            ]
 
-        mw <- G.createWindow width height titl Nothing Nothing
-        maybe' mw (G.terminate >> (hateFailureExit "Window creation failed")) $ \win -> do
-            G.makeContextCurrent mw
-            G.swapInterval 1 --vsync
+        case mw of
+            Nothing -> G.terminate >> (hateFailureExit "Window creation failed")
+            Just win -> do
+                G.makeContextCurrent mw
+                G.swapInterval 1 --vsync
+                hateInitGL
+                return win
 
-            hateInitGL
+tryOpenWindow :: GlContextDescriptor -> (Int, Int) -> String -> IO (Maybe G.Window)
+tryOpenWindow cd (width, height) titl = do
+    putStrLn $ "Opening Window (" ++ show cd ++ ")"
 
-            return win
+    G.windowHint (G.WindowHint'ContextVersionMajor (majVersion cd))
+    G.windowHint (G.WindowHint'ContextVersionMinor (minVersion cd))
+    G.windowHint (G.WindowHint'OpenGLForwardCompat (forwardCompat cd))
+    G.windowHint (G.WindowHint'OpenGLProfile G.OpenGLProfile'Core)
+    G.windowHint (G.WindowHint'OpenGLDebugContext True)
+    G.createWindow width height titl Nothing Nothing
 
 hateInitGL :: IO ()
 hateInitGL = do
@@ -89,6 +117,21 @@ hateSuccessfulExit win = do
     G.terminate
     exitSuccess
 
+-- this function is so generic because it used to work with universally
+-- quantified Renderer. Now that libraryState uses RendererI it's not strictly
+-- necessary, but I don't mind leaving it here either.
+updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateRendererState mutator = do
+    g <- gets libraryState
+    case g of
+        (LibraryState{ graphicsState = gs, ..}) -> do
+            (ret, ngs) <- liftIO $ mutator gs
+            modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
+            return $ ret
+
+runHateDraw :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
+runHateDraw m = updateRendererState (runStateT m)
+
 hateLoop :: HateInner us ()
 hateLoop = do
     gs <- get
@@ -105,7 +148,7 @@ hateLoop = do
 
         -- call user drawing function
         let drawRequests = drawFn gs $ userState gs
-        runHateDraw $ renderBatch drawRequests
+        runHateDraw $ render drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime
@@ -159,9 +202,17 @@ whenKeyPressed k action = do
     if b then action 
          else return ()
 
+-- This function is called after the window has been created
+pickRenderer :: (Int, Int) -> IO RendererI
+pickRenderer ws = do
+    (G.Version vMaj vMin _) <- G.getVersion
+    if vMaj >= 4
+        then initialRendererStateModern ws
+        else initialRendererStateCompat ws
+
 initialLibraryState :: Config -> IO LibraryState
-initialLibraryState c = LibraryState <$> initialGraphicsState (windowSize c)
-                                     <*> initialEventsState
+initialLibraryState cfg = LibraryState <$> pickRenderer (windowSize cfg)
+                                       <*> initialEventsState
 
 runApp :: Config -> LoadFn us -> UpdateFn us -> DrawFn us -> IO ()
 runApp config ldFn upFn drFn = do

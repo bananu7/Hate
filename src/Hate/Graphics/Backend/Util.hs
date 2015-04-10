@@ -1,30 +1,22 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
 
-module Hate.Graphics.Util where
+module Hate.Graphics.Backend.Util where
 
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
 
-import Hate.Graphics.Pipeline
-import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Shader
 import Hate.Math
-
-import Control.Applicative
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
 import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
 
-initialGraphicsState :: (Int, Int) -> IO GraphicsState
-initialGraphicsState screenSz =
-    GraphicsState <$> createPipelineFromSources solidColorPipelineSources
-                  <*> createPipelineFromSources texturingPipelineSources
-                  <*> createVertexStream
-                  <*> pure screenSz
+import Data.List (maximumBy)
+import Data.Ord
 
 createVertexStream :: IO VertexStream
 createVertexStream = do
@@ -44,11 +36,24 @@ createVertexStream = do
 
     return $ VertexStream { vao = _vao, vbo = _vbo, texVbo = _texVbo, vertNum = _vertNum }
 
+calculateTexCoords :: [Vec2] -> [Vec2]
+calculateTexCoords verts = map (flipY . pointwise scaleFactor) verts
+    where
+        maxX = _1 $ maximumBy (comparing _1) verts
+        maxY = _2 $ maximumBy (comparing _2) verts
+        scaleFactor = Vec2 (1 / maxX) (1 / maxY)
+        flipY (Vec2 x y) = Vec2 x y
+
+vertexLayoutToGLLayout :: VertexLayout -> GL.PrimitiveMode
+vertexLayoutToGLLayout FanVertexLayout = GL.TriangleFan
+vertexLayoutToGLLayout StripVertexLayout = GL.TriangleStrip
+vertexLayoutToGLLayout LinesVertexLayout = GL.Lines
+
 type ShaderSource = BS.ByteString
 
 -- global, shared pipeline things
-globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
-globalShader = shader Version450 MediumPrecision
+globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderDesc
+globalShader = ShaderDesc MediumPrecision
 
 globalVertexInputs :: [Input]
 globalVertexInputs = 
@@ -59,7 +64,7 @@ globalVertexInputs =
 globalVertexUniforms :: [Uniform]
 globalVertexUniforms = [Uniform Mat4Tag Nothing "screen_transformation"]
 
-globalVertexShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderSource
+globalVertexShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderDesc
 globalVertexShader i o u s = globalShader
     (globalVertexInputs ++ i)
     o
@@ -72,24 +77,21 @@ globalFragmentOutputs = [Output Vec4Tag "color"]
 globalFragmentUniforms :: [Uniform]
 globalFragmentUniforms = [] -- TODO: add time
 
-globalFragmentShader :: [Input] -> [Uniform] -> String -> ShaderSource
+globalFragmentShader :: [Input] -> [Uniform] -> String -> ShaderDesc
 globalFragmentShader i u s = globalShader
     i
     globalFragmentOutputs
     (globalFragmentUniforms ++ u)
     s
 
-createPipelineFromSources :: (ShaderSource, ShaderSource) -> IO Pipeline
-createPipelineFromSources (vss,fss) = createPipelineSource vss fss
-
-makeGlobalPipelineSources :: [Input] -> [Uniform] -> [Varying] -> [Uniform] -> String -> String -> (ShaderSource, ShaderSource)
-makeGlobalPipelineSources vertexInputs vertexUniforms varyings fragmentUniforms vss fss =
+makeGlobalPipelineDescs :: [Input] -> [Uniform] -> [Varying] -> [Uniform] -> String -> String -> (ShaderDesc, ShaderDesc)
+makeGlobalPipelineDescs vertexInputs vertexUniforms varyings fragmentUniforms vss fss =
     ( globalVertexShader vertexInputs (map toOutput varyings) vertexUniforms vss
     , globalFragmentShader (map toInput varyings) fragmentUniforms fss
     )
 
-solidColorPipelineSources :: (ShaderSource, ShaderSource)
-solidColorPipelineSources = makeGlobalPipelineSources [] [] [] [] vss fss
+solidColorPipelineDescs :: (ShaderDesc, ShaderDesc)
+solidColorPipelineDescs = makeGlobalPipelineDescs [] [] [] [] vss fss
     where
         vss = unlines
             ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
@@ -97,14 +99,14 @@ solidColorPipelineSources = makeGlobalPipelineSources [] [] [] [] vss fss
         
         fss = "    color = vec4(0.8, 0.3, 0.3, 1.0);"
 
-texturingPipelineSources :: (ShaderSource, ShaderSource)
-texturingPipelineSources = makeGlobalPipelineSources 
+texturingPipelineDescs :: (ShaderDesc, ShaderDesc)
+texturingPipelineDescs = makeGlobalPipelineDescs
     [] -- no additional vertex inputs
     [] -- no additional vertex uniforms
     [ Varying Vec2Tag "var_position"
     , Varying Vec2Tag "var_texcoord"
     ]
-    [Uniform Sampler2DTag (Just $ Binding 0) "mainTexture"] -- our sprite texture
+    [Uniform Sampler2DTag Nothing "mainTexture"] -- our sprite texture
     vss
     fss
     where
@@ -114,10 +116,3 @@ texturingPipelineSources = makeGlobalPipelineSources
             ,"    var_texcoord = texcoord;"
             ]
         fss = "    color = texture(mainTexture, var_texcoord);"
-
-
--- transformation-related thingies
-
---withTransformation :: Transformation -> Action () -> Action ()
---withTransformation t a = do
-

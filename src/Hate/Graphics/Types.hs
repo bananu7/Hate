@@ -1,18 +1,8 @@
- module Hate.Graphics.Types where
-
-import Hate.Graphics.Pipeline
+module Hate.Graphics.Types where
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Data.Vect.Float
 import Data.Vect.Float.Instances()
-
--- supposedly needs more vertex streams and pipelines in the future
-data GraphicsState = GraphicsState { 
-    solidColorPipeline :: Pipeline,
-    texturingPipeline :: Pipeline,
-    globalVertexStream :: VertexStream,
-    screenSize :: (Int, Int)
-}
 
 -- |A general type for a graphical mesh, either in indexed or raw form.
 data VertexStream = VertexStream {

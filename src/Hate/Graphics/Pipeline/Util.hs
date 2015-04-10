@@ -1,8 +1,7 @@
 module Hate.Graphics.Pipeline.Util
     ( activatePipeline
-    , setUniformM4
-    , createPipelineSource
-    , createPipeline
+    , setUniformM4 
+    , createPipelineSource   
     )
 where
 
@@ -44,8 +43,8 @@ createPipelineSource vss fss = do
     return $ Pipeline vs fs prog
 
 -- |This function takes paths to vertex and fragment shaders
-createPipeline :: FilePath -> FilePath -> IO Pipeline
-createPipeline vertShaderPath fragShaderPath = do
+createPipelineFromFiles :: FilePath -> FilePath -> IO Pipeline
+createPipelineFromFiles vertShaderPath fragShaderPath = do
     vs <- BS.readFile vertShaderPath
     fs <- BS.readFile fragShaderPath
     createPipelineSource vs fs
