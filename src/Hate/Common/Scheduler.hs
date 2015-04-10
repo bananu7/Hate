@@ -27,6 +27,7 @@ import Hate.Common.Types
 import Data.MultiMap
 import Data.Maybe (catMaybes)
 import Control.Monad.State
+import Control.Lens
 
 type Time = Double
 type EventAction us = Hate us ()
@@ -50,20 +51,20 @@ instance (Show a, Show b) => Show (MultiMap a b) where
 -- |Schedules an action to run every @t@ seconds.
 every :: Time -> Hate us () -> Hate us (ScheduledEvent us)
 every interval action = do
-    t <- UnsafeHate $ gets lastUpdateTime
+    t <- UnsafeHate $ use lastUpdateTime
     return $ RepetitiveEvent t interval action
 
 -- |Schedules an action to run once, after @t@ seconds.
 after :: Time -> Hate us () -> Hate us (ScheduledEvent us)
 after t a = do
-    currentTime <- UnsafeHate $ gets lastUpdateTime
+    currentTime <- UnsafeHate $ use lastUpdateTime
     return $ OneTimeEvent (t + currentTime) a
 
 -- |This is a main way to update the scheduler and run appropriate events.
 -- Typically you'll want to be running it every update.
 process :: Scheduler us -> Hate us (Scheduler us)
 process sched = do
-    currTime <- UnsafeHate $ gets lastUpdateTime
+    currTime <- UnsafeHate $ use lastUpdateTime
     --UnsafeHate . liftIO $ putStrLn ("currenttime " ++ show currTime)
 
     let maybeEvents = findMinWithValues sched

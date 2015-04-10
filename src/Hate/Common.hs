@@ -42,7 +42,7 @@ import qualified Graphics.Rendering.OpenGL as GL
 import qualified Graphics.UI.GLFW as G
 
 import Data.Maybe
-
+import Control.Lens
 import Control.Concurrent (threadDelay)
 
 stderrErrorCallback :: G.ErrorCallback
@@ -120,6 +120,7 @@ hateSuccessfulExit win = do
 -- this function is so generic because it used to work with universally
 -- quantified Renderer. Now that libraryState uses RendererI it's not strictly
 -- necessary, but I don't mind leaving it here either.
+{-
 updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
 updateRendererState mutator = do
     g <- gets libraryState
@@ -128,6 +129,33 @@ updateRendererState mutator = do
             (ret, ngs) <- liftIO $ mutator gs
             modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
             return $ ret
+-}
+{-
+updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateRendererState mutator = do
+    gs <- use $ libraryState.graphicsState
+    (a, gs') <- liftIO $ mutator gs
+    libraryState.graphicsState .= gs'
+    return a
+-}
+
+{-
+updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateRendererState mutator = zoom (libraryState.graphicsState) $ do
+    gs <- get
+    (a, gs') <- liftIO $ mutator gs
+    put gs'
+    return a
+-}
+
+stateIO :: (s -> IO (a, s))
+           -> StateT s IO a
+stateIO f = StateT (liftIO . return . f)
+
+updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
+updateRendererState mutator = libraryState.graphicsState <%= mutatorS
+    where
+        mutatorS = stateIO mutator
 
 runHateDraw :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
 runHateDraw m = updateRendererState (runStateT m)
@@ -135,7 +163,7 @@ runHateDraw m = updateRendererState (runStateT m)
 hateLoop :: HateInner us ()
 hateLoop = do
     gs <- get
-    let w = window gs
+    let w = gs ^. window
 
     shouldClose <- (liftIO . G.windowShouldClose) w
     unless shouldClose $ do 
@@ -147,12 +175,12 @@ hateLoop = do
             GL.clear [GL.ColorBuffer]
 
         -- call user drawing function
-        let drawRequests = drawFn gs $ userState gs
+        let drawRequests = gs ^. drawFn $ gs ^. userState
         runHateDraw $ render drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime
-        let tDiff = t - (lastUpdateTime gs)
+        let tDiff = t - (gs ^. lastUpdateTime)
 
         let desiredFPS = 60.0
         let desiredSPF = 1.0 / desiredFPS
@@ -167,8 +195,8 @@ hateLoop = do
             -- leaving as dead code because might someday be helpful in debug
             --liftIO $ mapM print evts
 
-            runHate $ (updateFn gs) allowedEvts
-            modify $ \x -> x { lastUpdateTime = t }
+            runHate $ (gs ^. updateFn) allowedEvts
+            lastUpdateTime .= t
 
         when (tDiff < desiredSPF) $ liftIO $
             threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
@@ -190,7 +218,7 @@ handleInternalEvents = mapM_ handleEvent
 getKey :: G.Key -> Hate us Bool
 getKey k = UnsafeHate $ do
     gs <- get
-    stt <- liftIO $ G.getKey (window gs) k 
+    stt <- liftIO $ G.getKey (gs ^. window) k 
     return $ keystateToBool stt
     where keystateToBool s
             | s == G.KeyState'Released = False
@@ -219,11 +247,11 @@ runApp config ldFn upFn drFn = do
     win <- hateInitWindow (windowTitle config) (windowSize config)
     libState <- initialLibraryState config
 
-    setCallbacks (eventsState libState) win
+    setCallbacks (libState ^. eventsState) win
 
     print $! "Loading user state"
     initialUserState <- ldFn
 
     time <- fromJust <$> G.getTime
-    evalStateT hateLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libState, lastUpdateTime = time }
+    evalStateT hateLoop $ HateState initialUserState libState win drFn upFn time
     hateSuccessfulExit win    

@@ -9,12 +9,13 @@ where
 
 import qualified Graphics.UI.GLFW as GLFW
 
+import Control.Lens
+
 import Control.Concurrent.STM    (TQueue, atomically, newTQueueIO, tryReadTQueue, writeTQueue)
 import Hate.Events.Types
 import Hate.Common.Types
 
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.State.Class (gets)
 
 import GHC.Float (double2Float)
 
@@ -79,7 +80,7 @@ fetchEvents = fetchEvents' []
     where 
         fetchEvents' :: [Event] -> HateInner us [Event]
         fetchEvents' xs = do
-            tc <- gets (eventsState . libraryState)
+            tc <- use (libraryState . eventsState)
             me <- liftIO $ atomically $ tryReadTQueue tc
             case me of
                 Just e -> fetchEvents' (e:xs)
