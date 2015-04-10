@@ -3,7 +3,7 @@ name:                Hate
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 
-version:             0.1.3.2
+version:             0.1.3.3
 synopsis:            A small 2D game framework.
 description:         A small 2D game framework. 
 stability:           experimental
