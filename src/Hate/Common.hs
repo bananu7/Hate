@@ -150,10 +150,14 @@ updateRendererState mutator = zoom (libraryState.graphicsState) $ do
 
 stateIO :: (s -> IO (a, s))
            -> StateT s IO a
-stateIO f = StateT (liftIO . return . f)
+stateIO f = do
+    r <- get
+    (a, r') <- liftIO $ f r
+    put r'
+    return a
 
 updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateRendererState mutator = libraryState.graphicsState <%= mutatorS
+updateRendererState mutator = zoom (libraryState.graphicsState) mutatorS
     where
         mutatorS = stateIO mutator
 
