@@ -117,49 +117,8 @@ hateSuccessfulExit win = do
     G.terminate
     exitSuccess
 
--- this function is so generic because it used to work with universally
--- quantified Renderer. Now that libraryState uses RendererI it's not strictly
--- necessary, but I don't mind leaving it here either.
-{-
 updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateRendererState mutator = do
-    g <- gets libraryState
-    case g of
-        (LibraryState{ graphicsState = gs, ..}) -> do
-            (ret, ngs) <- liftIO $ mutator gs
-            modify $ \g -> g { libraryState = LibraryState { graphicsState = ngs, .. }}
-            return $ ret
--}
-{-
-updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateRendererState mutator = do
-    gs <- use $ libraryState.graphicsState
-    (a, gs') <- liftIO $ mutator gs
-    libraryState.graphicsState .= gs'
-    return a
--}
-
-{-
-updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateRendererState mutator = zoom (libraryState.graphicsState) $ do
-    gs <- get
-    (a, gs') <- liftIO $ mutator gs
-    put gs'
-    return a
--}
-
-stateIO :: (s -> IO (a, s))
-           -> StateT s IO a
-stateIO f = do
-    r <- get
-    (a, r') <- liftIO $ f r
-    put r'
-    return a
-
-updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
-updateRendererState mutator = zoom (libraryState.graphicsState) mutatorS
-    where
-        mutatorS = stateIO mutator
+updateRendererState mutator = zoom (libraryState.graphicsState) (StateT mutator)
 
 runHateDraw :: (forall r. Renderer r => StateT r IO a) -> HateInner us a
 runHateDraw m = updateRendererState (runStateT m)
