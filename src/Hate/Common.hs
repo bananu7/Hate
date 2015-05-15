@@ -173,7 +173,7 @@ hateLoop = do
 hateUpdate :: HateInner us ()
 hateUpdate = do
     evts <- reverse <$> fetchEvents
-    let allowedEvts = filterEventsForEndUser evts
+    let allowedEvts = filter allowedEvent evts
 
     handleInternalEvents evts
 

@@ -2,7 +2,7 @@ module Hate.Events
     ( initialEventsState
     , setCallbacks
     , fetchEvents
-    , filterEventsForEndUser
+    , allowedEvent
     , module Hate.Events.Types
     )
 where
@@ -91,15 +91,13 @@ fetchEvents = fetchEvents' []
 
 -- | Some events aren't meant to impact the user, and should be handled
 -- internally by framework instead.
-filterEventsForEndUser :: [Event] -> [Event]
-filterEventsForEndUser = filter allowedEvent
-    where
-        allowedEvent :: Event -> Bool
-        allowedEvent (EventWindowClose _)       = True
-        allowedEvent (EventWindowFocus _ _)     = True
-        allowedEvent (EventMouseButton _ _ _ _) = True
-        allowedEvent (EventCursorPos _ _ _)     = True
-        allowedEvent (EventScroll _ _ _)        = True
-        allowedEvent (EventKey _ _ _ _ _)       = True
-        allowedEvent (EventChar _ _)            = True
-        allowedEvent _ = False
+
+allowedEvent :: Event -> Bool
+allowedEvent (EventWindowClose _)       = True
+allowedEvent (EventWindowFocus _ _)     = True
+allowedEvent (EventMouseButton _ _ _ _) = True
+allowedEvent (EventCursorPos _ _ _)     = True
+allowedEvent (EventScroll _ _ _)        = True
+allowedEvent (EventKey _ _ _ _ _)       = True
+allowedEvent (EventChar _ _)            = True
+allowedEvent _ = False
