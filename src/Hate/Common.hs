@@ -159,8 +159,13 @@ hateLoop = do
         Just t <- liftIO G.getTime
         let tDiff = t - (lastUpdateTime gs)
 
-        let nUpdates = floor $ tDiff / desiredSPF
-        when (tDiff > desiredSPF) $ replicateM_ nUpdates hateUpdate
+        evts <- reverse <$> fetchEvents
+        let groupedEvts = groupEventsByTime (lastUpdateTime gs) desiredSPF evts
+
+        when (tDiff > desiredSPF) $ if length groupedEvts > 0
+            then mapM_ hateUpdate groupedEvts
+            else hateUpdate []
+
 
         when (tDiff < desiredSPF) $ liftIO $
             threadDelay (floor $ 1000000 * (desiredSPF - tDiff))
@@ -170,16 +175,22 @@ hateLoop = do
             G.pollEvents
         hateLoop
 
-hateUpdate :: HateInner us ()
-hateUpdate = do
-    evts <- reverse <$> fetchEvents
-    let allowedEvts = filter allowedEvent evts
+groupEventsByTime :: Time -> Time -> [TimedEvent] -> [[TimedEvent]]
+groupEventsByTime _ _ [] = []
+groupEventsByTime lastTime frameLength evts = current : groupEventsByTime (lastTime + frameLength) frameLength next
+    where
+        (current, next) = span inCurrentFrame evts
+        inCurrentFrame = ((lastTime + frameLength) >) . fst
 
-    handleInternalEvents evts
+hateUpdate :: [TimedEvent] -> HateInner us ()
+hateUpdate evts = do
+    handleInternalEvents . map snd $ evts
 
     -- print all the events out;
     -- leaving as dead code because might someday be helpful in debug
-    --liftIO $ mapM print evts
+    liftIO $ mapM print evts
+
+    let allowedEvts = filter allowedEvent . map snd $ evts
 
     gs <- get
     runHate $ (updateFn gs) allowedEvts
@@ -189,7 +200,7 @@ handleInternalEvents :: [Event] -> HateInner us ()
 handleInternalEvents = mapM_ handleEvent
     where
         handleEvent e = case e of
-            EventWindowSize xs ys _ -> do
+            EventWindowSize xs ys -> do
                 liftIO $ GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral xs) (fromIntegral ys))
                 runHateDraw $ updateScreenSize (xs, ys)
             _ -> return ()

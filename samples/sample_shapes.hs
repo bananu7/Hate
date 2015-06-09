@@ -21,7 +21,7 @@ sampleUpdate events = do
                                else s { r = r s + 1 }
 
     forM_ events $ \e -> case e of
-        EventCursorPos x y _ -> modify $ \s -> s { p = Vec2 x y }
+        EventCursorPos x y -> modify $ \s -> s { p = Vec2 x y }
         _ -> return ()
 
 config :: Config
