@@ -3,7 +3,8 @@ module Hate.Events.Types where
 import Control.Concurrent.STM (TQueue)
 import qualified Graphics.UI.GLFW as GLFW
 
-type EventsState = TQueue Event
+type EventsState = TQueue TimedEvent
+type Time = Double
 
 data Event =
     EventError           !GLFW.Error !String
@@ -21,3 +22,5 @@ data Event =
   | EventKey             !GLFW.Key !Int !GLFW.KeyState !GLFW.ModifierKeys
   | EventChar            !Char
   deriving Show
+
+type TimedEvent = (Time, Event)

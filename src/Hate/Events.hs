@@ -2,7 +2,7 @@ module Hate.Events
     ( initialEventsState
     , setCallbacks
     , fetchEvents
-    , filterEventsForEndUser
+    , allowedEvent
     , module Hate.Events.Types
     )
 where
@@ -15,47 +15,54 @@ import Hate.Common.Types
 
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.State.Class (gets)
+import Control.Applicative
+import Data.Maybe
 
 import GHC.Float (double2Float)
 
 initialEventsState :: IO EventsState
-initialEventsState = newTQueueIO :: IO (TQueue Event)
+initialEventsState = newTQueueIO :: IO (TQueue TimedEvent)
 
 {- The code has been borrowed from GLFW-b-demo; thanks @bsl -}
 
 -- I assume only one window can be used by the framework
 
-errorCallback           :: TQueue Event -> GLFW.Error -> String                                                            -> IO ()
-windowPosCallback       :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
-windowSizeCallback      :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
-windowCloseCallback     :: TQueue Event -> GLFW.Window                                                                     -> IO ()
-windowRefreshCallback   :: TQueue Event -> GLFW.Window                                                                     -> IO ()
-windowFocusCallback     :: TQueue Event -> GLFW.Window -> GLFW.FocusState                                                  -> IO ()
-windowIconifyCallback   :: TQueue Event -> GLFW.Window -> GLFW.IconifyState                                                -> IO ()
-framebufferSizeCallback :: TQueue Event -> GLFW.Window -> Int -> Int                                                       -> IO ()
-mouseButtonCallback     :: TQueue Event -> GLFW.Window -> GLFW.MouseButton   -> GLFW.MouseButtonState -> GLFW.ModifierKeys -> IO ()
-cursorPosCallback       :: TQueue Event -> GLFW.Window -> Double -> Double                                                 -> IO ()
-cursorEnterCallback     :: TQueue Event -> GLFW.Window -> GLFW.CursorState                                                 -> IO ()
-scrollCallback          :: TQueue Event -> GLFW.Window -> Double -> Double                                                 -> IO ()
-keyCallback             :: TQueue Event -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys            -> IO ()
-charCallback            :: TQueue Event -> GLFW.Window -> Char                                                             -> IO ()
+time = fromJust <$> GLFW.getTime
 
-errorCallback           tc e s            = atomically $ writeTQueue tc $ EventError           e s
-windowPosCallback       tc _ x y          = atomically $ writeTQueue tc $ EventWindowPos       x y
-windowSizeCallback      tc _ w h          = atomically $ writeTQueue tc $ EventWindowSize      w h
-windowCloseCallback     tc _              = atomically $ writeTQueue tc $ EventWindowClose
-windowRefreshCallback   tc _              = atomically $ writeTQueue tc $ EventWindowRefresh
-windowFocusCallback     tc _ fa           = atomically $ writeTQueue tc $ EventWindowFocus     fa
-windowIconifyCallback   tc _ ia           = atomically $ writeTQueue tc $ EventWindowIconify   ia
-framebufferSizeCallback tc _ w h          = atomically $ writeTQueue tc $ EventFramebufferSize w h
-mouseButtonCallback     tc _ mb mba mk    = atomically $ writeTQueue tc $ EventMouseButton     mb mba mk
-cursorPosCallback       tc _ x y          = atomically $ writeTQueue tc $ EventCursorPos       (double2Float x) (double2Float y)
-cursorEnterCallback     tc _ ca           = atomically $ writeTQueue tc $ EventCursorEnter     ca
-scrollCallback          tc _ x y          = atomically $ writeTQueue tc $ EventScroll          x y
-keyCallback             tc _ k sc ka mk   = atomically $ writeTQueue tc $ EventKey             k sc ka mk
-charCallback            tc _ c            = atomically $ writeTQueue tc $ EventChar            c
+writeWithTime :: TQueue TimedEvent -> Event -> IO ()
+writeWithTime tc e = time >>= \t -> atomically . writeTQueue tc $ (t, e)
 
-setErrorCallback :: TQueue Event -> IO ()
+errorCallback           :: TQueue TimedEvent -> GLFW.Error -> String                                                            -> IO ()
+windowPosCallback       :: TQueue TimedEvent -> GLFW.Window -> Int -> Int                                                       -> IO ()
+windowSizeCallback      :: TQueue TimedEvent -> GLFW.Window -> Int -> Int                                                       -> IO ()
+windowCloseCallback     :: TQueue TimedEvent -> GLFW.Window                                                                     -> IO ()
+windowRefreshCallback   :: TQueue TimedEvent -> GLFW.Window                                                                     -> IO ()
+windowFocusCallback     :: TQueue TimedEvent -> GLFW.Window -> GLFW.FocusState                                                  -> IO ()
+windowIconifyCallback   :: TQueue TimedEvent -> GLFW.Window -> GLFW.IconifyState                                                -> IO ()
+framebufferSizeCallback :: TQueue TimedEvent -> GLFW.Window -> Int -> Int                                                       -> IO ()
+mouseButtonCallback     :: TQueue TimedEvent -> GLFW.Window -> GLFW.MouseButton   -> GLFW.MouseButtonState -> GLFW.ModifierKeys -> IO ()
+cursorPosCallback       :: TQueue TimedEvent -> GLFW.Window -> Double -> Double                                                 -> IO ()
+cursorEnterCallback     :: TQueue TimedEvent -> GLFW.Window -> GLFW.CursorState                                                 -> IO ()
+scrollCallback          :: TQueue TimedEvent -> GLFW.Window -> Double -> Double                                                 -> IO ()
+keyCallback             :: TQueue TimedEvent -> GLFW.Window -> GLFW.Key -> Int -> GLFW.KeyState -> GLFW.ModifierKeys            -> IO ()
+charCallback            :: TQueue TimedEvent -> GLFW.Window -> Char                                                             -> IO ()
+
+errorCallback           tc e s            = writeWithTime tc $ EventError           e s
+windowPosCallback       tc _ x y          = writeWithTime tc $ EventWindowPos       x y
+windowSizeCallback      tc _ w h          = writeWithTime tc $ EventWindowSize      w h
+windowCloseCallback     tc _              = writeWithTime tc $ EventWindowClose
+windowRefreshCallback   tc _              = writeWithTime tc $ EventWindowRefresh
+windowFocusCallback     tc _ fa           = writeWithTime tc $ EventWindowFocus     fa
+windowIconifyCallback   tc _ ia           = writeWithTime tc $ EventWindowIconify   ia
+framebufferSizeCallback tc _ w h          = writeWithTime tc $ EventFramebufferSize w h
+mouseButtonCallback     tc _ mb mba mk    = writeWithTime tc $ EventMouseButton     mb mba mk
+cursorPosCallback       tc _ x y          = writeWithTime tc $ EventCursorPos       (double2Float x) (double2Float y)
+cursorEnterCallback     tc _ ca           = writeWithTime tc $ EventCursorEnter     ca
+scrollCallback          tc _ x y          = writeWithTime tc $ EventScroll          x y
+keyCallback             tc _ k sc ka mk   = writeWithTime tc $ EventKey             k sc ka mk
+charCallback            tc _ c            = writeWithTime tc $ EventChar            c
+
+setErrorCallback :: TQueue TimedEvent -> IO ()
 setErrorCallback eventsChan = GLFW.setErrorCallback $ Just $ errorCallback eventsChan
 
 setCallbacks :: EventsState -> GLFW.Window -> IO ()
@@ -74,10 +81,10 @@ setCallbacks eventsChan win = do
     GLFW.setKeyCallback             win $ Just $ keyCallback             eventsChan
     GLFW.setCharCallback            win $ Just $ charCallback            eventsChan
 
-fetchEvents :: HateInner us [Event]
+fetchEvents :: HateInner us [TimedEvent]
 fetchEvents = fetchEvents' []
     where 
-        fetchEvents' :: [Event] -> HateInner us [Event]
+        fetchEvents' :: [TimedEvent] -> HateInner us [TimedEvent]
         fetchEvents' xs = do
             tc <- gets (eventsState . libraryState)
             me <- liftIO $ atomically $ tryReadTQueue tc
@@ -87,15 +94,13 @@ fetchEvents = fetchEvents' []
 
 -- | Some events aren't meant to impact the user, and should be handled
 -- internally by framework instead.
-filterEventsForEndUser :: [Event] -> [Event]
-filterEventsForEndUser = filter allowedEvent
-    where
-        allowedEvent :: Event -> Bool
-        allowedEvent EventWindowClose         = True
-        allowedEvent (EventWindowFocus _)     = True
-        allowedEvent (EventMouseButton _ _ _) = True
-        allowedEvent (EventCursorPos _ _)     = True
-        allowedEvent (EventScroll _ _)        = True
-        allowedEvent (EventKey _ _ _ _)       = True
-        allowedEvent (EventChar _)            = True
-        allowedEvent _ = False
+
+allowedEvent :: Event -> Bool
+allowedEvent (EventWindowClose)       = True
+allowedEvent (EventWindowFocus _)     = True
+allowedEvent (EventMouseButton _ _ _) = True
+allowedEvent (EventCursorPos _ _)     = True
+allowedEvent (EventScroll _ _)        = True
+allowedEvent (EventKey _ _ _ _)       = True
+allowedEvent (EventChar _)            = True
+allowedEvent _ = False

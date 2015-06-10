@@ -15,16 +15,15 @@ where
 
 import Control.Monad.State
 import Control.Applicative
-import Control.Concurrent.STM (TQueue)
 import qualified Graphics.UI.GLFW as G
 
 import Hate.Graphics.Types(DrawRequest)
 import Hate.Graphics.Rendering
-import Hate.Events.Types (Event)
+import Hate.Events.Types (Event, EventsState)
 
 data LibraryState = LibraryState {
     graphicsState :: RendererI,
-    eventsState :: TQueue Event
+    eventsState :: EventsState
 }
 
 {-| Configuration object to pass to `runApp` -}
