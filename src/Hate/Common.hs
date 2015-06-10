@@ -186,9 +186,8 @@ hateUpdate :: [TimedEvent] -> HateInner us ()
 hateUpdate evts = do
     handleInternalEvents . map snd $ evts
 
-    -- print all the events out;
-    -- leaving as dead code because might someday be helpful in debug
-    liftIO $ mapM print evts
+    -- uncomment to print all the events out    
+    -- liftIO $ mapM print evts
 
     let allowedEvts = filter allowedEvent . map snd $ evts
 
