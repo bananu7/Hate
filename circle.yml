@@ -4,6 +4,11 @@ machine:
 
 dependencies:
   pre:
+    - cabal update
+    - cabal sandbox init
     - cabal install cpphs
+  override:
+    - cabal install --dependencies-only
+    - cabal build
 
 
