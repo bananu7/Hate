@@ -10,5 +10,6 @@ dependencies:
   override:
     - cabal install --dependencies-only
     - cabal build
-
+  cache_directories:
+    - .cabal-sandbox
 
