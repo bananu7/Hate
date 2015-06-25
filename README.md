@@ -1,6 +1,8 @@
 Häte
 ======
 
+[![Circle CI](https://circleci.com/gh/bananu7/Hate.svg?style=svg)](https://circleci.com/gh/bananu7/Hate)
+
 Hate is a small framework for graphical haskell games and applications. It's heavily inspired by [Love](http://love2d.org/) and aims at similar ease of use, but within the power of Haskell's type and concurrency safety.
 
 Hate features a pure 2D rendering API, backed by raw, low-level OpenGL, and a simple way to gather input from the user (via [GLFW-b](http://hackage.haskell.org/package/GLFW-b)).
