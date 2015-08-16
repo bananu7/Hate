@@ -1,7 +1,7 @@
 import Hate
 import Hate.Graphics.Shapes
 
-data SampleState = SampleState { 
+data SampleState = SampleState {
     r :: Int,
     p :: Vec2
 }
@@ -11,13 +11,13 @@ sampleLoad = return $ SampleState 0 (Vec2 150 150)
 
 sampleDraw :: DrawFn SampleState
 sampleDraw (SampleState r p) =
-    [ translate p $ circle (fromIntegral r)
+    [ translate p $ circle (fromIntegral r) ((fromIntegral r) / 150.0)
     , line p (Vec2 300 300)
     ]
 
 sampleUpdate :: UpdateFn SampleState
 sampleUpdate events = do
-    modify $ \s -> if r s > 50 then s { r = 0 }
+    modify $ \s -> if r s > 150 then s { r = 0 }
                                else s { r = r s + 1 }
 
     forM_ events $ \e -> case e of
@@ -25,7 +25,7 @@ sampleUpdate events = do
         _ -> return ()
 
 config :: Config
-config = 
+config =
     Config
         { windowTitle = "Sample - Shapes"
         , windowSize  = (1280, 768)

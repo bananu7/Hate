@@ -56,7 +56,7 @@ globalShader :: [Input] -> [Output] -> [Uniform] -> String -> ShaderDesc
 globalShader = ShaderDesc MediumPrecision
 
 globalVertexInputs :: [Input]
-globalVertexInputs = 
+globalVertexInputs =
     [ Input Vec2Tag (Just $ Location 0) "position"
     , Input Vec2Tag (Just $ Location 1) "texcoord"
     ]
@@ -91,13 +91,15 @@ makeGlobalPipelineDescs vertexInputs vertexUniforms varyings fragmentUniforms vs
     )
 
 solidColorPipelineDescs :: (ShaderDesc, ShaderDesc)
-solidColorPipelineDescs = makeGlobalPipelineDescs [] [] [] [] vss fss
+solidColorPipelineDescs = makeGlobalPipelineDescs [] [] []
+    [Uniform Vec4Tag Nothing "in_color"]
+    vss fss
     where
         vss = unlines
             ["    gl_Position = screen_transformation * vec4(position, 0, 1);"
             ]
-        
-        fss = "    color = vec4(0.8, 0.3, 0.3, 1.0);"
+
+        fss = "    color = in_color;"
 
 texturingPipelineDescs :: (ShaderDesc, ShaderDesc)
 texturingPipelineDescs = makeGlobalPipelineDescs

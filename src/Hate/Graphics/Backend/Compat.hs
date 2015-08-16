@@ -48,9 +48,15 @@ renderBatch ds = mapM_ (\xs -> renderPipelineBatch (pipeline . head $ xs) xs) $ 
 renderPipelineBatch :: PipelineDescription -> [DrawRequest] -> Action ()
 renderPipelineBatch p ds = do
     pip <- case p of
-        SolidColorPipeline _ -> gets solidColorPipeline -- todo set up a proper solid color
+        SolidColorPipeline color -> do
+            pip <- gets solidColorPipeline -- todo set up a proper solid color,
+            liftIO $ do
+                activatePipeline pip
+                colorUniformLocation <- GL.get $ GL.uniformLocation (program pip) "in_color"
+                GL.uniform colorUniformLocation $= color
+                return pip
         TexturingPipeline texId -> do
-            pip <- gets texturingPipeline 
+            pip <- gets texturingPipeline
             liftIO $ activatePipeline pip
             liftIO $ GL.textureBinding GL.Texture2D $= Just texId
             return pip
@@ -90,7 +96,7 @@ fromVertArrayInto (verts, maybeTexCoords) s = liftIO $ do
     let texCoords' = fromMaybe (calculateTexCoords verts) maybeTexCoords
     GL.bindBuffer GL.ArrayBuffer $= Just (texVbo s)
     U.replaceBuffer GL.ArrayBuffer texCoords'
-    
+
     return $ s { vertNum = length verts }
 
 fromVertArrayIntoGlobal :: ([Vec2], Maybe [Vec2]) -> Action ()
@@ -98,5 +104,3 @@ fromVertArrayIntoGlobal xs = do
     m <- gets globalVertexStream
     m' <- fromVertArrayInto xs m
     modify $ \x -> x { globalVertexStream = m' }
-
-

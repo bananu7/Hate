@@ -17,7 +17,7 @@ sampleLoad :: LoadFn SampleState
 sampleLoad = return $ SampleState 0 emptyScheduler True
 
 sampleDraw :: DrawFn SampleState
-sampleDraw p = [translate (Vec2 150 150) $ circle (p ^. radius)]
+sampleDraw p = [translate (Vec2 150 150) $ circle (p ^. radius) 0.0]
 
 schedule' evt = sched %= (flip schedule) evt
 
@@ -30,7 +30,7 @@ sampleUpdate _ = do
     use firstRun >>= \p -> when p $ do
         every' 1 $ radius += 50
         firstRun .= False
-    
+
     use sched >>= process >>= assign sched
 
     -- queue a waiting action
@@ -40,7 +40,7 @@ sampleUpdate _ = do
     radius *= 0.95
 
 config :: Config
-config = 
+config =
     Config
         { windowTitle = "Sample - Scheduler"
         , windowSize  = (1024, 768)
