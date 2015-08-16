@@ -37,3 +37,5 @@ data SpriteSheet = SpriteSheet {
     spriteRef :: Sprite,
     sheetSize :: (Int, Int)
 }
+
+type Color = Vec4
