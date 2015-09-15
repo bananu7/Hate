@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleContexts #-}
+
 module Hate.Graphics.Pipeline.Util
     ( activatePipeline
     , setUniformM4 

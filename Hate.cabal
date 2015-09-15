@@ -53,7 +53,7 @@ library
   -- other-modules:       
   
   -- Other library packages from which modules are imported.
-  build-depends:       base >= 4.6 && < 4.8,
+  build-depends:       base >= 4.6,
                        GLFW-b >= 1.4 && < 1.4.7,
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
@@ -74,7 +74,7 @@ library
 executable sample_shapes
   main-is:          sample_shapes.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.8,
+  build-depends:    base >= 4.6,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
@@ -85,7 +85,7 @@ executable sample_shapes
 executable sample_scheduler
   main-is:          sample_scheduler.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.8,
+  build-depends:    base >= 4.6,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
@@ -97,7 +97,7 @@ executable sample_scheduler
 executable sample_sprite
   main-is:          sample_sprite.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.8,
+  build-depends:    base >= 4.6,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
@@ -109,7 +109,7 @@ executable sample_sprite
 executable sample_spritesheet
   main-is:          sample_spritesheet.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.8,
+  build-depends:    base >= 4.6,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
@@ -121,7 +121,7 @@ executable sample_spritesheet
 executable sample_asteroids
   main-is:          sample_asteroids.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.8,
+  build-depends:    base >= 4.6,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
                     OpenGL > 2.9.1,
