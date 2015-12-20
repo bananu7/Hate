@@ -3,6 +3,7 @@ module Hate.Graphics.Sprite
     , loadSpriteSheet
     , sprite
     , spriteSheet
+    , spritePart
     )
 where
 
@@ -86,6 +87,22 @@ spriteSheet originRef num (SpriteSheet (Sprite (w,h) t) (sx, sy)) = DrawRequest 
         fw = fromIntegral w / fromIntegral sx
         fh = fromIntegral h / fromIntegral sy
         originMat = calcSpriteOriginMatrix originRef fw fh
+
+-- | Creates a 'DrawRequest' with a rectangle cut out of a sprite
+spritePart :: (Vec2, Vec2) -> Sprite -> DrawRequest
+spritePart (Vec2 x1 y1, Vec2 x2 y2) (Sprite (w,h) t) = dr
+    where
+        dr = DrawRequest quad texCoords one FanVertexLayout one (TexturingPipeline t)
+        quad = [Vec2 0 0, Vec2 fw 0, Vec2 fw fh, Vec2 0 fh]
+
+        texCoords = Just $ [ Vec2 x1 y1
+                           , Vec2 x2 y1
+                           , Vec2 x2 y2
+                           , Vec2 x1 y2
+                           ]
+
+        fw = fromIntegral w * (x2-x1)
+        fh = fromIntegral h * (y2-y1)
 
 calcSpriteOriginMatrix :: OriginReference -> Float -> Float -> Mat4
 calcSpriteOriginMatrix originRef fw fh =
