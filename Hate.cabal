@@ -99,6 +99,7 @@ executable sample_scheduler
 executable sample_sprite
   main-is:          sample_sprite.hs
   hs-source-dirs:   samples 
+  other-modules:    Vec2Lens
   build-depends:    base >= 4.6 && < 4.9,
                     GLFW-b >= 1.4 && < 1.4.7,
                     GLUtil >= 0.7,
