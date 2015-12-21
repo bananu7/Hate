@@ -3,7 +3,7 @@ name:                Hate
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 
-version:             0.1.4.2
+version:             0.1.4.3
 synopsis:            A small 2D game framework.
 description:         A small 2D game framework. 
 stability:           experimental
@@ -46,6 +46,7 @@ library
                       Hate.Graphics.Backend.Modern
                       Hate.Graphics.Backend.Modern.Shaders
                       Hate.Graphics.Backend.Modern.Types
+                      Hate.Util
                        
 
   hs-source-dirs:      .,src
@@ -55,6 +56,7 @@ library
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.9,
                        GLFW-b >= 1.4 && < 1.4.7,
+                       hpp,
                        GLUtil >= 0.7,
                        OpenGL > 2.9.1,
                        transformers,
