@@ -8,7 +8,6 @@ dependencies:
     - sudo apt-get install libxxf86vm-dev # required by GLFW-b
     - cabal update
     - cabal sandbox init
-    - cabal install cpphs # this package is broken and needs to be installed separately
   override:
     - cabal install --dependencies-only
     - cabal build

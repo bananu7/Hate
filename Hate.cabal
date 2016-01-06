@@ -55,9 +55,7 @@ library
   
   -- this is in dependencies because it has to be installed
   -- before GLUtil installation is attempted.
-  if impl(ghc >= 7.10.1)
-    build-depends:     hpp >= 0.3
-  else
+  if impl(ghc < 7.10.1)
     build-tools:       cpphs
 
   -- Other library packages from which modules are imported.
