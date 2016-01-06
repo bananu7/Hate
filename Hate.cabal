@@ -53,12 +53,18 @@ library
   -- Modules included in this library but not exported.
   -- other-modules:       
   
+  -- this is in dependencies because it has to be installed
+  -- before GLUtil installation is attempted.
+  if impl(ghc >= 7.10.1)
+    build-depends:     hpp >= 0.3
+  else
+    build-tools:       cpphs
+
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.9,
                        GLFW-b >= 1.4 && < 1.4.7,
-                       hpp,
                        GLUtil >= 0.7,
-                       OpenGL > 2.9.1,
+                       OpenGL > 2.9.1 && < 3,
                        transformers,
                        mtl,
                        vect,
@@ -77,10 +83,7 @@ executable sample_shapes
   main-is:          sample_shapes.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.9,
-                    GLFW-b >= 1.4 && < 1.4.7,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
+                    transformers, mtl, vect,
                     Hate
   default-language: Haskell2010
 
@@ -88,10 +91,7 @@ executable sample_scheduler
   main-is:          sample_scheduler.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.9,
-                    GLFW-b >= 1.4 && < 1.4.7,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
+                    transformers, mtl, vect,
                     Hate,
                     lens
   default-language: Haskell2010
@@ -101,10 +101,7 @@ executable sample_sprite
   hs-source-dirs:   samples 
   other-modules:    Vec2Lens
   build-depends:    base >= 4.6 && < 4.9,
-                    GLFW-b >= 1.4 && < 1.4.7,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
+                    transformers, mtl, vect,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -113,10 +110,7 @@ executable sample_spritesheet
   main-is:          sample_spritesheet.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.9,
-                    GLFW-b >= 1.4 && < 1.4.7,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
+                    transformers, mtl, vect,
                     Hate,
                     random, lens
   default-language: Haskell2010
@@ -125,10 +119,7 @@ executable sample_asteroids
   main-is:          sample_asteroids.hs
   hs-source-dirs:   samples 
   build-depends:    base >= 4.6 && < 4.9,
-                    GLFW-b >= 1.4 && < 1.4.7,
-                    GLUtil >= 0.7,
-                    OpenGL > 2.9.1,
-                    transformers, mtl, vect, vect-opengl, vector, JuicyPixels, JuicyPixels-util,
+                    transformers, mtl, vect,
                     Hate,
                     random, lens
   default-language: Haskell2010
