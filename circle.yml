@@ -6,6 +6,7 @@ dependencies:
   pre:
     - sudo apt-get update
     - sudo apt-get install libxxf86vm-dev # required by GLFW-b
+    - wget https://www.stackage.org/lts-3.20/cabal.config
     - cabal update
     - cabal sandbox init
   override:
