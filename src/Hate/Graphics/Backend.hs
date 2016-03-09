@@ -15,15 +15,8 @@ import Control.Monad.State
 instance Renderer RendererI where
     contextRequirements (RendererImpl a) = contextRequirements a
     --initialRendererState s = fmap RendererImpl $ initialRendererState s
-    updateScreenSize s = do
-        (RendererImpl a) <- get
-        a' <- execStateT (updateScreenSize s) a
-        put $ RendererImpl a'
-
-    render x = do
-        (RendererImpl a) <- get
-        a' <- execStateT (render x) a
-        put $ RendererImpl a'
+    updateScreenSize (RendererImpl r) s = updateScreenSize r s
+    render (RendererImpl r) x = render r x
 
 initialRendererStateModern :: (Int, Int) -> IO RendererI
 initialRendererStateCompat :: (Int, Int) -> IO RendererI

@@ -23,21 +23,26 @@ import Data.Vect.Float.OpenGL (orthoMatrix)
 import Data.List (groupBy)
 import Data.Maybe
 import Control.Applicative
+import Data.IORef
 
 instance Renderer BackendModern where
     --initialRendererState = initialGraphicsState
-    render = renderBatch
+    render (BackendModern ref) dr =
+        liftIO . modifyIORefIO ref . execStateT $ renderBatch dr
     contextRequirements _ = DesktopContext 4 4
-    updateScreenSize = updateScreenSz
+    updateScreenSize (BackendModern ref) s =
+        liftIO . modifyIORefIO ref . execStateT $ updateScreenSz s
 
-type Action a = (MonadState BackendModern m, MonadIO m) => m a
+type Action a = forall m. (MonadState BackendModernState m, MonadIO m) => m a
 
 initialGraphicsState :: (Int, Int) -> IO BackendModern
-initialGraphicsState screenSz =
-    BackendModern <$> createPipeline solidColorPipelineDescs
-                  <*> createPipeline texturingPipelineDescs
-                  <*> createVertexStream
-                  <*> pure screenSz
+initialGraphicsState screenSz = s >>= newIORef >>= return . BackendModern
+    where
+        s = BackendModernState
+                <$> createPipeline solidColorPipelineDescs
+                <*> createPipeline texturingPipelineDescs
+                <*> createVertexStream
+                <*> pure screenSz
 
 renderBatch :: [DrawRequest] -> Action ()
 renderBatch ds = mapM_ (\xs -> renderPipelineBatch (pipeline . head $ xs) xs) $ groupBy equalPipeline ds

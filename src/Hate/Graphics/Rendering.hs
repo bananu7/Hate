@@ -20,8 +20,8 @@ type ScreenSize = (Int, Int)
 class Renderer a where
     contextRequirements  :: a -> ContextRequirements
     --initialRendererState :: ScreenSize -> IO a
-    updateScreenSize     :: (MonadState a m, MonadIO m) => ScreenSize -> m ()
-    render               :: (MonadState a m, MonadIO m) => [DrawRequest] -> m ()
+    updateScreenSize     :: MonadIO m => a -> ScreenSize -> m ()
+    render               :: MonadIO m => a -> [DrawRequest] -> m ()
 
 -- PIMPL MY RIDE
 data RendererI = forall a. (Renderer a) => RendererImpl a

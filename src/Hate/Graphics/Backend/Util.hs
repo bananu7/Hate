@@ -17,6 +17,10 @@ import qualified Data.ByteString.Char8 as BS (ByteString)
 
 import Data.List (maximumBy)
 import Data.Ord
+import Data.IORef
+
+modifyIORefIO :: IORef a -> (a -> IO a) -> IO ()
+modifyIORefIO ref mut = readIORef ref >>= mut >>= writeIORef ref
 
 createVertexStream :: IO VertexStream
 createVertexStream = do

@@ -155,7 +155,7 @@ hateLoop = do
 
         -- call user drawing function
         let drawRequests = drawFn gs $ userState gs
-        runHateDraw $ render drawRequests
+        gets libraryState >>= \ls -> render (graphicsState ls) drawRequests
 
         -- update the game state in constant intervals
         Just t <- liftIO G.getTime
@@ -203,7 +203,7 @@ handleInternalEvents = mapM_ handleEvent
         handleEvent e = case e of
             EventWindowSize xs ys -> do
                 liftIO $ GL.viewport $= (GL.Position 0 0, GL.Size (fromIntegral xs) (fromIntegral ys))
-                runHateDraw $ updateScreenSize (xs, ys)
+                gets libraryState >>= \ls -> updateScreenSize (graphicsState ls) (xs, ys)
             _ -> return ()
 
 getKey :: G.Key -> Hate us Bool

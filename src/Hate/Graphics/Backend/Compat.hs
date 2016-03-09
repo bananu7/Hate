@@ -23,22 +23,27 @@ import qualified Graphics.GLUtil as U
 import Data.Vect.Float.OpenGL (orthoMatrix)
 import Data.List (groupBy)
 import Data.Maybe
-import Control.Applicative
+import Data.IORef
 
 instance Renderer BackendCompat where
     --initialRendererState = initialGraphicsState
-    render = renderBatch
-    contextRequirements _ = DesktopContext 4 4
-    updateScreenSize = updateScreenSz
+    render (BackendCompat ref) dr = 
+        liftIO . modifyIORefIO ref . execStateT $ renderBatch dr
 
-type Action a = (MonadState BackendCompat m, MonadIO m) => m a
+    contextRequirements _ = DesktopContext 4 4
+    updateScreenSize (BackendCompat ref) s = 
+        liftIO . modifyIORefIO ref . execStateT $ updateScreenSz s
+
+type Action a = forall m. (MonadState BackendCompatState m, MonadIO m) => m a
 
 initialGraphicsState :: (Int, Int) -> IO BackendCompat
-initialGraphicsState screenSz =
-    BackendCompat <$> createPipelineNoUniformBindings solidColorPipelineDescs
-                  <*> createPipelineNoUniformBindings texturingPipelineDescs
-                  <*> createVertexStream
-                  <*> pure screenSz
+initialGraphicsState screenSz = s >>= newIORef >>= return . BackendCompat
+    where
+        s = BackendCompatState
+                <$> createPipelineNoUniformBindings solidColorPipelineDescs
+                <*> createPipelineNoUniformBindings texturingPipelineDescs
+                <*> createVertexStream
+                <*> pure screenSz
 
 renderBatch :: [DrawRequest] -> Action ()
 renderBatch ds = mapM_ (\xs -> renderPipelineBatch (pipeline . head $ xs) xs) $ groupBy equalPipeline ds
