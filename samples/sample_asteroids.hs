@@ -75,10 +75,10 @@ initialPlayer :: Player
 initialPlayer = Player $ EntityState (Vec2 200 200) (Vec2 0 0) 0 0
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = SampleState <$> loadSprite "samples/asteroids/ship.png" 
-                         <*> loadSprite "samples/asteroids/asteroid_small.png" 
-                         <*> loadSprite "samples/asteroids/asteroid_medium.png" 
-                         <*> loadSprite "samples/asteroids/asteroid_big.png" 
+sampleLoad = SampleState <$> loadSprite "samples/images/ship.png" 
+                         <*> loadSprite "samples/images/asteroid_small.png" 
+                         <*> loadSprite "samples/images/asteroid_medium.png" 
+                         <*> loadSprite "samples/images/asteroid_big.png" 
                          <*> randomAsteroids 10
                          <*> pure initialPlayer
 

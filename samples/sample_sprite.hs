@@ -9,8 +9,6 @@ import Control.Applicative
 import Control.Lens
 import System.Random
 
--- sample 4
-
 data Sehe = Sehe {
     _pos :: Vec2,
     _vel :: Vec2
@@ -36,7 +34,7 @@ generateSehe = do
     return $ Sehe (Vec2 px py) (Vec2 vx vy)
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = SampleState <$> loadSprite "samples/image.png" 
+sampleLoad = SampleState <$> loadSprite "images/image.png" 
                          <*> generateSehes
 
 sampleDraw :: DrawFn SampleState

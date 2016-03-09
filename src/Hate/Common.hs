@@ -32,7 +32,6 @@ import Hate.Graphics.Rendering
 import Hate.Graphics.Backend
 
 import Control.Monad.State
-import Control.Applicative
 
 import System.Exit
 import System.IO
@@ -48,6 +47,7 @@ import Control.Concurrent (threadDelay)
 -- Assuming this doesn't change, for now
 -- this actually controls update rate, as the display
 -- rate is vsynced
+desiredFPS, desiredSPF :: Double
 desiredFPS = 60.0
 desiredSPF = 1.0 / desiredFPS
 
@@ -128,6 +128,8 @@ hateSuccessfulExit win = do
 updateRendererState :: (forall r. Renderer r => (r -> IO (a, r))) -> HateInner us a
 updateRendererState mutator = do
     g <- gets libraryState
+    -- this has to be 'case' because of the ability to pattern-match on part of
+    -- a higher-kind record type
     case g of
         (LibraryState{ graphicsState = gs, ..}) -> do
             (ret, ngs) <- liftIO $ mutator gs
@@ -242,5 +244,12 @@ runApp config ldFn upFn drFn = do
     initialUserState <- ldFn
 
     time <- fromJust <$> G.getTime
-    evalStateT hateLoop $ HateState { userState = initialUserState, window = win, drawFn = drFn, updateFn = upFn, libraryState = libState, lastUpdateTime = time }
+    evalStateT hateLoop $ HateState {
+        userState = initialUserState,
+        window = win,
+        drawFn = drFn,
+        updateFn = upFn,
+        libraryState = libState,
+        lastUpdateTime = time
+    }
     hateSuccessfulExit win    

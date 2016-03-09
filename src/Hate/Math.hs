@@ -22,6 +22,7 @@ module Hate.Math
 where
 
 import Data.Vect.Float
+
 import Data.Vect.Float.Instances()
 
 import Hate.Math.Types

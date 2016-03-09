@@ -34,7 +34,7 @@ generateKoala i = do
     return $ Koala (Vec2 px py) n
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = SampleState <$> loadSpriteSheet "samples/nooble.png" (2,2)
+sampleLoad = SampleState <$> loadSpriteSheet "images/nooble.png" (2,2)
                          <*> generateKoalas
 
 sampleDraw :: DrawFn SampleState
