@@ -10,7 +10,6 @@ import qualified Data.ByteString.Char8 as BS (ByteString, pack)
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
-import qualified Graphics.GLUtil as U
 
 import Data.Maybe (catMaybes)
 
