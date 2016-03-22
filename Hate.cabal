@@ -60,9 +60,9 @@ library
 
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.9,
-                       GLFW-b >= 1.4,
-                       OpenGL,
-                       OpenGLRaw,
+                       GLFW-b >= 1.4.7,
+                       OpenGL >= 3,
+                       OpenGLRaw >= 3,
                        transformers,
                        mtl,
                        vect,
@@ -115,7 +115,8 @@ executable sample_spritesheet
 
 executable sample_asteroids
   main-is:          sample_asteroids.hs
-  hs-source-dirs:   samples 
+  hs-source-dirs:   samples
+  other-modules:    Vec2Lens
   build-depends:    base >= 4.6 && < 4.9,
                     transformers, mtl, vect,
                     Hate,
