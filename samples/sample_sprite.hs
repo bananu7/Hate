@@ -34,7 +34,7 @@ generateSehe = do
     return $ Sehe (Vec2 px py) (Vec2 vx vy)
 
 sampleLoad :: LoadFn SampleState
-sampleLoad = SampleState <$> loadSprite "images/image.png" 
+sampleLoad = SampleState <$> loadSprite "samples/images/image.png"
                          <*> generateSehes
 
 sampleDraw :: DrawFn SampleState
