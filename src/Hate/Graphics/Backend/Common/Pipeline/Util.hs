@@ -1,13 +1,13 @@
 {-# LANGUAGE FlexibleContexts #-}
 
-module Hate.Graphics.Pipeline.Util
+module Hate.Graphics.Backend.Common.Pipeline.Util
     ( activatePipeline
     , setUniformM4 
     , createPipelineSource   
     )
 where
 
-import Hate.Graphics.Pipeline
+import Hate.Graphics.Backend.Common.Pipeline
 
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
@@ -42,19 +42,19 @@ uniformGLMat4 loc = GL.makeSettableStateVar aux
 -- code, @src@. The file name is used only for error reporting.
 loadShaderBS :: FilePath -> GL.ShaderType -> BS.ByteString -> IO GL.Shader
 loadShaderBS filePath st src = do
-  shader <- GL.createShader st
-  GL.shaderSourceBS shader $= src
-  GL.compileShader shader
-  --printError
-  ok <- GL.get (GL.compileStatus shader)
-  infoLog <- GL.get (GL.shaderInfoLog shader)
-  unless (null infoLog || infoLog == "\NUL")
+    shader <- GL.createShader st
+    GL.shaderSourceBS shader $= src
+    GL.compileShader shader
+    --printError
+    ok <- GL.get (GL.compileStatus shader)
+    infoLog <- GL.get (GL.shaderInfoLog shader)
+    unless (null infoLog || infoLog == "\NUL")
          (mapM_ putStrLn
                 ["Shader info log for '" ++ filePath ++ "':", infoLog, ""])
-  unless ok $ do
-    GL.deleteObjectName shader
-    ioError (userError "shader compilation failed")
-  return shader
+    unless ok $ do
+        GL.deleteObjectName shader
+        ioError (userError "shader compilation failed")
+    return shader
 
 -- |Link shaders into a 'Program'.
 linkShaderProgram :: [GL.Shader] -> IO GL.Program

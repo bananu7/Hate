@@ -2,7 +2,7 @@
 {-# LANGUAGE RankNTypes #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Hate.Graphics.Backend.Util where
+module Hate.Graphics.Backend.Common.Util where
 
 --import qualified Codec.Picture as JP
 --import Data.Vector.Storable (unsafeWith)
@@ -18,11 +18,11 @@ import qualified Data.ByteString.Char8 as BS (ByteString)
 import Data.List (maximumBy)
 import Data.Ord
 
-
 -- for GLUtil
 import Foreign.Ptr (Ptr, wordPtrToPtr)
 import Foreign.Storable
 import Data.Array.Storable
+
 -- GLUTIL THINGS
 -- ###########################################################################
 -- |A zero-offset 'Ptr'.
@@ -62,26 +62,6 @@ replaceBuffer target elems = do arr <- newListArray (0, len - 1) elems
                                   GL.bufferData target $= (n, ptr, GL.StaticDraw)
     where len = length elems
           n = fromIntegral $ len * sizeOf (undefined::a)
--- ###########################################################################
--- VECT.OPENGL THINGS
-
--- | \"Orthogonal projecton\" matrix, a la OpenGL 
--- (the corresponding functionality is removed in OpenGL 3.1)
-orthoMatrix 
-  :: (Float,Float)   -- ^ (left,right)
-  -> (Float,Float)   -- ^ (bottom,top)
-  -> (Float,Float)   -- ^ (near,far)
-  -> Mat4 
-orthoMatrix (l,r) (b,t) (n,f) = Mat4
-  (Vec4 (2/(r-l)) 0 0 0)
-  (Vec4 0 (2/(t-b)) 0 0)
-  (Vec4 0 0 (-2/(f-n)) 0)
-  (Vec4 (-(r+l)/(r-l)) (-(t+b)/(t-b)) (-(f+n)/(f-n)) 1)
-
-
-toOpenGLVertex :: Vec4 -> GL.Vertex4 Float
-toOpenGLVertex (Vec4 x y z w) = GL.Vertex4 x y z w
--- ###########################################################################
 
 createVertexStream :: IO VertexStream
 createVertexStream = do

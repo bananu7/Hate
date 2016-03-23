@@ -20,7 +20,8 @@ library
   -- Modules exported by the library.
   exposed-modules:    Hate
                       Hate.Graphics
-                      Hate.Graphics.Shapes
+                      Hate.Graphics.Api.Shapes
+                      Hate.Graphics.Api.Sprite
                       Hate.Math
                       Hate.Math.Types
                       Hate.Common.Scheduler
@@ -32,14 +33,13 @@ library
                       Hate.Common.Instances
                       Hate.Math.Transformable.Class
                       Hate.Math.Util
-                      Hate.Graphics.Pipeline
-                      Hate.Graphics.Pipeline.Util
                       Hate.Graphics.Shader
                       Hate.Graphics.Types
                       Hate.Graphics.Rendering
-                      Hate.Graphics.Sprite
                       Hate.Graphics.Backend
-                      Hate.Graphics.Backend.Util
+                      Hate.Graphics.Backend.Common.Pipeline
+                      Hate.Graphics.Backend.Common.Pipeline.Util
+                      Hate.Graphics.Backend.Common.Util
                       Hate.Graphics.Backend.Compat
                       Hate.Graphics.Backend.Compat.Shaders
                       Hate.Graphics.Backend.Compat.Types

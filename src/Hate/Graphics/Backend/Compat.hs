@@ -8,10 +8,10 @@ import Hate.Graphics.Backend.Compat.Shaders
 
 import Hate.Math
 import Hate.Graphics.Rendering
-import Hate.Graphics.Pipeline.Util
-import Hate.Graphics.Pipeline
+import Hate.Graphics.Backend.Common.Pipeline.Util
+import Hate.Graphics.Backend.Common.Pipeline
 import Hate.Graphics.Types
-import Hate.Graphics.Backend.Util
+import Hate.Graphics.Backend.Common.Util
 
 
 import Control.Monad.State

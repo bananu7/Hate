@@ -4,8 +4,8 @@ module Hate.Graphics.Backend.Compat.Shaders
 where
 
 import Hate.Graphics.Shader
-import Hate.Graphics.Pipeline
-import Hate.Graphics.Pipeline.Util
+import Hate.Graphics.Backend.Common.Pipeline
+import Hate.Graphics.Backend.Common.Pipeline.Util
 import qualified Data.ByteString.Char8 as BS (ByteString, pack)
 
 import qualified Graphics.Rendering.OpenGL as GL

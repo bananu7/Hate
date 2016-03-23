@@ -2,7 +2,7 @@
 {-# LANGUAGE FlexibleContexts #-}
 
 import Hate
-import Hate.Graphics.Shapes
+import Hate.Graphics.Api.Shapes
 import Hate.Common.Scheduler
 
 import Control.Lens

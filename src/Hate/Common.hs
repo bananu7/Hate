@@ -83,6 +83,8 @@ hateInitWindow titl wSize = do
             [ tryOpenWindow (GlContextDescriptor 4 5 True) wSize titl
             , tryOpenWindow (GlContextDescriptor 4 5 False) wSize titl
             , tryOpenWindow (GlContextDescriptor 4 4 True) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 4 False) wSize titl
+            , tryOpenWindow (GlContextDescriptor 4 0 True) wSize titl
             , tryOpenWindow (GlContextDescriptor 3 3 True) wSize titl
             , tryOpenWindow (GlContextDescriptor 3 3 False) wSize titl
             ]
