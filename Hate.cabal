@@ -31,6 +31,8 @@ library
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Common.Instances
+                      Hate.Math.OpenGL
+                      Hate.Math.Projection
                       Hate.Math.Transformable.Class
                       Hate.Math.Util
                       Hate.Graphics.Shader
