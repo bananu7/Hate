@@ -4,9 +4,6 @@
 
 module Hate.Graphics.Backend.Common.Util where
 
---import qualified Codec.Picture as JP
---import Data.Vector.Storable (unsafeWith)
-
 import Hate.Graphics.Types
 import Hate.Graphics.Shader
 import Hate.Math
@@ -18,13 +15,10 @@ import qualified Data.ByteString.Char8 as BS (ByteString)
 import Data.List (maximumBy)
 import Data.Ord
 
--- for GLUtil
 import Foreign.Ptr (Ptr, wordPtrToPtr)
 import Foreign.Storable
 import Data.Array.Storable
 
--- GLUTIL THINGS
--- ###########################################################################
 -- |A zero-offset 'Ptr'.
 offset0 :: Ptr a
 offset0 = offsetPtr 0
@@ -51,7 +45,6 @@ makeBufferLen target len elems =
        withStorableArray arr $ \ptr -> 
           GL.bufferData target $= (n, ptr, GL.StaticDraw)
        return buffer
-
 
 -- |@replaceBuffer target elements@ replaces the buffer data attached
 -- to the buffer object currently bound to @target@ with the supplied
