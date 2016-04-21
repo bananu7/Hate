@@ -12,14 +12,10 @@ import Hate.Graphics.Backend.Common.Pipeline
 import Graphics.Rendering.OpenGL(($=))
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.GL.Core45 as GLRaw
---import qualified Graphics.GLUtil as U
 
--- for GLUtil
 import Unsafe.Coerce (unsafeCoerce)
 import Control.Monad (unless)
--- for Vect.OpenGL
 import Foreign
---------------------------
 
 import Data.Vect.Float
 
@@ -28,8 +24,6 @@ import qualified Data.ByteString as BS
 activatePipeline :: Pipeline -> IO ()
 activatePipeline p = GL.currentProgram $= Just (program p)
 
--- GLUTIL
--- ###################################################################################
 unUL :: GL.UniformLocation -> GLint
 unUL = unsafeCoerce
 
@@ -71,11 +65,7 @@ linkShaderProgramWith shaders prelink = do p <- GL.createProgram
                                            GL.linkProgram p
                                            return p
 
--- VECT.OPENGL
--- ###################################################################################
--- this used to be a class instance
 makeGLMatrix m = GL.withNewMatrix GL.ColumnMajor (flip poke m . (castPtr :: Ptr GL.GLfloat -> Ptr Mat4)) 
--- ###################################################################################
 
 --setUniformM3 :: Pipeline -> String -> Mat3 -> IO ()
 --setUniformM3 = setUniformMatGeneric U.uniformGLMat4
