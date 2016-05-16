@@ -1,4 +1,4 @@
-module Hate.Graphics.Pipeline where
+module Hate.Graphics.Backend.Common.Pipeline where
 
 import qualified Graphics.Rendering.OpenGL as GL
 

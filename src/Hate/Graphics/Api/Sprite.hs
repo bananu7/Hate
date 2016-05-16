@@ -1,4 +1,4 @@
-module Hate.Graphics.Sprite 
+module Hate.Graphics.Api.Sprite 
     ( loadSprite
     , loadSpriteSheet
     , sprite

@@ -10,18 +10,14 @@ This module contains graphics
 -}
 
 module Hate.Graphics
-    ( module Hate.Graphics.Pipeline
-    , module Hate.Graphics.Pipeline.Util
-    , module Hate.Graphics.Types
+    ( module Hate.Graphics.Types
     , module Hate.Graphics.Rendering
-    , module Hate.Graphics.Sprite
-    , module Hate.Graphics.Shapes
+    , module Hate.Graphics.Api.Sprite
+    , module Hate.Graphics.Api.Shapes
     )
 where
 
-import Hate.Graphics.Pipeline
-import Hate.Graphics.Pipeline.Util
 import Hate.Graphics.Types
 import Hate.Graphics.Rendering
-import Hate.Graphics.Sprite
-import Hate.Graphics.Shapes
+import Hate.Graphics.Api.Sprite
+import Hate.Graphics.Api.Shapes

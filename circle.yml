@@ -5,19 +5,22 @@ machine:
     - sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-4.9 10
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.9 10
 
-  ghc:
-    version: 7.10.2
-
 dependencies:
   pre:
-    - sudo apt-get update
     - sudo apt-get install libxxf86vm-dev # required by GLFW-b
-    - wget https://www.stackage.org/lts-3.20/cabal.config
-    - cabal update
-    - cabal sandbox init
+    - cd /tmp
+    - wget https://github.com/commercialhaskell/stack/releases/download/v1.0.4/stack-1.0.4.1-linux-x86_64.tar.gz -O stack.gz
+    - tar -xzvf stack.gz
+    - sudo mv stack-1.0.4.1-linux-x86_64/stack /usr/bin/stack
+    - chmod +x /usr/bin/stack
+    - cd ~/Hate
   override:
-    - cabal install --dependencies-only
-    - cabal build
+    - stack setup
+    - stack build
   cache_directories:
-    - .cabal-sandbox
+    - .stack-work
+    - ~/.stack
 
+test:
+  override:
+    - stack test

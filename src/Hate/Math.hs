@@ -18,6 +18,8 @@ module Hate.Math
     ( module Data.Vect.Float
     , module Hate.Math.Util
     , module Hate.Math.Types
+    , module Hate.Math.OpenGL
+    , module Hate.Math.Projection
     )
 where
 
@@ -27,3 +29,5 @@ import Data.Vect.Float.Instances()
 
 import Hate.Math.Types
 import Hate.Math.Util
+import Hate.Math.OpenGL
+import Hate.Math.Projection

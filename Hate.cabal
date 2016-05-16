@@ -20,7 +20,8 @@ library
   -- Modules exported by the library.
   exposed-modules:    Hate
                       Hate.Graphics
-                      Hate.Graphics.Shapes
+                      Hate.Graphics.Api.Shapes
+                      Hate.Graphics.Api.Sprite
                       Hate.Math
                       Hate.Math.Types
                       Hate.Common.Scheduler
@@ -30,16 +31,17 @@ library
   other-modules:      Hate.Common
                       Hate.Common.Types
                       Hate.Common.Instances
+                      Hate.Math.OpenGL
+                      Hate.Math.Projection
                       Hate.Math.Transformable.Class
                       Hate.Math.Util
-                      Hate.Graphics.Pipeline
-                      Hate.Graphics.Pipeline.Util
                       Hate.Graphics.Shader
                       Hate.Graphics.Types
                       Hate.Graphics.Rendering
-                      Hate.Graphics.Sprite
                       Hate.Graphics.Backend
-                      Hate.Graphics.Backend.Util
+                      Hate.Graphics.Backend.Common.Pipeline
+                      Hate.Graphics.Backend.Common.Pipeline.Util
+                      Hate.Graphics.Backend.Common.Util
                       Hate.Graphics.Backend.Compat
                       Hate.Graphics.Backend.Compat.Shaders
                       Hate.Graphics.Backend.Compat.Types
@@ -60,14 +62,14 @@ library
 
   -- Other library packages from which modules are imported.
   build-depends:       base >= 4.6 && < 4.9,
-                       GLFW-b >= 1.4 && < 1.4.7,
-                       GLUtil >= 0.7,
-                       OpenGL > 2.9.1 && < 3,
+                       GLFW-b >= 1.4.7,
+                       OpenGL >= 3,
+                       OpenGLRaw >= 3,
                        transformers,
                        mtl,
                        vect,
-                       vect-opengl,
                        vector,
+                       array,
                        JuicyPixels,
                        JuicyPixels-util,
                        bytestring,
@@ -115,7 +117,8 @@ executable sample_spritesheet
 
 executable sample_asteroids
   main-is:          sample_asteroids.hs
-  hs-source-dirs:   samples 
+  hs-source-dirs:   samples
+  other-modules:    Vec2Lens
   build-depends:    base >= 4.6 && < 4.9,
                     transformers, mtl, vect,
                     Hate,

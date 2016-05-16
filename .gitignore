@@ -1,5 +1,4 @@
-dist
-cabal-dev
+# binaries and temporaries
 *.o
 *.hi
 *.chi
@@ -7,12 +6,23 @@ cabal-dev
 *.dyn_o
 *.dyn_hi
 .virtualenv
-.hpc
 .hsenv
+
+# stack
+.stack-work/
+
+# cabal
 .cabal-sandbox/
 cabal.sandbox.config
 cabal.config
+dist
+cabal-dev
+
+# profiling things
 *.prof
 *.aux
 *.hp
+.hpc
+
+
 /.dist-buildwrapper/

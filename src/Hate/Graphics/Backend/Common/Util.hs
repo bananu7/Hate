@@ -1,10 +1,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RankNTypes #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
-module Hate.Graphics.Backend.Util where
-
---import qualified Codec.Picture as JP
---import Data.Vector.Storable (unsafeWith)
+module Hate.Graphics.Backend.Common.Util where
 
 import Hate.Graphics.Types
 import Hate.Graphics.Shader
@@ -12,27 +10,67 @@ import Hate.Math
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
-import qualified Graphics.GLUtil as U
 import qualified Data.ByteString.Char8 as BS (ByteString)
 
 import Data.List (maximumBy)
 import Data.Ord
 
+import Foreign.Ptr (Ptr, wordPtrToPtr)
+import Foreign.Storable
+import Data.Array.Storable
+
+-- |A zero-offset 'Ptr'.
+offset0 :: Ptr a
+offset0 = offsetPtr 0
+
+-- |Produce a 'Ptr' value to be used as an offset of the given number
+-- of bytes.
+offsetPtr :: Int -> Ptr a
+offsetPtr = wordPtrToPtr . fromIntegral
+
+-- |Allocate and fill a 'BufferObject' from a list of 'Storable's.
+makeBuffer :: Storable a => GL.BufferTarget -> [a] -> IO GL.BufferObject
+makeBuffer target elems = makeBufferLen target (length elems) elems
+
+-- |Allocate and fill a 'BufferObject' from a list of 'Storable's
+-- whose length is explicitly given. This is useful when the list is
+-- of known length, as it avoids a traversal to find the length.
+makeBufferLen :: forall a. Storable a => 
+                 GL.BufferTarget -> Int -> [a] -> IO GL.BufferObject
+makeBufferLen target len elems = 
+    do [buffer] <- GL.genObjectNames 1
+       GL.bindBuffer target $= Just buffer
+       let n = fromIntegral $ len * sizeOf (undefined::a)
+       arr <- newListArray (0, len - 1) elems
+       withStorableArray arr $ \ptr -> 
+          GL.bufferData target $= (n, ptr, GL.StaticDraw)
+       return buffer
+
+-- |@replaceBuffer target elements@ replaces the buffer data attached
+-- to the buffer object currently bound to @target@ with the supplied
+-- list. Any previous data is deleted.
+replaceBuffer :: forall a. Storable a => GL.BufferTarget -> [a] -> IO ()
+replaceBuffer target elems = do arr <- newListArray (0, len - 1) elems
+                                withStorableArray arr $ \ptr ->
+                                  GL.bufferData target $= (n, ptr, GL.StaticDraw)
+    where len = length elems
+          n = fromIntegral $ len * sizeOf (undefined::a)
+
 createVertexStream :: IO VertexStream
 createVertexStream = do
     _vao <- (GL.genObjectName :: IO GL.VertexArrayObject)
-    _vbo <- U.makeBuffer GL.ArrayBuffer ([] :: [Vec2])
-    _texVbo <- U.makeBuffer GL.ArrayBuffer ([] :: [Vec2])
+    _vbo <- makeBuffer GL.ArrayBuffer ([] :: [Vec2])
+    _texVbo <- makeBuffer GL.ArrayBuffer ([] :: [Vec2])
     let _vertNum = 0
 
     GL.bindVertexArrayObject $= Just _vao
     GL.bindBuffer GL.ArrayBuffer $= (Just _vbo)
     GL.vertexAttribArray (GL.AttribLocation 0) $= GL.Enabled
-    GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
+    GL.vertexAttribPointer (GL.AttribLocation 0) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 offset0)
 
     GL.bindBuffer GL.ArrayBuffer $= (Just _texVbo)
     GL.vertexAttribArray (GL.AttribLocation 1) $= GL.Enabled
-    GL.vertexAttribPointer (GL.AttribLocation 1) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 U.offset0)
+    GL.vertexAttribPointer (GL.AttribLocation 1) $= (GL.ToFloat, GL.VertexArrayDescriptor 2 GL.Float 0 offset0)
 
     return $ VertexStream { vao = _vao, vbo = _vbo, texVbo = _texVbo, vertNum = _vertNum }
 

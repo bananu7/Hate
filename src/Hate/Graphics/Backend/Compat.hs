@@ -8,19 +8,17 @@ import Hate.Graphics.Backend.Compat.Shaders
 
 import Hate.Math
 import Hate.Graphics.Rendering
-import Hate.Graphics.Pipeline.Util
-import Hate.Graphics.Pipeline
+import Hate.Graphics.Backend.Common.Pipeline.Util
+import Hate.Graphics.Backend.Common.Pipeline
 import Hate.Graphics.Types
-import Hate.Graphics.Backend.Util
+import Hate.Graphics.Backend.Common.Util
 
 
 import Control.Monad.State
 
 import qualified Graphics.Rendering.OpenGL as GL
 import Graphics.Rendering.OpenGL (($=))
-import qualified Graphics.GLUtil as U
 
-import Data.Vect.Float.OpenGL (orthoMatrix)
 import Data.List (groupBy)
 import Data.Maybe
 import Control.Applicative
@@ -53,7 +51,7 @@ renderPipelineBatch p ds = do
             liftIO $ do
                 activatePipeline pip
                 colorUniformLocation <- GL.get $ GL.uniformLocation (program pip) "in_color"
-                GL.uniform colorUniformLocation $= color
+                GL.uniform colorUniformLocation $= toOpenGLVertex color
                 return pip
         TexturingPipeline texId -> do
             pip <- gets texturingPipeline
@@ -90,12 +88,12 @@ updateScreenSz sz = modify $ \g -> g { screenSize = sz }
 fromVertArrayInto :: ([Vec2], Maybe [Vec2]) -> VertexStream -> Action VertexStream
 fromVertArrayInto (verts, maybeTexCoords) s = liftIO $ do
     GL.bindBuffer GL.ArrayBuffer $= Just (vbo s)
-    U.replaceBuffer GL.ArrayBuffer verts
+    replaceBuffer GL.ArrayBuffer verts
 
     -- fill in texture coordinates if needed
     let texCoords' = fromMaybe (calculateTexCoords verts) maybeTexCoords
     GL.bindBuffer GL.ArrayBuffer $= Just (texVbo s)
-    U.replaceBuffer GL.ArrayBuffer texCoords'
+    replaceBuffer GL.ArrayBuffer texCoords'
 
     return $ s { vertNum = length verts }
 

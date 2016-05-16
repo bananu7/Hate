@@ -1,5 +1,5 @@
 import Hate
-import Hate.Graphics.Shapes
+import Hate.Graphics.Api.Shapes
 
 data SampleState = SampleState {
     r :: Int,
