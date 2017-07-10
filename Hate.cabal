@@ -3,7 +3,7 @@ name:                Hate
 --                   | | +----- non-breaking API additions
 --                   | | | +--- code changes with no API change
 
-version:             0.1.4.3
+version:             0.1.4.4
 synopsis:            A small 2D game framework.
 description:         A small 2D game framework. 
 stability:           experimental
@@ -61,7 +61,7 @@ library
     build-tools:       cpphs
 
   -- Other library packages from which modules are imported.
-  build-depends:       base >= 4.6 && < 4.9,
+  build-depends:       base >= 4.6 && < 5,
                        GLFW-b >= 1.4.7,
                        OpenGL >= 3,
                        OpenGLRaw >= 3,
@@ -82,7 +82,7 @@ library
 executable sample_shapes
   main-is:          sample_shapes.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.9,
+  build-depends:    base >= 4.6 && < 5,
                     transformers, mtl, vect,
                     Hate
   default-language: Haskell2010
@@ -90,7 +90,7 @@ executable sample_shapes
 executable sample_scheduler
   main-is:          sample_scheduler.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.9,
+  build-depends:    base >= 4.6 && < 5,
                     transformers, mtl, vect,
                     Hate,
                     lens
@@ -100,7 +100,7 @@ executable sample_sprite
   main-is:          sample_sprite.hs
   hs-source-dirs:   samples 
   other-modules:    Vec2Lens
-  build-depends:    base >= 4.6 && < 4.9,
+  build-depends:    base >= 4.6 && < 5,
                     transformers, mtl, vect,
                     Hate,
                     random, lens
@@ -109,7 +109,7 @@ executable sample_sprite
 executable sample_spritesheet
   main-is:          sample_spritesheet.hs
   hs-source-dirs:   samples 
-  build-depends:    base >= 4.6 && < 4.9,
+  build-depends:    base >= 4.6 && < 5,
                     transformers, mtl, vect,
                     Hate,
                     random, lens
@@ -119,7 +119,7 @@ executable sample_asteroids
   main-is:          sample_asteroids.hs
   hs-source-dirs:   samples
   other-modules:    Vec2Lens
-  build-depends:    base >= 4.6 && < 4.9,
+  build-depends:    base >= 4.6 && < 5,
                     transformers, mtl, vect,
                     Hate,
                     random, lens

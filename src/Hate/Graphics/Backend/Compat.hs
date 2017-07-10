@@ -29,7 +29,7 @@ instance Renderer BackendCompat where
     contextRequirements _ = DesktopContext 4 4
     updateScreenSize = updateScreenSz
 
-type Action a = (MonadState BackendCompat m, MonadIO m) => m a
+type Action a = forall m. (MonadState BackendCompat m, MonadIO m) => m a
 
 initialGraphicsState :: (Int, Int) -> IO BackendCompat
 initialGraphicsState screenSz =
